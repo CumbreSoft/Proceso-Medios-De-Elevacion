@@ -1,0 +1,592 @@
+{
+	"info": {
+		"_postman_id": "c67587da-4970-4a57-9011-8b9c7023bfbb",
+		"name": "Pruebas Spring Boot (Elevadores)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25508562"
+	},
+	"item": [
+		{
+			"name": "Crear Maquina",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"tma_cod\":1,\r\n    \"tma_detalle\":\"Ascensor\",\r\n    \"tma_activa\":true\r\n}\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/tipoMaquina",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"tipoMaquina"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Medio Elevacion",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n    \"mde_ubicacion\":\"Lujan\",\r\n    \"mde_tipo\":\"Tipo 3\",\r\n    \"mde_niveles\":3,\r\n    \"mde_activo\":true,\r\n    \"tiposMaquinas\":\r\n    {\r\n        \"tma_id\":2\r\n    }\r\n\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/medioElevacion",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"medioElevacion"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Inmueble",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"inm_padron\":1,\r\n     \"destino\":{\r\n        \"dst_id\":1\r\n    },\r\n    \"inm_direccion\":\"Mendoza\",\r\n    \"inm_dis_id\":1,\r\n    \"inm_cod_postal\":\"300\",\r\n    \"inm_activo\":true\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/inmuebles",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"inmuebles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Medio Elevacion Inmuble",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"inmueble\":\r\n    {\r\n        \"inm_id\": 1\r\n    },\r\n    \"medioElevacion\":\r\n    {\r\n        \"mde_id\": 1\r\n    }\r\n    \r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/inmueblesMDE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"inmueblesMDE"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Persona",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"per_nombre\": \"Pedro\",\r\n    \"per_tipodoc\": 1,\r\n    \"per_numdoc\": \"45678789\",\r\n    \"per_telefono\": \"26127898990\",\r\n    \"per_correo\": \"pedro@gmail.com\",\r\n    \"per_es_dueno_emp\": \"true\",\r\n    \"per_es_reptec_emp\": true,\r\n    \"per_es_admin_edif\": true,\r\n    \"per_es_coprop_edif\": true,\r\n    \"per_activa\": true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/persona",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"persona"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Inmueble Persona",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"inmueble\":\r\n    {\r\n        \"inm_id\": 1\r\n    },\r\n    \"persona\":{\r\n        \r\n        \"per_id\":1\r\n    },\r\n    \"ipe_es_admin_edif\":true,\r\n    \"ipe_es_coprop_edif\":true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/inmueblePersona",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"inmueblePersona"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Destino",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dst_cod\": 1,\r\n    \"dst_detalle\": \"Detalle\",\r\n    \"dst_activo\":true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/destino",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"destino"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Empresa",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"emp_razon\":\"Razon Social\",\r\n    \"emp_domic_legal\":\"domicilio Legal\",\r\n    \"emp_cuit\":\"2467878782\",\r\n    \"emp_telefono\":\"2612778785\",\r\n    \"emp_correo\":\"empresa@gmail.com\",\r\n    \"emp_activa\":true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/empresa",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"empresa"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Empresa Persona",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"epe_es_dueno_emp\":true,\r\n    \"epe_es_reptec_emp\":false,\r\n    \"empresa\":\r\n    {\r\n        \"emp_id\":1\r\n    },\r\n    \"persona\":\r\n    {\r\n        \"per_id\":1\r\n    } \r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/empresaPersona",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"empresaPersona"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Empresa Habilitación",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"eha_fecha\": \"2022-01-23T12:34:56Z\",\r\n    \"empresa\":\r\n    {\r\n        \"emp_id\":1\r\n    },\r\n    \"eha_expediente\": \"Exp 12\",\r\n    \"eha_habilitada\": true,\r\n    \"eha_vto_hab\": \"2024-01-23T12:34:56Z\",\r\n    \"revisor\":\r\n    {\r\n        \"rev_id\":1\r\n    } \r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/empresaHabilitacion",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"empresaHabilitacion"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Revisor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"rev_nombre\": \"Revisor Guillermo\",\r\n    \"rev_numdoc\": \"56789898\",\r\n    \"rev_aprob_mde\": true,\r\n    \"rev_renov_mde\": true,\r\n    \"rev_aprob_emp\": true,\r\n    \"rev_activo\": true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/revisor",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"revisor"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Tipo Adjunto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"tad_nombre\":\"Adjunto\",\r\n    \"tad_cod\": 12,\r\n    \"tad_activo\": false\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/tipoAdjunto",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"tipoAdjunto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Habilitación Documento",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n     \"empresaHabilitacion\":\r\n    {\r\n        \"eha_id\":1\r\n    },\r\n\r\n     \"tipoAdjunto\":\r\n    {\r\n        \"tad_id\":1\r\n    },\r\n\r\n    \"hdo_adjunto_orden\": 1,\r\n    \"hdo_adjunto_fecha\": \"2024-01-23T12:34:56Z\",\r\n\r\n     \"revisor\":\r\n    {\r\n        \"rev_id\":1\r\n    }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/habilitacionDocumento",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"habilitacionDocumento"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Medio Habilitación",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"mha_fecha\":\"2024-01-23T12:34:56Z\",\r\n\r\n     \"empresa\":\r\n    {\r\n        \"emp_id\":1\r\n    },\r\n\r\n     \"persona\":\r\n    {\r\n        \"per_id\":1\r\n    },\r\n\r\n    \"mha_expediente\": \"1345\",\r\n\r\n    \"mha_fecha_vto\": \"2024-01-23T12:34:56Z\",\r\n\r\n    \"mha_fecha_pago\": \"2024-01-23T12:34:56Z\",\r\n\r\n    \"mha_fecha_inspec\": \"2024-01-23T12:34:56Z\",\r\n\r\n    \"mha_planos_aprob\": true,\r\n\r\n    \"mha_habilitado\": true,\r\n\r\n    \"mha_oblea_entregada\": false,\r\n\r\n    \"mha_vto_hab\": \"2024-01-23T12:34:56Z\",\r\n\r\n    \"revisor\":\r\n    {\r\n        \"rev_id\":1\r\n    }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/medioHabilitacion",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"medioHabilitacion"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Medio Documento",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n     \"empresaHabilitacion\":\r\n    {\r\n        \"eha_id\":1\r\n    },\r\n\r\n     \"tipoAdjunto\":\r\n    {\r\n        \"tad_id\":1\r\n    },\r\n\r\n    \"hdo_adjunto_orden\": 1,\r\n    \"hdo_adjunto_fecha\": \"2024-01-23T12:34:56Z\",\r\n\r\n     \"revisor\":\r\n    {\r\n        \"emp_id\":1\r\n    }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/habilitacionDocumento",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"habilitacionDocumento"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
