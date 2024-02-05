@@ -33,4 +33,5 @@ public class InmueblePersona {
     @Column(name = "ipe_es_coprop_edif", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean ipe_es_coprop_edif;
 
+
 }

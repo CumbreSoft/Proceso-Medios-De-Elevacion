@@ -3,7 +3,6 @@ package com.maticolque.apirestelevadores.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,20 +10,20 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "mde_destinos")
-public class Destino {
+@Table(name = "mde_distrito")
+public class Distrito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "dst_id")
-    private int dst_id;
+    @Column(name = "dis_id")
+    private int dis_id;
 
-    @Column(name = "dst_codigo", nullable = false, length = 3)
-    private String dst_codigo;
+    @Column(name = "dis_codigo", nullable = false, length = 2)
+    private String dis_codigo;
 
-    @Column(name = "dst_detalle", length = 40)
-    private String dst_detalle;
+    @Column(name = "dis_nombre", length = 40)
+    private String dis_nombre;
 
     @Column(name = "dis_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean dst_activo;
+    private boolean dis_activo;
 }

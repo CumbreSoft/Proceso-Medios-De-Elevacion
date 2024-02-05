@@ -38,5 +38,4 @@ public class MedioDocumento {
     @OneToOne
     @JoinColumn(name = "mdo_rev_id", nullable = false)
     private Revisor revisor;
-
 }

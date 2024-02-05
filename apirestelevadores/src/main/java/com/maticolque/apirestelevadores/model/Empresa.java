@@ -36,5 +36,4 @@ public class Empresa {
 
     @Column(name = "emp_activa", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean emp_activa;
-
 }

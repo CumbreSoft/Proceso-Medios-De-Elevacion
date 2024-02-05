@@ -32,5 +32,4 @@ public class EmpresaPersona {
     @OneToOne
     @JoinColumn(name = "epe_per_id", nullable = false)
     private Persona persona;
-
 }

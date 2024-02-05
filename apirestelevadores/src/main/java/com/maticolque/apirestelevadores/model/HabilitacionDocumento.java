@@ -38,5 +38,4 @@ public class HabilitacionDocumento {
     @OneToOne
     @JoinColumn(name = "hdo_rev_id", nullable = false)
     private Revisor revisor;
-
 }

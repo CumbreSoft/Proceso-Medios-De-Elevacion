@@ -36,10 +36,12 @@ public class InmuebleController {
     //POST
     @PostMapping
     public RespuestaDTO<Inmueble> crearInmuble(@RequestBody Inmueble inmueble){
-        //return medioElevacionService.createMedioElevacion(medioElevacion);
+
         Inmueble nuevoInmueble = inmuebleService.createInmueble(inmueble);
         return new RespuestaDTO<>(nuevoInmueble, "Inmueble creado con éxito");
+
     }
+
 
     //PUT
     @PutMapping("editar/{id}")

@@ -22,6 +22,7 @@ public class Inmueble {
     @Column(name = "inm_id")
     private int inm_id;
 
+
     @Column(name = "inm_padron", nullable = false)
     private int inm_padron;
 
@@ -32,13 +33,16 @@ public class Inmueble {
     @Column(name = "inm_dirección", nullable = false, length = 30)
     private String inm_direccion;
 
-    @Column(name = "inm_dis_id", nullable = false)
-    private int inm_dis_id;
+    @OneToOne
+    @JoinColumn(name = "inm_dis_id", nullable = false)
+    private Distrito distrito;
 
     @Column(name = "inm_cod_postal", nullable = false, length = 4)
     private String inm_cod_postal;
 
     @Column(name = "inm_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean inm_activo;
+
+
 
 }

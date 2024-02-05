@@ -47,5 +47,4 @@ public class Persona {
 
     @Column(name = "per_activa", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean per_activa;
-
 }

@@ -27,5 +27,4 @@ public class TipoAdjunto {
 
     @Column(name = "tad_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean tad_activo;
-
 }

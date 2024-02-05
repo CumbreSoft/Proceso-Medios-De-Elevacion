@@ -41,5 +41,4 @@ public class EmpresaHabilitacion {
     @OneToOne
     @JoinColumn(name = "eha_rev_id", nullable = false)
     private Revisor revisor;
-
 }
