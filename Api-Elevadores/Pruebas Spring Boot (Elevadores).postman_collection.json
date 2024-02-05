@@ -43,7 +43,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \r\n    \"mde_ubicacion\":\"Lujan\",\r\n    \"mde_tipo\":\"Tipo 3\",\r\n    \"mde_niveles\":3,\r\n    \"mde_activo\":true,\r\n    \"tiposMaquinas\":\r\n    {\r\n        \"tma_id\":2\r\n    }\r\n\r\n    \r\n}",
+					"raw": "{\r\n    \r\n    \"mde_ubicacion\":\"Lujan\",\r\n    \"mde_tipo\":\"Tipo 3\",\r\n    \"mde_niveles\":3,\r\n    \"mde_activo\":true,\r\n    \"tiposMaquinas\":\r\n    {\r\n        \"tma_id\":1\r\n    }\r\n\r\n    \r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -73,7 +73,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"inm_padron\":1,\r\n     \"destino\":{\r\n        \"dst_id\":1\r\n    },\r\n    \"inm_direccion\":\"Mendoza\",\r\n    \"inm_dis_id\":1,\r\n    \"inm_cod_postal\":\"300\",\r\n    \"inm_activo\":true\r\n    \r\n}",
+					"raw": "{\r\n    \"inm_padron\":1,\r\n     \"destino\":{\r\n        \"dst_id\":1\r\n    },\r\n    \"inm_direccion\":\"Mendoza\",\r\n    \"distrito\":{\r\n        \"dis_id\":1\r\n    },\r\n    \"inm_cod_postal\":\"300\",\r\n    \"inm_activo\":true\r\n    \r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -97,7 +97,7 @@
 			"response": []
 		},
 		{
-			"name": "Crear Medio Elevacion Inmuble",
+			"name": "Crear Medio Elevacion Inmueble",
 			"event": [
 				{
 					"listen": "test",
@@ -237,7 +237,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"dst_cod\": 1,\r\n    \"dst_detalle\": \"Detalle\",\r\n    \"dst_activo\":true\r\n}\r\n",
+					"raw": "{\r\n    \"dst_codigo\": 1,\r\n    \"dst_detalle\": \"Detalle\",\r\n    \"dst_activo\":true\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -442,7 +442,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"tad_nombre\":\"Adjunto\",\r\n    \"tad_cod\": 12,\r\n    \"tad_activo\": false\r\n}\r\n",
+					"raw": "{\r\n    \"tad_nombre\":\"Adjunto\",\r\n    \"tad_cod\": 1,\r\n    \"tad_activo\": false\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -583,6 +583,36 @@
 						"api",
 						"v1",
 						"habilitacionDocumento"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Distrito",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"dis_codigo\":1,\r\n    \"dis_nombre\":\"joe\",\r\n    \"dis_activo\":true\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/distrito",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"distrito"
 					]
 				}
 			},
