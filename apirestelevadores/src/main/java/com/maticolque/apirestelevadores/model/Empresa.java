@@ -11,7 +11,7 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "mde_empresas", schema = "medios_de_elevacion")
+@Table(name = "mde_empresas")
 public class Empresa {
 
     @Id

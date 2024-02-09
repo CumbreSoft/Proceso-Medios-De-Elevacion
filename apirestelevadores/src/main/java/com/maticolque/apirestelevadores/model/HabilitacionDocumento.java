@@ -12,7 +12,7 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "mde_habilitacion_docs", schema = "medios_de_elevacion")
+@Table(name = "mde_habilitacion_docs")
 public class HabilitacionDocumento {
 
     @Id
