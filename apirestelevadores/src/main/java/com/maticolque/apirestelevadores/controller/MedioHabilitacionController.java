@@ -1,12 +1,15 @@
 package com.maticolque.apirestelevadores.controller;
 
+import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.service.MedioHabilitacionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
 import java.util.List;
@@ -21,35 +24,109 @@ public class MedioHabilitacionController {
 
     //GET
     @GetMapping
-    public List<MedioHabilitacion> listarTodo(){
-        return medioHabilitacionService.getAllMedioHabilitacion();
+    public ResponseEntity<?> listarTodo() {
+        try {
+            List<MedioHabilitacion> medioHabilitaciones = medioHabilitacionService.getAllMedioHabilitacion();
+
+            if (medioHabilitaciones.isEmpty()) {
+                // Crear instancia de ErrorDTO con el código de error y el mensaje
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("La base de datos está vacía, no se encontraron Medios de Habilitación.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            return ResponseEntity.ok(medioHabilitaciones);
+
+        } catch (Exception e) {
+            // Crear instancia de ErrorDTO con el código de error y el mensaje
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("ERR_INTERNAL_SERVER_ERROR")
+                    .message("Error al obtener la lista de Medios de Habilitación: " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
+        }
     }
+
 
     //GET POR ID
     @GetMapping("/{id}")
-    public MedioHabilitacion buscarMedioHabilitacionPorId(@PathVariable Integer id)
-    {
-        return medioHabilitacionService.buscarmedioHabilitacionPorId(id);
+    public ResponseEntity<?> buscarMedioHabilitacionPorId(@PathVariable Integer id) {
+        try {
+            MedioHabilitacion medioHabilitacionExistente = medioHabilitacionService.buscarmedioHabilitacionPorId(id);
+
+            if (medioHabilitacionExistente == null) {
+                // Crear instancia de ErrorDTO con el código de error y el mensaje
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("El ID que intenta buscar no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            } else {
+                return ResponseEntity.ok(medioHabilitacionExistente);
+            }
+        } catch (Exception e) {
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("ERR_INTERNAL_SERVER_ERROR")
+                    .message("Error al buscar el Medio de Habilitación. " + e.getMessage())
+                    .build();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
+        }
     }
+
 
     //POST
     @PostMapping
-    public RespuestaDTO<MedioHabilitacion> crearMedioHabilitacion(@RequestBody MedioHabilitacion medioHabilitacion){
-        MedioHabilitacion nuevoMedioHabilitacion= medioHabilitacionService.createMedioHabilitacion(medioHabilitacion);
-        return new RespuestaDTO<>(nuevoMedioHabilitacion, "Medio Habilitación creado con éxito");
+    public RespuestaDTO<MedioHabilitacion> crearMedioHabilitacion(@RequestBody MedioHabilitacion medioHabilitacion) {
+        try {
+            // Realizar validación de los datos
+            if (medioHabilitacion.getMha_fecha() == null  || medioHabilitacion.getMha_expediente().isEmpty()
+                    || medioHabilitacion.getMha_fecha_vto() == null
+                    || medioHabilitacion.getMha_fecha_pago() == null
+                    || medioHabilitacion.getMha_fecha_inspec() == null
+                    || medioHabilitacion.getMha_vto_hab() == null) {
+
+                throw new IllegalArgumentException("Todos los datos de destino son obligatorios.");
+
+            }else if(medioHabilitacion.getEmpresa().getEmp_id() == 0){
+                throw new IllegalArgumentException("La Empresa es obligatoria.");
+
+            }else if(medioHabilitacion.getPersona().getPer_id() == 0){
+                throw new IllegalArgumentException("La Persona es obligatoria.");
+
+            }else if(medioHabilitacion.getRevisor().getRev_id() == 0){
+                throw new IllegalArgumentException("El Revisor es obligatorio.");
+            }
+
+            // Llamar al servicio para crear el Medio de Habilitacion
+            MedioHabilitacion nuevoMedioHabilitacion = medioHabilitacionService.createMedioHabilitacion(medioHabilitacion);
+            return new RespuestaDTO<>(nuevoMedioHabilitacion, "Medio Habilitación creado con éxito.");
+
+        } catch (IllegalArgumentException e) {
+            // Capturar excepción de validación
+            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Habilitación: " + e.getMessage());
+
+        } catch (Exception e) {
+            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Habilitación. " + e.getMessage());
+        }
     }
+
 
     //PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<String> actualizarMedioHabilitacion(@PathVariable Integer id, @RequestBody MedioHabilitacion medioHabilitacion) {
+    public ResponseEntity<?> actualizarMedioHabilitacion(@PathVariable Integer id, @RequestBody MedioHabilitacion medioHabilitacion) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar el Medio Habilitación
             MedioHabilitacion medioHabilitacionExistente = medioHabilitacionService.buscarmedioHabilitacionPorId(id);
 
             if (medioHabilitacionExistente == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No se encontró el Medio Habilitación con el ID proporcionado");
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("El ID que intenta modificar no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
             //Modificar valores
@@ -66,21 +143,50 @@ public class MedioHabilitacionController {
             medioHabilitacionExistente.setMha_vto_hab(medioHabilitacion.getMha_vto_hab());
             medioHabilitacionExistente.setRevisor(medioHabilitacion.getRevisor());
 
-            // Agrega más propiedades según tu modelo
             medioHabilitacionService.updateMedioHabilitacion(medioHabilitacionExistente);
 
-            return ResponseEntity.ok("La modificación se ha realizado correctamente");
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("200 OK")
+                    .message("La modificación se ha realizado correctamente.")
+                    .build();
+            return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
 
         } catch (Exception e) {
             // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Se produjo un error al intentar modificar el Medio Habilitación");
+                    .body("Se produjo un error al intentar modificar el Medio de Habilitación.");
         }
     }
 
+
     //DELETE
     @DeleteMapping("eliminar/{id}")
-    public void elimimarMedioHabilitacion(@PathVariable Integer id){
-        medioHabilitacionService.deleteMedioHabilitacionById(id);
+    public ResponseEntity<?> eliminarMedioHabilitacion(@PathVariable Integer id) {
+        try {
+            MedioHabilitacion medioHabilitacionExistente = medioHabilitacionService.buscarmedioHabilitacionPorId(id);
+
+            if (medioHabilitacionExistente == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("El ID que intenta eliminar no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+
+            } else {
+                medioHabilitacionService.deleteMedioHabilitacionById(id);
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("200 OK")
+                        .message("Medio de Habilitación eliminado correctamente.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
+            }
+
+        } catch (DataAccessException e) { // Captura la excepción específica de acceso a datos
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("ERR_INTERNAL_SERVER_ERROR")
+                    .message("Error al eliminar el Medio de Habilitación. " + e.getMessage())
+                    .build();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
+        }
     }
 }
