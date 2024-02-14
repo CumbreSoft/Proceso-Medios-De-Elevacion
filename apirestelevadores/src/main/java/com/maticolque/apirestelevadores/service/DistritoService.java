@@ -1,9 +1,7 @@
 package com.maticolque.apirestelevadores.service;
 
-
 import com.maticolque.apirestelevadores.model.Distrito;
 import com.maticolque.apirestelevadores.repository.DistritoRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

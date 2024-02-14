@@ -134,8 +134,11 @@ public class TipoAdjuntoController {
 
         } catch (Exception e) {
             // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Se produjo un error al intentar modificar el Tipo de Adjunto");
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("404 NOT FOUND")
+                    .message("Error al modificar el Tipo Adjunto. " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
     }
 

@@ -33,7 +33,7 @@ public class InmuebleMedioElevacionController {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("La base de datos está vacía, no se encontraron Medios de Elevacion.")
+                        .message("La base de datos está vacía, no se encontraron Inmuebles Medios de Elevación.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
@@ -43,7 +43,7 @@ public class InmuebleMedioElevacionController {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista de Medios de Elevacion: " + e.getMessage())
+                    .message("Error al obtener la lista de Inmueble Medios de Elevación: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
@@ -70,7 +70,7 @@ public class InmuebleMedioElevacionController {
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al buscar el Medios de Elevacion. " + e.getMessage())
+                    .message("Error al buscar el Inmueble Medios de Elevación. " + e.getMessage())
                     .build();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }
@@ -79,7 +79,7 @@ public class InmuebleMedioElevacionController {
 
     //POST
     @PostMapping
-    public RespuestaDTO<InmuebleMedioElevacion> crearInmubleMDE(@RequestBody InmuebleMedioElevacion inmuebleMedioElevacion) {
+    public RespuestaDTO<InmuebleMedioElevacion> crearInmuebleMDE(@RequestBody InmuebleMedioElevacion inmuebleMedioElevacion) {
         try {
             // Realizar validación de los datos
              if(inmuebleMedioElevacion.getInmueble().getInm_id() == 0){
@@ -92,16 +92,16 @@ public class InmuebleMedioElevacionController {
 
              }
 
-            // Llamar al servicio para crear el destino
+            // Llamar al servicio para crear el Inmueble Medios de Elevación
             InmuebleMedioElevacion nuevoInmuebleMedioElevacion = inmuebleMedioElevacionService.createInmuebleMDE(inmuebleMedioElevacion);
-            return new RespuestaDTO<>(nuevoInmuebleMedioElevacion, "Medio de Elevacion creado con éxito.");
+            return new RespuestaDTO<>(nuevoInmuebleMedioElevacion, "Inmueble Medio de Elevación creado con éxito.");
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Elevacion: " + e.getMessage());
+            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Elevación: " + e.getMessage());
 
         } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Elevacion:  " + e.getMessage());
+            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Elevación:  " + e.getMessage());
         }
     }
 
@@ -109,9 +109,9 @@ public class InmuebleMedioElevacionController {
     //PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> modificarInmubleMDE(@PathVariable Integer id, @RequestBody InmuebleMedioElevacion inmuebleMedioElevacion) {
+    public ResponseEntity<?> modificarInmuebleMDE(@PathVariable Integer id, @RequestBody InmuebleMedioElevacion inmuebleMedioElevacion) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar el Inmueble Medios de Elevación
             InmuebleMedioElevacion medioElevacionExistente = inmuebleMedioElevacionService.buscarInmuebleMDEPorId(id);
 
             if (medioElevacionExistente == null) {
@@ -138,7 +138,7 @@ public class InmuebleMedioElevacionController {
             // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("404 NOT FOUND")
-                    .message("Error al modificar el Medio de Elevacion."+ e.getMessage())
+                    .message("Error al modificar el Inmueble Medio de Elevacion."+ e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
 
@@ -148,7 +148,7 @@ public class InmuebleMedioElevacionController {
 
     //DELETE
     @DeleteMapping("eliminar/{id}")
-    public ResponseEntity<?> eliminarMDE(@PathVariable Integer id) {
+    public ResponseEntity<?> eliminarInmuebleMDE(@PathVariable Integer id) {
         try {
             InmuebleMedioElevacion destinoExistente = inmuebleMedioElevacionService.buscarInmuebleMDEPorId(id);
 
@@ -162,14 +162,14 @@ public class InmuebleMedioElevacionController {
                 inmuebleMedioElevacionService.deleteInmuebleMDEById(id);
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("200 OK")
-                        .message("Medio de Elevacion eliminado correctamente.")
+                        .message("Inmueble Medio de Elevacion eliminado correctamente.")
                         .build();
                 return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
             }
         } catch (DataAccessException e) { // Captura la excepción específica de acceso a datos
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al eliminar el Medio de Elevacion. " + e.getMessage())
+                    .message("Error al eliminar el Inmueble Medio de Elevacion. " + e.getMessage())
                     .build();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }

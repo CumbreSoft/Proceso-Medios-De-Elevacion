@@ -3,6 +3,7 @@ package com.maticolque.apirestelevadores.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class Distrito {
     @Column(name = "dis_codigo", nullable = false, length = 2)
     private String dis_codigo;
 
-    @Column(name = "dis_nombre", length = 40)
+    @Column(name = "dis_nombre", nullable = false, length = 30)
     private String dis_nombre;
 
     @Column(name = "dis_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")

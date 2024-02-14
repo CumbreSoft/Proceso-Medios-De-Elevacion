@@ -63,4 +63,5 @@ public class MedioHabilitacion {
     @OneToOne
     @JoinColumn(name = "mha_rev_id", nullable = false)
     private Revisor revisor;
+
 }

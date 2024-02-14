@@ -85,7 +85,7 @@ public class EmpresaHabilitacionController {
             || empresaHabilitacion.getEha_expediente().isEmpty()
                     || empresaHabilitacion.getEha_vto_hab() == null) {
 
-                throw new IllegalArgumentException("Todos los datos de Empresa de Habilitacion son obligatorio.");
+                throw new IllegalArgumentException("Todos los datos de Empresa de Habilitacion son obligatorios.");
 
             }else if(empresaHabilitacion.getEmpresa().getEmp_id() == 0){
 
@@ -93,12 +93,12 @@ public class EmpresaHabilitacionController {
 
             }else if(empresaHabilitacion.getRevisor().getRev_id() == 0){
 
-                throw new IllegalArgumentException("El revisor es obligatorio.");
+                throw new IllegalArgumentException("El Revisor es obligatorio.");
             }
 
             // Llamar al servicio para crear el destino
             EmpresaHabilitacion nuevoDestino = empresaHabilitacionService.createEmpresaHabilitacion(empresaHabilitacion);
-            return new RespuestaDTO<>(nuevoDestino, "Empresa de Habilitacion creado con éxito.");
+            return new RespuestaDTO<>(nuevoDestino, "Empresa de Habilitacion creada con éxito.");
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
@@ -114,7 +114,7 @@ public class EmpresaHabilitacionController {
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarEmpresaHabilitacion(@PathVariable Integer id, @RequestBody EmpresaHabilitacion empresaHabilitacion) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar la Empresa de Habilitación
             EmpresaHabilitacion empresaHabilitacionExistente = empresaHabilitacionService.buscarEmpresaHabilitacionPorId(id);
 
             if (empresaHabilitacionExistente == null) {

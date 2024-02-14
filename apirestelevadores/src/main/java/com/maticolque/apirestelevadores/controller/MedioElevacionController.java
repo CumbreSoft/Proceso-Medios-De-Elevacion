@@ -106,34 +106,20 @@ public class MedioElevacionController {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<String> actualizarMedioElevacion(@PathVariable Integer id, @RequestBody MedioElevacion medioElevacion) {
+    public ResponseEntity<?> actualizarMedioElevacion(@PathVariable Integer id, @RequestBody MedioElevacion medioElevacion) {
         try {
             // Lógica para modificar el Medio de Elevación
             MedioElevacion medioElevacionExistente = medioElevacionService.buscarMedioElevacionPorId(id);
 
             if (medioElevacionExistente == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No se encontró el medio de elevación con el ID proporcionado");
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("El ID que intenta modificar no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
             //Modificar valores
@@ -146,12 +132,19 @@ public class MedioElevacionController {
             // Agrega más propiedades según tu modelo
             medioElevacionService.updateMedioElevacion(medioElevacionExistente);
 
-            return ResponseEntity.ok("La modificación se ha realizado correctamente");
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("200 OK")
+                    .message("La modificación se ha realizado correctamente.")
+                    .build();
+            return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
 
         } catch (Exception e) {
             // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Se produjo un error al intentar modificar el medio de elevación");
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("404 NOT FOUND")
+                    .message("Error al modificar el Medio de Elevación. " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
     }
 

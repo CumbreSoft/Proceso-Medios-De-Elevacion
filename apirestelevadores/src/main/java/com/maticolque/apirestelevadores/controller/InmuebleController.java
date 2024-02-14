@@ -81,7 +81,7 @@ public class InmuebleController {
         try {
             // Realizar validación de los datos
             if (inmueble.getInm_direccion().isEmpty() || inmueble.getInm_cod_postal() == null || inmueble.getInm_padron() == 0) {
-                throw new IllegalArgumentException("Todos los datos de Inmueble son obligatorio.");
+                throw new IllegalArgumentException("Todos los datos del Inmueble son obligatorios.");
 
             }else if(inmueble.getDestino().getDst_id() == 0){
 
@@ -92,7 +92,7 @@ public class InmuebleController {
                 throw new IllegalArgumentException("El Distrito es obligatorio.");
             }
 
-            // Llamar al servicio para crear el destino
+            // Llamar al servicio para crear el Inmueble
             Inmueble nuevoInmueble = inmuebleService.createInmueble(inmueble);
             return new RespuestaDTO<>(nuevoInmueble, "Inmueble creado con éxito.");
 
@@ -111,7 +111,7 @@ public class InmuebleController {
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> modificarInmuble(@PathVariable Integer id, @RequestBody Inmueble inmueble) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar el Inmueble
             Inmueble destinoExistente = inmuebleService.buscarInmbublePorId(id);
 
             if (destinoExistente == null) {

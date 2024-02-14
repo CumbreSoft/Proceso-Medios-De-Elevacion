@@ -42,7 +42,7 @@ public class DistritoController {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista de Distrito: " + e.getMessage())
+                    .message("Error al obtener la lista de Distritos: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
@@ -68,39 +68,42 @@ public class DistritoController {
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al buscar el distrito. " + e.getMessage())
+                    .message("Error al buscar el Distrito. " + e.getMessage())
                     .build();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }
     }
+
+
     //POST
     @PostMapping
     public RespuestaDTO<Distrito> crearDistrito(@RequestBody Distrito distrito) {
         try {
             // Realizar validación de los datos
             if (distrito.getDis_codigo() == null || distrito.getDis_nombre().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de destino son obligatorio");
+                throw new IllegalArgumentException("Todos los datos de Distrito son obligatorios.");
             }
 
-            // Llamar al servicio para crear el destino
+            // Llamar al servicio para crear el Distrito
             Distrito nuevoDestino = distritoService.createDistrito(distrito);
             return new RespuestaDTO<>(nuevoDestino, "Distrito creado con éxito");
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear un nuevo distrito: " + e.getMessage());
+            return new RespuestaDTO<>(null, "Error al crear un nuevo Distrito: " + e.getMessage());
 
         } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear un nuevo distrito: "  + e.getMessage());
+            return new RespuestaDTO<>(null, "Error al crear un nuevo Distrito: "  + e.getMessage());
         }
     }
+
 
     //PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarDistrito(@PathVariable Integer id, @RequestBody Distrito distrito) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar el Distrito
             Distrito destinoExistente = distritoService.buscarDistritoPorId(id);
 
             if (destinoExistente == null) {
@@ -116,7 +119,6 @@ public class DistritoController {
             destinoExistente.setDis_activo(distrito.isDis_activo());
             destinoExistente.setDis_codigo(distrito.getDis_codigo());
 
-            // Agrega más propiedades según tu modelo
             distritoService.updateDistrito(destinoExistente);
 
             ErrorDTO errorDTO = ErrorDTO.builder()

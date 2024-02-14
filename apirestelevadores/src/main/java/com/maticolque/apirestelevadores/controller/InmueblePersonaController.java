@@ -81,7 +81,7 @@ public class InmueblePersonaController {
             // Realizar validación de los datos
             if (inmueblePersona.getInmueble().getInm_id() == 0) {
 
-                throw new IllegalArgumentException("El Inmueble es obligatoria.");
+                throw new IllegalArgumentException("El Inmueble es obligatorio.");
 
             }else if (inmueblePersona.getPersona().getPer_id() == 0){
 
@@ -107,7 +107,7 @@ public class InmueblePersonaController {
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarInmueblePersona(@PathVariable Integer id, @RequestBody InmueblePersona inmueblePersona) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar el Inmueble Persona
             InmueblePersona inmueblePersonaExistente = inmueblePersonaService.buscarInmueblePersonaPorId(id);
 
             if (inmueblePersonaExistente == null) {

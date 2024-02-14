@@ -22,7 +22,6 @@ public class Inmueble {
     @Column(name = "inm_id")
     private int inm_id;
 
-
     @Column(name = "inm_padron", nullable = false)
     private int inm_padron;
 
@@ -42,7 +41,5 @@ public class Inmueble {
 
     @Column(name = "inm_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean inm_activo;
-
-
 
 }

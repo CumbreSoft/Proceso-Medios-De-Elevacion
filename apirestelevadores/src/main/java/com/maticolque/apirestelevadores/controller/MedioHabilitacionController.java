@@ -153,8 +153,11 @@ public class MedioHabilitacionController {
 
         } catch (Exception e) {
             // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Se produjo un error al intentar modificar el Medio de Habilitación.");
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("404 NOT FOUND")
+                    .message("Error al modificar el Medio de Habilitación. " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
     }
 

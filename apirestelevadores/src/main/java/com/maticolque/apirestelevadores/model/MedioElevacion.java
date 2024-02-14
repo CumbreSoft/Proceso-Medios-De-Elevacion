@@ -35,5 +35,4 @@ public class MedioElevacion {
     @Column(name = "mde_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean mde_activo;
 
-
 }

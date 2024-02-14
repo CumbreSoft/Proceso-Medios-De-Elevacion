@@ -81,14 +81,14 @@ public class EmpresaPersonaController {
         try {
             // Realizar validación de los datos
             if (empresaPersona.getEmpresa().getEmp_id() == 0) {
-                throw new IllegalArgumentException("La empresa es obligatoria.");
+                throw new IllegalArgumentException("La Empresa es obligatoria.");
             } else if (empresaPersona.getPersona().getPer_id() == 0) {
-                throw new IllegalArgumentException("La persona es obligatoria.");
+                throw new IllegalArgumentException("La Persona es obligatoria.");
             }
 
-            // Llamar al servicio para crear el destino
+            // Llamar al servicio para crear la Empresa Persona
             EmpresaPersona nuevoEmpresaPersona = empresaPersonaService.createEmpresaPersona(empresaPersona);
-            return new RespuestaDTO<>(nuevoEmpresaPersona, "Empresa Persona creado con éxito.");
+            return new RespuestaDTO<>(nuevoEmpresaPersona, "Empresa Persona creada con éxito.");
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
@@ -105,7 +105,7 @@ public class EmpresaPersonaController {
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarEmpresaPersona(@PathVariable Integer id, @RequestBody EmpresaPersona empresaPersona) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar la Empresa Persona
             EmpresaPersona empresaPersonaExistente = empresaPersonaService.buscarEmpresaPersonaPorId(id);
 
             if (empresaPersonaExistente == null) {

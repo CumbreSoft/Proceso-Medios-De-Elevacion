@@ -13,7 +13,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("api/v1/destino")
 public class DestinoController {
@@ -32,7 +31,7 @@ public class DestinoController {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("La base de datos está vacía, no se encontraron destinos.")
+                        .message("La base de datos está vacía, no se encontraron Destinos.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
@@ -77,7 +76,7 @@ public class DestinoController {
 
     //POST
     @PostMapping
-    public RespuestaDTO<Destino> crearMedioElevacion(@RequestBody Destino destino) {
+    public RespuestaDTO<Destino> crearDestino(@RequestBody Destino destino) {
         try {
             // Realizar validación de los datos
             if (destino.getDst_codigo().isEmpty() || destino.getDst_detalle().isEmpty()) {
@@ -102,7 +101,7 @@ public class DestinoController {
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarDestino(@PathVariable Integer id, @RequestBody Destino destino) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar el destino
             Destino destinoExistente = destinoService.buscarDestinoPorId(id);
 
             if (destinoExistente == null) {

@@ -25,6 +25,7 @@ public class Destino {
     @Column(name = "dst_detalle", length = 40)
     private String dst_detalle;
 
-    @Column(name = "dis_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(name = "dst_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean dst_activo;
+
 }

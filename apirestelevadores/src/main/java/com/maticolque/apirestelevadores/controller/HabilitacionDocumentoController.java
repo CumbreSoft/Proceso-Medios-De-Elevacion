@@ -85,7 +85,7 @@ public class HabilitacionDocumentoController {
                     habilitacionDocumento.getHdo_adjunto_orden() == 0 ||
                     habilitacionDocumento.getHdo_adjunto_fecha() == null ) {
 
-                throw new IllegalArgumentException("Todos los datos de la Habilitacion de Documentos son obligatorio.");
+                throw new IllegalArgumentException("Todos los datos de la Habilitacion de Documentos son obligatorios.");
 
             }else if(habilitacionDocumento.getEmpresaHabilitacion().getEha_id() == 0){
 
@@ -97,11 +97,11 @@ public class HabilitacionDocumentoController {
 
             }else if(habilitacionDocumento.getRevisor().getRev_id() == 0){
 
-                throw new IllegalArgumentException("El revisor es obligatorio.");
+                throw new IllegalArgumentException("El Revisor es obligatorio.");
 
             }
 
-            // Llamar al servicio para crear el destino
+            // Llamar al servicio para crear Habilitación Documentos
             HabilitacionDocumento nuevoHabilitacionDocumento = habilitacionDocumentoService.createHabilitacionDocumento(habilitacionDocumento);
             return new RespuestaDTO<>(nuevoHabilitacionDocumento, "Habilitacion de Documentos creado con éxito.");
 
@@ -119,7 +119,7 @@ public class HabilitacionDocumentoController {
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarHabilitacionDocumento(@PathVariable Integer id, @RequestBody HabilitacionDocumento habilitacionDocumento) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar Habilitación Documentos
             HabilitacionDocumento habilitacionDocumentoExistente = habilitacionDocumentoService.buscarHabilitacionDocumentoPorId(id);
 
             if (habilitacionDocumentoExistente == null) {

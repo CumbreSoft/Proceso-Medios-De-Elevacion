@@ -82,10 +82,10 @@ public class EmpresaController {
             // Realizar validación de los datos
             if (empresa.getEmp_cuit().isEmpty() || empresa.getEmp_telefono().isEmpty() || empresa.getEmp_razon().isEmpty() ||
                     empresa.getEmp_domic_legal().isEmpty() || empresa.getEmp_correo().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de la empresa son obligatorios");
+                throw new IllegalArgumentException("Todos los datos de la Empresa son obligatorios.");
             }
 
-            // Llamar al servicio para crear el destino
+            // Llamar al servicio para crear la Empresa
             Empresa nuevoEmpresa = empresaService.createEmpresa(empresa);
             return new RespuestaDTO<>(nuevoEmpresa, "Empresa creado con éxito");
 
@@ -103,7 +103,7 @@ public class EmpresaController {
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarEmpresa(@PathVariable Integer id, @RequestBody Empresa empresa) {
         try {
-            // Lógica para modificar el medio de elevación
+            // Lógica para modificar la Empresa
             Empresa empresaExistente = empresaService.buscarEmpresaPorId(id);
 
             if (empresaExistente == null) {

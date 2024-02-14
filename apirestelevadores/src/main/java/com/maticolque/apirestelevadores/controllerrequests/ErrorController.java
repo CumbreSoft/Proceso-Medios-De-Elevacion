@@ -1,11 +1,13 @@
 package com.maticolque.apirestelevadores.controllerrequests;
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ErrorController {
+
     @PostMapping("**") // Captura todas las URL incorrectas GET
     public ResponseEntity<String> handleInvalidPostURL() {
         String mensaje = "La URL ingresada (POST) es incorrecta. Por favor, verifica la ruta.";

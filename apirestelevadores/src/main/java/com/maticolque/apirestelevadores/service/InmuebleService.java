@@ -1,5 +1,6 @@
 package com.maticolque.apirestelevadores.service;
 
+import com.maticolque.apirestelevadores.model.Destino;
 import com.maticolque.apirestelevadores.model.Inmueble;
 import com.maticolque.apirestelevadores.repository.InmuebleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
