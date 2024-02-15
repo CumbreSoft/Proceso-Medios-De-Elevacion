@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Date;
+
 import java.util.List;
 
 @RestController
@@ -95,7 +95,7 @@ public class MedioDocumentoController {
                 throw new IllegalArgumentException("El Revisor es obligatorio.");
             }
 
-            // Llamar al servicio para crear el destino
+            // Llamar al servicio para crear el Medio Documento
             MedioDocumento nuevoMedioDocumento= medioDocumentoService.createMedioDocumento(medioDocumento);
             return new RespuestaDTO<>(nuevoMedioDocumento, "Medio Documento creado con éxito.");
 
@@ -119,8 +119,11 @@ public class MedioDocumentoController {
             MedioDocumento medioDocumentoExistente = medioDocumentoService.buscarMedioDocumentoPorId(id);
 
             if (medioDocumentoExistente == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No se encontró el Medio Documento con el ID proporcionado");
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("El ID que intenta modificar no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
             //Modificar valores
