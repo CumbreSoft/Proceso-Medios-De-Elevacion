@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -95,7 +95,7 @@ public class MedioDocumentoController {
                 throw new IllegalArgumentException("El Revisor es obligatorio.");
             }
 
-            // Llamar al servicio para crear el Medio Documento
+            // Llamar al servicio para crear el destino
             MedioDocumento nuevoMedioDocumento= medioDocumentoService.createMedioDocumento(medioDocumento);
             return new RespuestaDTO<>(nuevoMedioDocumento, "Medio Documento creado con éxito.");
 
