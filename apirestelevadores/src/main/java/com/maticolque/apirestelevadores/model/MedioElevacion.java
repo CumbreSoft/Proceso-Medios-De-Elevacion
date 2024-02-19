@@ -3,6 +3,9 @@ package com.maticolque.apirestelevadores.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Data
 @AllArgsConstructor
@@ -34,5 +37,8 @@ public class MedioElevacion {
 
     @Column(name = "mde_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean mde_activo;
+
+    @OneToMany(mappedBy = "medioElevacion")
+    private Set<InmuebleMedioElevacion> asociaciones = new HashSet<>();
 
 }

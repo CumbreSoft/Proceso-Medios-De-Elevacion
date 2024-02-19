@@ -119,8 +119,11 @@ public class MedioDocumentoController {
             MedioDocumento medioDocumentoExistente = medioDocumentoService.buscarMedioDocumentoPorId(id);
 
             if (medioDocumentoExistente == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No se encontró el Medio Documento con el ID proporcionado");
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("El ID que intenta modificar no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
             //Modificar valores

@@ -80,6 +80,8 @@ public class InmuebleMedioElevacionController {
     //POST
     @PostMapping
     public RespuestaDTO<InmuebleMedioElevacion> crearInmuebleMDE(@RequestBody InmuebleMedioElevacion inmuebleMedioElevacion) {
+        // Llamar al servicio para crear el Inmueble Medios de Elevación
+
         try {
             // Realizar validación de los datos
              if(inmuebleMedioElevacion.getInmueble().getInm_id() == 0){
@@ -124,7 +126,7 @@ public class InmuebleMedioElevacionController {
 
             //Modificar valores
             medioElevacionExistente.setInmueble(inmuebleMedioElevacion.getInmueble());
-            medioElevacionExistente.setMedioElevacion(inmuebleMedioElevacion.getMedioElevacion());
+            medioElevacionExistente.setMedioElevacion(inmuebleMedioElevacion.getMedioElevacion()  );
 
             inmuebleMedioElevacionService.updateInmuebleMDE(medioElevacionExistente);
 

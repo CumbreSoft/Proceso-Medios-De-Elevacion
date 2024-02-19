@@ -19,12 +19,12 @@ public class InmuebleMedioElevacion {
     @Column(name = "ime_id")
     private int ime_id;
 
-    @OneToOne
-    @JoinColumn(name = "ime_inm_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "ime_inm_id")
     private Inmueble inmueble;
 
-    @OneToOne
-    @JoinColumn(name = "ime_mde_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "ime_mde_id")
     private MedioElevacion medioElevacion;
 
 }

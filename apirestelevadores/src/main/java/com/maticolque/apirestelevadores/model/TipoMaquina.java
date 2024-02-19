@@ -20,7 +20,7 @@ public class TipoMaquina {
     private int tma_id;
 
     @Column(name = "tma_cod", nullable = false)
-    private Integer tma_cod;
+    private int tma_cod;
 
     @Column(name = "tma_detalle", length = 30)
     private String tma_detalle;

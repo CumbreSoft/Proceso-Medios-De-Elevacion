@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Data
@@ -41,5 +43,8 @@ public class Inmueble {
 
     @Column(name = "inm_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean inm_activo;
+
+    @OneToMany(mappedBy = "inmueble")
+    private Set<InmuebleMedioElevacion> asociaciones = new HashSet<>();
 
 }
