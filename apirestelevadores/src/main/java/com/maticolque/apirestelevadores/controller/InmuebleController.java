@@ -4,6 +4,7 @@ import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.Inmueble;
 import com.maticolque.apirestelevadores.model.MedioElevacion;
+import com.maticolque.apirestelevadores.model.Persona;
 import com.maticolque.apirestelevadores.service.InmuebleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -12,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/inmuebles")
@@ -37,7 +38,27 @@ public class InmuebleController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(inmuebles);
+            //return ResponseEntity.ok(inmuebles);
+            List<Map<String, Object>> inmueblesDTO = new ArrayList<>();
+            for (Inmueble inmueble : inmuebles) {
+                Map<String, Object> inmuebleMap = new LinkedHashMap<>();
+
+                inmuebleMap.put("inm_id", inmueble.getInm_id());
+                inmuebleMap.put("destino", inmueble.getDestino());
+                inmuebleMap.put("inm_padron",inmueble.getInm_padron());
+                inmuebleMap.put("inm_direccion",inmueble.getInm_direccion());
+                inmuebleMap.put("distrito",inmueble.getDistrito());
+                inmuebleMap.put("inm_cod_postal",inmueble.getInm_cod_postal());
+                inmuebleMap.put("inm_activo",inmueble.isInm_activo());
+
+                inmueblesDTO.add(inmuebleMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("inmuebles", inmueblesDTO);
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()

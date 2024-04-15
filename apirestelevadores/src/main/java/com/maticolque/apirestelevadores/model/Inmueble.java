@@ -45,6 +45,6 @@ public class Inmueble {
     private boolean inm_activo;
 
     @OneToMany(mappedBy = "inmueble")
-    private Set<InmuebleMedioElevacion> asociaciones = new HashSet<>();
+    private Set<InmueblePersona> inmueblePersonas;
 
 }

@@ -2,6 +2,7 @@ package com.maticolque.apirestelevadores.controller;
 
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
+import com.maticolque.apirestelevadores.model.Destino;
 import com.maticolque.apirestelevadores.model.Empresa;
 import com.maticolque.apirestelevadores.service.EmpresaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/empresa")
@@ -37,7 +37,25 @@ public class EmpresaController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(empresas);
+            List<Map<String, Object>> empresasDTO = new ArrayList<>();
+            for (Empresa empresa : empresas) {
+                Map<String, Object> empresaMap = new LinkedHashMap<>();
+
+                empresaMap.put("emp_id", empresa.getEmp_id());
+                empresaMap.put("emp_razon", empresa.getEmp_razon());
+                empresaMap.put("emp_cuit", empresa.getEmp_cuit());
+                empresaMap.put("emp_domic_legal", empresa.getEmp_domic_legal());
+                empresaMap.put("emp_telefono", empresa.getEmp_telefono());
+                empresaMap.put("emp_correo", empresa.getEmp_correo());
+                empresaMap.put("emp_activa", empresa.isEmp_activa());
+
+                empresasDTO.add(empresaMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("empresas", empresasDTO);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
@@ -48,6 +66,7 @@ public class EmpresaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
+
 
 
     //GET POR ID

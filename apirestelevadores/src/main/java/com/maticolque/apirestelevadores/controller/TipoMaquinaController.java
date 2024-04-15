@@ -3,8 +3,10 @@ package com.maticolque.apirestelevadores.controller;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.*;
+import com.maticolque.apirestelevadores.repository.TipoMaquinaRepository;
 import com.maticolque.apirestelevadores.service.InmuebleService;
 import com.maticolque.apirestelevadores.service.TipoMaquinaService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -12,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/tipoMaquina")
@@ -20,6 +22,9 @@ public class TipoMaquinaController {
 
     @Autowired
     private TipoMaquinaService tipoMaquinaService;
+
+    @Autowired
+    private TipoMaquinaRepository tipoMaquinaRepository;
 
 
     //GET
@@ -37,7 +42,24 @@ public class TipoMaquinaController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(tipoMaquina);
+            //return ResponseEntity.ok(tipoMaquina);
+
+            List<Map<String, Object>> tipoMaquinaDTO = new ArrayList<>();
+            for (TipoMaquina tipoMaquina1 : tipoMaquina) {
+                Map<String, Object> tipoMaquinaMap = new LinkedHashMap<>();
+
+                tipoMaquinaMap.put("tma_id", tipoMaquina1.getTma_id());
+                tipoMaquinaMap.put("tma_cod", tipoMaquina1.getTma_cod());
+                tipoMaquinaMap.put("tma_detalle", tipoMaquina1.getTma_detalle());
+                tipoMaquinaMap.put("tma_activa", tipoMaquina1.isTma_activa());
+
+                tipoMaquinaDTO.add(tipoMaquinaMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("tipoMaquinas", tipoMaquinaDTO);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
@@ -76,8 +98,35 @@ public class TipoMaquinaController {
     }
 
 
+    //POST DATOS PRECARGADOS
+    @PostConstruct
+    public void init() {
+        // Verificar si ya hay datos cargados en la base de datos
+        if (tipoMaquinaRepository.count() == 0) {
+            // Si no hay datos, cargar datos predefinidos
+            TipoMaquina tipoMaquina1 = new TipoMaquina();
+            tipoMaquina1.setTma_cod(11);
+            tipoMaquina1.setTma_detalle("Ascensor");
+            tipoMaquina1.setTma_activa(true);
+
+            TipoMaquina tipoMaquina2 = new TipoMaquina();
+            tipoMaquina2.setTma_cod(22);
+            tipoMaquina2.setTma_detalle("Montacarga");
+            tipoMaquina2.setTma_activa(true);
+
+            TipoMaquina tipoMaquina3 = new TipoMaquina();
+            tipoMaquina3.setTma_cod(33);
+            tipoMaquina3.setTma_detalle("Escalera");
+            tipoMaquina3.setTma_activa(true);
+
+            tipoMaquinaRepository.save(tipoMaquina1);
+            tipoMaquinaRepository.save(tipoMaquina2);
+            tipoMaquinaRepository.save(tipoMaquina3);
+        }
+    }
+
     //POST
-    @PostMapping
+    /*@PostMapping
     public RespuestaDTO<TipoMaquina> crearTipoMaquina(@RequestBody TipoMaquina tipoMaquina) {
         try {
             // Realizar validación de los datos
@@ -96,7 +145,7 @@ public class TipoMaquinaController {
         } catch (Exception e) {
             return new RespuestaDTO<>(null, "Error al crear un nuevo Tipo de Máquina: " + e.getMessage());
         }
-    }
+    }*/
 
 
     //PUT

@@ -25,12 +25,12 @@ public class EmpresaPersona {
     @Column(name = "epe_es_reptec_emp", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean epe_es_reptec_emp;
 
-    @OneToOne
-    @JoinColumn(name = "epe_emp_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "epe_emp_id", referencedColumnName = "emp_id", nullable = false)
     private Empresa empresa;
 
-    @OneToOne
-    @JoinColumn(name = "epe_per_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "epe_per_id", referencedColumnName = "per_id", nullable = false)
     private Persona persona;
 
 }

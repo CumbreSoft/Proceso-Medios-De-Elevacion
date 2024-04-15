@@ -2,7 +2,9 @@ package com.maticolque.apirestelevadores.controller;
 
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
+import com.maticolque.apirestelevadores.model.Inmueble;
 import com.maticolque.apirestelevadores.model.InmueblePersona;
+import com.maticolque.apirestelevadores.model.Persona;
 import com.maticolque.apirestelevadores.service.InmueblePersonaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -11,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/inmueblePersona")
@@ -23,29 +25,65 @@ public class InmueblePersonaController {
 
     //GET
     @GetMapping
-    public ResponseEntity<?> listarTodo() {
+    public ResponseEntity<?> listarInmueblePersonas() {
         try {
-            List<InmueblePersona> inmueblePersona = inmueblePersonaService.getAllInmueblePersona();
+            List<InmueblePersona> inmueblePersonas = inmueblePersonaService.getAllInmueblePersona();
+            List<Map<String, Object>> inmueblePersonasDTO = new ArrayList<>();
 
-            if (inmueblePersona.isEmpty()) {
-                // Crear instancia de ErrorDTO con el código de error y el mensaje
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("La base de datos está vacía, no se encontraron Immuebles de las Personas.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            for (InmueblePersona inmueblePersona : inmueblePersonas) {
+                Map<String, Object> inmueblePersonaMap = new LinkedHashMap<>();
+                inmueblePersonaMap.put("ipe_id", inmueblePersona.getIpe_id());
+                inmueblePersonaMap.put("ipe_es_admin_edif", inmueblePersona.isIpe_es_admin_edif());
+                inmueblePersonaMap.put("ipe_es_coprop_edif", inmueblePersona.isIpe_es_coprop_edif());
+
+                // Extraer los datos del inmueble asociado
+                Inmueble inmueble = inmueblePersona.getInmueble();
+                Map<String, Object> inmuebleMap = new LinkedHashMap<>();
+                inmuebleMap.put("inm_id", inmueble.getInm_id());
+                inmuebleMap.put("inm_padron", inmueble.getInm_padron());
+                inmuebleMap.put("destino", inmueble.getDestino());
+                inmuebleMap.put("inm_direccion", inmueble.getInm_direccion());
+                inmuebleMap.put("distrito", inmueble.getDistrito());
+                inmuebleMap.put("inm_cod_postal", inmueble.getInm_cod_postal());
+                inmuebleMap.put("inm_activo", inmueble.isInm_activo());
+                inmueblePersonaMap.put("inmueble", inmuebleMap);
+
+                // Extraer los datos de la persona asociada
+                Persona persona = inmueblePersona.getPersona();
+                Map<String, Object> personaMap = new LinkedHashMap<>();
+                personaMap.put("per_id", persona.getPer_id());
+                personaMap.put("per_nombre", persona.getPer_nombre());
+                personaMap.put("per_apellido", persona.getPer_apellido());
+                personaMap.put("per_cuit", persona.getPer_cuit());
+                personaMap.put("per_tipodoc", persona.getPer_tipodoc());
+                personaMap.put("per_numdoc", persona.getPer_numdoc());
+                personaMap.put("per_telefono", persona.getPer_telefono());
+                personaMap.put("per_correo", persona.getPer_correo());
+                personaMap.put("per_domic_legal", persona.getPer_domic_legal());
+                personaMap.put("per_es_dueno_emp", persona.isPer_es_dueno_emp());
+                personaMap.put("per_es_reptec_emp", persona.isPer_es_reptec_emp());
+                personaMap.put("per_es_admin_edif", persona.isPer_es_admin_edif());
+                personaMap.put("per_es_coprop_edif", persona.isPer_es_coprop_edif());
+                personaMap.put("per_activa", persona.isPer_activa());
+                inmueblePersonaMap.put("persona", personaMap);
+
+                inmueblePersonasDTO.add(inmueblePersonaMap);
             }
 
-            return ResponseEntity.ok(inmueblePersona);
+            Map<String, Object> response = new HashMap<>();
+            response.put("inmueblePersonas", inmueblePersonasDTO);
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista Inmueble Persona: " + e.getMessage())
+                    .message("Error al obtener la lista de Inmueble Persona: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
+
 
 
     //GET POR ID

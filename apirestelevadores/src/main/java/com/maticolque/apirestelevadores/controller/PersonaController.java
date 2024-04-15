@@ -2,10 +2,7 @@ package com.maticolque.apirestelevadores.controller;
 
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
-import com.maticolque.apirestelevadores.model.Destino;
-import com.maticolque.apirestelevadores.model.InmueblePersona;
-import com.maticolque.apirestelevadores.model.MedioElevacion;
-import com.maticolque.apirestelevadores.model.Persona;
+import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.service.PersonaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -14,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/persona")
@@ -28,7 +25,7 @@ public class PersonaController {
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
-            List<Persona>  personas = personaService.getAllPersona();
+            List<Persona> personas = personaService.getAllPersona();
 
             if (personas.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
@@ -39,7 +36,32 @@ public class PersonaController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(personas);
+            List<Map<String, Object>> personasDTO = new ArrayList<>();
+            for (Persona persona : personas) {
+                Map<String, Object> personaMap = new LinkedHashMap<>();
+
+                personaMap.put("per_id", persona.getPer_id());
+                personaMap.put("per_nombre", persona.getPer_nombre());
+                personaMap.put("per_apellido", persona.getPer_apellido());
+                personaMap.put("per_cuit", persona.getPer_cuit());
+                personaMap.put("per_tipodoc", persona.getPer_tipodoc());
+                personaMap.put("per_numdoc", persona.getPer_numdoc());
+                personaMap.put("per_telefono", persona.getPer_telefono());
+                personaMap.put("per_correo", persona.getPer_correo());
+                personaMap.put("per_domic_legal", persona.getPer_domic_legal());
+                personaMap.put("per_es_dueno_emp", persona.isPer_es_dueno_emp());
+                personaMap.put("per_es_reptec_emp", persona.isPer_es_reptec_emp());
+                personaMap.put("per_es_admin_edif", persona.isPer_es_admin_edif());
+                personaMap.put("per_es_coprop_edif", persona.isPer_es_coprop_edif());
+                personaMap.put("per_activa", persona.isPer_activa());
+
+                personasDTO.add(personaMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("personas", personasDTO);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
@@ -50,7 +72,6 @@ public class PersonaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
 
     //GET POR ID
     @GetMapping("/{id}")
@@ -85,11 +106,13 @@ public class PersonaController {
     public RespuestaDTO<Persona> crearPersona(@RequestBody Persona persona) {
         try {
             // Realizar validación de los datos
-            if (persona.getPer_nombre().isEmpty() || persona.getPer_tipodoc() == 0
+            if (persona.getPer_nombre().isEmpty() || persona.getPer_apellido().isEmpty() || persona.getPer_cuit().isEmpty()
+                    || persona.getPer_tipodoc() == 0
                     || persona.getPer_numdoc().isEmpty()
                     || persona.getPer_telefono().isEmpty()
-                    || persona.getPer_correo().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de destino son obligatorios.");
+                    || persona.getPer_correo().isEmpty()
+                    || persona.getPer_domic_legal().isEmpty()) {
+                throw new IllegalArgumentException("Todos los datos de la Persona son obligatorios.");
             }
 
             // Llamar al servicio para crear la Persona
@@ -125,10 +148,13 @@ public class PersonaController {
 
             //Modificar valores
             personaExistente.setPer_nombre(persona.getPer_nombre());
+            personaExistente.setPer_apellido(persona.getPer_apellido());
+            personaExistente.setPer_cuit(persona.getPer_cuit());
             personaExistente.setPer_tipodoc(persona.getPer_tipodoc());
             personaExistente.setPer_numdoc(persona.getPer_numdoc());
             personaExistente.setPer_telefono(persona.getPer_telefono());
             personaExistente.setPer_correo(persona.getPer_correo());
+            personaExistente.setPer_domic_legal(persona.getPer_domic_legal());
             personaExistente.setPer_es_dueno_emp(persona.isPer_es_dueno_emp());
             personaExistente.setPer_es_reptec_emp(persona.isPer_es_reptec_emp());
             personaExistente.setPer_es_admin_edif(persona.isPer_es_admin_edif());
@@ -185,4 +211,259 @@ public class PersonaController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }
     }
+
+
+
+
+
+
+    @GetMapping("/empresaInmueblesPersona")
+    public Map<String, Object> obtenerTodosDatosEmpresasEInmueblesPersona() {
+        Map<String, Object> response = new HashMap<>();
+
+        // Obtener todos los datos de EmpresaPersona
+        List<EmpresaPersona> empresaPersonas = personaService.obtenerTodosLosDatosDeEmpresaPersona();
+        response.put("empresa-Personas", empresaPersonas);
+
+        // Obtener todos los datos de InmueblePersona
+        List<InmueblePersona> inmueblePersonas = personaService.obtenerTodosLosDatosDeInmueblePersona();
+        response.put("inmueble-Personas", inmueblePersonas);
+
+        return response;
+    }
+
+
+    @GetMapping("/primeraEmpresaInmueblePersona")
+    public Map<String, Object> obtenerPrimerDatoEmpresasEInmueblesPersona() {
+        Map<String, Object> response = new HashMap<>();
+
+        // Obtener todos los datos de EmpresaPersona
+        List<EmpresaPersona> empresaPersonas = personaService.obtenerPrimeroLosDatosDeEmpresaPersona();
+
+        // Obtener todos los datos de InmueblePersona
+        List<InmueblePersona> inmueblePersonas = personaService.obtenerPrimeroLosDatosDeInmueblePersona();
+
+        // Mapear los datos por persona
+        Map<Integer, Map<String, Object>> personasMap = new HashMap<>();
+
+        // Agregar empresas a personasMap
+        for (EmpresaPersona empresaPersona : empresaPersonas) {
+            Persona persona = empresaPersona.getPersona();
+            int perId = persona.getPer_id();
+            if (!personasMap.containsKey(perId)) {
+                Map<String, Object> personaMap = mapPersona(persona);
+                personaMap.put("empresas", null); // Inicializar como null
+                personaMap.put("inmuebles", null); // Inicializar como null
+                personasMap.put(perId, personaMap);
+            }
+            Map<String, Object> personaMap = personasMap.get(perId);
+            if (personaMap.get("empresas") == null) {
+                personaMap.put("empresas", mapEmpresa(empresaPersona.getEmpresa()));
+            }
+        }
+
+        // Agregar inmuebles a personasMap
+        for (InmueblePersona inmueblePersona : inmueblePersonas) {
+            Persona persona = inmueblePersona.getPersona();
+            int perId = persona.getPer_id();
+            if (!personasMap.containsKey(perId)) {
+                Map<String, Object> personaMap = mapPersona(persona);
+                personaMap.put("empresas", null); // Inicializar como null
+                personaMap.put("inmuebles", null); // Inicializar como null
+                personasMap.put(perId, personaMap);
+            }
+            Map<String, Object> personaMap = personasMap.get(perId);
+            if (personaMap.get("inmuebles") == null) {
+                personaMap.put("inmuebles", mapInmueble(inmueblePersona.getInmueble()));
+            }
+        }
+
+        // Convertir personasMap a List<Map<String, Object>>
+        List<Map<String, Object>> personasDTO = new ArrayList<>();
+        for (Map.Entry<Integer, Map<String, Object>> entry : personasMap.entrySet()) {
+            personasDTO.add(entry.getValue());
+        }
+
+        // Agregar la lista completa al objeto de respuesta
+        response.put("empresaInmueblePersona", personasDTO);
+
+        return response;
+    }
+
+
+
+
+
+    // Método para mapear los datos de la persona a un DTO
+    private Map<String, Object> mapPersona(Persona persona) {
+        Map<String, Object> personaMap = new LinkedHashMap<>();
+        personaMap.put("per_id", persona.getPer_id());
+        personaMap.put("per_nombre", persona.getPer_nombre());
+        personaMap.put("per_apellido", persona.getPer_apellido());
+        personaMap.put("per_cuit", persona.getPer_cuit());
+        personaMap.put("per_tipodoc", persona.getPer_tipodoc());
+        personaMap.put("per_numdoc", persona.getPer_numdoc());
+        personaMap.put("per_telefono", persona.getPer_telefono());
+        personaMap.put("per_correo", persona.getPer_correo());
+        personaMap.put("per_domic_legal", persona.getPer_domic_legal());
+        personaMap.put("per_es_dueno_emp", persona.isPer_es_dueno_emp());
+        personaMap.put("per_es_reptec_emp", persona.isPer_es_reptec_emp());
+        personaMap.put("per_es_admin_edif", persona.isPer_es_admin_edif());
+        personaMap.put("per_es_coprop_edif", persona.isPer_es_coprop_edif());
+        personaMap.put("per_activa", persona.isPer_activa());
+        return personaMap;
+    }
+
+    // Método para mapear los datos de la empresa a un DTO
+    private Map<String, Object> mapEmpresa(Empresa empresa) {
+        Map<String, Object> empresaMap = new LinkedHashMap<>();
+        empresaMap.put("emp_id", empresa.getEmp_id());
+        empresaMap.put("emp_razon", empresa.getEmp_razon());
+        // Agregar otros campos de empresa si es necesario
+        return empresaMap;
+    }
+
+    // Método para mapear los datos del inmueble a un DTO
+    private Map<String, Object> mapInmueble(Inmueble inmueble) {
+        Map<String, Object> inmuebleMap = new LinkedHashMap<>();
+        inmuebleMap.put("inm_id", inmueble.getInm_id());
+        inmuebleMap.put("inm_padron", inmueble.getInm_padron());
+        // Agregar otros campos de inmueble si es necesario
+        return inmuebleMap;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*LISTAR PERSONAS CON TODDA SUS EMPRESAS E INMUEBLES
+    @GetMapping("/empresaInmueblesPersona")
+    public Map<String, Object> obtenerTodosDatosEmpresasEInmueblesPersona() {
+        Map<String, Object> response = new HashMap<>();
+
+        // Obtener todos los datos de EmpresaPersona
+        List<EmpresaPersona> empresaPersonas = personaService.obtenerTodosLosDatosDeEmpresaPersona();
+        response.put("empresa-Personas", empresaPersonas);
+
+        // Obtener todos los datos de InmueblePersona
+        List<InmueblePersona> inmueblePersonas = personaService.obtenerTodosLosDatosDeInmueblePersona();
+        response.put("inmueble-Personas", inmueblePersonas);
+
+        return response;
+    }
+
+    @GetMapping("/primeraEmpresasInmueblePersona")
+    public Map<String, Object> obtenerPrimerDatoEmpresasEInmueblesPersona() {
+        Map<String, Object> response = new HashMap<>();
+
+        // Obtener todos los datos de EmpresaPersona
+        List<EmpresaPersona> empresaPersonas = personaService.obtenerPrimeroLosDatosDeEmpresaPersona();
+
+        // Obtener todos los datos de InmueblePersona
+        List<InmueblePersona> inmueblePersonas = personaService.obtenerPrimeroLosDatosDeInmueblePersona();
+
+        // Mapear los datos por persona
+        Map<Integer, Map<String, Object>> personasMap = new HashMap<>();
+
+        // Agregar empresas a personasMap
+        for (EmpresaPersona empresaPersona : empresaPersonas) {
+            Persona persona = empresaPersona.getPersona();
+            int perId = persona.getPer_id();
+            if (!personasMap.containsKey(perId)) {
+                Map<String, Object> personaMap = mapPersona(persona);
+                personaMap.put("empresas", new ArrayList<>());
+                personaMap.put("inmuebles", new ArrayList<>());
+                personasMap.put(perId, personaMap);
+            }
+            Map<String, Object> personaMap = personasMap.get(perId);
+            List<Map<String, Object>> empresas = (List<Map<String, Object>>) personaMap.get("empresas");
+            Map<String, Object> empresaMap = mapEmpresa(empresaPersona.getEmpresa());
+            empresas.add(empresaMap);
+        }
+
+        // Agregar inmuebles a personasMap
+        for (InmueblePersona inmueblePersona : inmueblePersonas) {
+            Persona persona = inmueblePersona.getPersona();
+            int perId = persona.getPer_id();
+            if (!personasMap.containsKey(perId)) {
+                Map<String, Object> personaMap = mapPersona(persona);
+                personaMap.put("empresas", new ArrayList<>());
+                personaMap.put("inmuebles", new ArrayList<>());
+                personasMap.put(perId, personaMap);
+            }
+            Map<String, Object> personaMap = personasMap.get(perId);
+            List<Map<String, Object>> inmuebles = (List<Map<String, Object>>) personaMap.get("inmuebles");
+            Map<String, Object> inmuebleMap = mapInmueble(inmueblePersona.getInmueble());
+            inmuebles.add(inmuebleMap);
+        }
+
+        // Convertir personasMap a List<Map<String, Object>>
+        List<Map<String, Object>> personasDTO = new ArrayList<>();
+        for (Map.Entry<Integer, Map<String, Object>> entry : personasMap.entrySet()) {
+            personasDTO.add(entry.getValue());
+        }
+
+        // Agregar la lista completa al objeto de respuesta
+        response.put("empresaInmueblePersona", personasDTO);
+
+        return response;
+    }
+
+
+    // Método para mapear los datos de la persona a un DTO
+    private Map<String, Object> mapPersona(Persona persona) {
+        Map<String, Object> personaMap = new LinkedHashMap<>();
+        personaMap.put("per_id", persona.getPer_id());
+        personaMap.put("per_nombre", persona.getPer_nombre());
+        personaMap.put("per_apellido", persona.getPer_apellido());
+        personaMap.put("per_cuit", persona.getPer_cuit());
+        personaMap.put("per_tipodoc", persona.getPer_tipodoc());
+        personaMap.put("per_numdoc", persona.getPer_numdoc());
+        personaMap.put("per_telefono", persona.getPer_telefono());
+        personaMap.put("per_correo", persona.getPer_correo());
+        personaMap.put("per_domic_legal", persona.getPer_domic_legal());
+        personaMap.put("per_es_dueno_emp", persona.isPer_es_dueno_emp());
+        personaMap.put("per_es_reptec_emp", persona.isPer_es_reptec_emp());
+        personaMap.put("per_es_admin_edif", persona.isPer_es_admin_edif());
+        personaMap.put("per_es_coprop_edif", persona.isPer_es_coprop_edif());
+        personaMap.put("per_activa", persona.isPer_activa());
+        return personaMap;
+    }
+
+    // Método para mapear los datos de la empresa a un DTO
+    private Map<String, Object> mapEmpresa(Empresa empresa) {
+        Map<String, Object> empresaMap = new LinkedHashMap<>();
+        empresaMap.put("emp_id", empresa.getEmp_id());
+        empresaMap.put("emp_razon", empresa.getEmp_razon());
+        // Agregar otros campos de empresa si es necesario
+        return empresaMap;
+    }
+
+    // Método para mapear los datos del inmueble a un DTO
+    private Map<String, Object> mapInmueble(Inmueble inmueble) {
+        Map<String, Object> inmuebleMap = new LinkedHashMap<>();
+        inmuebleMap.put("inm_id", inmueble.getInm_id());
+        inmuebleMap.put("inm_padron", inmueble.getInm_padron());
+        // Agregar otros campos de inmueble si es necesario
+        return inmuebleMap;
+    }*/
 }

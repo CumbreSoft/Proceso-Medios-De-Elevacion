@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/destino")
@@ -36,7 +36,23 @@ public class DestinoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(destinos);
+            List<Map<String, Object>> destinosDTO = new ArrayList<>();
+            for (Destino destino : destinos) {
+                Map<String, Object> destinoMap = new LinkedHashMap<>();
+                destinoMap.put("dst_id", destino.getDst_id());
+                destinoMap.put("dst_codigo", destino.getDst_codigo());
+                destinoMap.put("dst_detalle", destino.getDst_detalle());
+                destinoMap.put("dst_activo", destino.isDst_activo());
+
+                destinosDTO.add(destinoMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("destinos", destinosDTO);
+
+            //return ResponseEntity.ok(destinos);
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
