@@ -22,23 +22,39 @@ public class MedioElevacion {
     @Column(name = "mde_id")
     private int mde_id;
 
-    @OneToOne
+    /*@OneToOne
+    @JoinColumn(name = "mde_tma_id", nullable = false)
+    private TipoMaquina tiposMaquinas;*/
+    @ManyToOne
     @JoinColumn(name = "mde_tma_id", nullable = false)
     private TipoMaquina tiposMaquinas;
 
     @Column(name = "mde_ubicacion", nullable = false, length = 30)
     private String mde_ubicacion;
 
-    @Column(name = "mde_tipo", nullable = false, length = 25)
+    @Column(name = "mde_tipo", nullable = false, length = 25) //NO SE SABA PARA QUE SIRVE AUN
     private String mde_tipo;
 
     @Column(name = "mde_niveles", nullable = false)
     private int mde_niveles;
 
+    @Column(name = "mde_planos_aprob", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean mde_planos_aprob;
+
+    @Column(name = "mde_expte_planos", nullable = false, length = 20)
+    private String mde_expte_planos;
+
+    @ManyToOne
+    @JoinColumn(name = "mde_emp_id", nullable = true)
+    private Empresa empresa;
+
     @Column(name = "mde_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean mde_activo;
 
-    @OneToMany(mappedBy = "medioElevacion")
-    private Set<InmuebleMedioElevacion> asociaciones = new HashSet<>();
+
+    /*@OneToMany(mappedBy = "medioElevacion")
+    private Set<InmuebleMedioElevacion> asociaciones;*/
+
+
 
 }

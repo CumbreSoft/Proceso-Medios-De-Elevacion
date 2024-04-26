@@ -39,4 +39,8 @@ public class InmuebleMedioElevacionService {
     public void deleteInmuebleMDEById(Integer id){
         inmuebleMedioElevacionRepository.deleteById(id);
     }
+
+    public List<InmuebleMedioElevacion> obtenerPrimeroLosDatosDeInmuebleMedioDeElevacion() {
+        return inmuebleMedioElevacionRepository.findAll();
+    }
 }

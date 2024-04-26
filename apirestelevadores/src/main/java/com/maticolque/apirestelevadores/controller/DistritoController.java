@@ -3,7 +3,10 @@ package com.maticolque.apirestelevadores.controller;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.Distrito;
+import com.maticolque.apirestelevadores.model.TipoMaquina;
+import com.maticolque.apirestelevadores.repository.DistritoRepository;
 import com.maticolque.apirestelevadores.service.DistritoService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -11,14 +14,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/distrito")
 public class DistritoController {
     @Autowired
     private DistritoService distritoService;
+
+    @Autowired
+    private DistritoRepository distritoRepository;
 
 
     //GET
@@ -36,7 +41,25 @@ public class DistritoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(distrito);
+            //return ResponseEntity.ok(distrito);
+
+            List<Map<String, Object>> distritoDTO = new ArrayList<>();
+            for (Distrito distrito1 : distrito) {
+                Map<String, Object> distritoMap = new LinkedHashMap<>();
+
+                distritoMap.put("dis_id", distrito1.getDis_id());
+                distritoMap.put("dis_codigo", distrito1.getDis_codigo());
+                distritoMap.put("dis_nombre", distrito1.getDis_nombre());
+                distritoMap.put("dis_activo", distrito1.isDis_activo());
+
+                distritoDTO.add(distritoMap);
+
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("distritos", distritoDTO);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
@@ -165,6 +188,55 @@ public class DistritoController {
                     .message("Error al eliminar el Distrito. " + e.getMessage())
                     .build();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
+        }
+    }
+
+
+
+    //POST DATOS PRECARGADOS
+    @PostConstruct
+    public void init() {
+        // Verificar si ya hay datos cargados en la base de datos
+        if (distritoRepository.count() == 0) {
+
+            // Si no hay datos, cargar datos predefinidos
+            Distrito distrito1 = new Distrito();
+            distrito1.setDis_id(1);
+            distrito1.setDis_codigo("1");
+            distrito1.setDis_nombre("BELG");
+            distrito1.setDis_activo(true);
+
+            Distrito distrito2 = new Distrito();
+            distrito2.setDis_id(2);
+            distrito2.setDis_codigo("2");
+            distrito2.setDis_nombre("BUENA");
+            distrito2.setDis_activo(true);
+
+            Distrito distrito3 = new Distrito();
+            distrito3.setDis_id(3);
+            distrito3.setDis_codigo("3");
+            distrito3.setDis_nombre("ROSARIO");
+            distrito3.setDis_activo(true);
+
+            Distrito distrito4 = new Distrito();
+            distrito4.setDis_id(4);
+            distrito4.setDis_codigo("4");
+            distrito4.setDis_nombre("MOLINA");
+            distrito4.setDis_activo(true);
+
+            Distrito distrito5 = new Distrito();
+            distrito5.setDis_id(5);
+            distrito5.setDis_codigo("5");
+            distrito5.setDis_nombre("SEGO");
+            distrito5.setDis_activo(true);
+
+
+            distritoRepository.save(distrito1);
+            distritoRepository.save(distrito2);
+            distritoRepository.save(distrito3);
+            distritoRepository.save(distrito4);
+            distritoRepository.save(distrito5);
+
         }
     }
 }

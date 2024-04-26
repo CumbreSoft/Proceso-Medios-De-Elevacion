@@ -2,10 +2,12 @@ package com.maticolque.apirestelevadores.controller;
 
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
-import com.maticolque.apirestelevadores.model.Inmueble;
-import com.maticolque.apirestelevadores.model.MedioElevacion;
-import com.maticolque.apirestelevadores.model.Persona;
+import com.maticolque.apirestelevadores.model.*;
+import com.maticolque.apirestelevadores.repository.InmuebleRepository;
+import com.maticolque.apirestelevadores.service.DestinoService;
+import com.maticolque.apirestelevadores.service.DistritoService;
 import com.maticolque.apirestelevadores.service.InmuebleService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,12 @@ public class InmuebleController {
 
     @Autowired
     private InmuebleService inmuebleService;
+
+    @Autowired
+    private DistritoService distritoService;
+
+    @Autowired
+    private DestinoService destinoService;
 
 
     //GET
@@ -44,11 +52,11 @@ public class InmuebleController {
                 Map<String, Object> inmuebleMap = new LinkedHashMap<>();
 
                 inmuebleMap.put("inm_id", inmueble.getInm_id());
-                inmuebleMap.put("destino", inmueble.getDestino());
                 inmuebleMap.put("inm_padron",inmueble.getInm_padron());
                 inmuebleMap.put("inm_direccion",inmueble.getInm_direccion());
-                inmuebleMap.put("distrito",inmueble.getDistrito());
                 inmuebleMap.put("inm_cod_postal",inmueble.getInm_cod_postal());
+                inmuebleMap.put("distrito",inmueble.getDistrito());
+                inmuebleMap.put("destino", inmueble.getDestino());
                 inmuebleMap.put("inm_activo",inmueble.isInm_activo());
 
                 inmueblesDTO.add(inmuebleMap);
@@ -128,47 +136,114 @@ public class InmuebleController {
 
 
     //PUT
-    @PutMapping("editar/{id}")
-    //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> modificarInmuble(@PathVariable Integer id, @RequestBody Inmueble inmueble) {
+    @PutMapping("/editar/{id}")
+    public ResponseEntity<?> modificarInmueble(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
         try {
-            // Lógica para modificar el Inmueble
-            Inmueble destinoExistente = inmuebleService.buscarInmbublePorId(id);
-
-            if (destinoExistente == null) {
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("El ID que intenta modificar no existe.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            // Verificar si el inmueble existe
+            Inmueble inmuebleExistente = inmuebleService.buscarInmbublePorId(id);
+            if (inmuebleExistente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                        ErrorDTO.builder()
+                                .code("404 NOT FOUND")
+                                .message("El Inmueble con el ID proporcionado no existe.")
+                                .build()
+                );
             }
 
-            //Modificar valores
-            destinoExistente.setDestino(inmueble.getDestino());
-            destinoExistente.setInm_padron(inmueble.getInm_padron());
-            destinoExistente.setInm_direccion(inmueble.getInm_direccion());
-            destinoExistente.setDistrito(inmueble.getDistrito());
-            destinoExistente.setInm_cod_postal(inmueble.getInm_cod_postal());
-            destinoExistente.setInm_activo(inmueble.isInm_activo());
+            // Obtener el ID del distrito, destino, y padrón para actualizar
+            Integer nuevoDistritoId = (Integer) requestBody.get("dis_id");
+            Integer nuevoDestinoId = (Integer) requestBody.get("dst_id");
+            Integer nuevoPadron = (Integer) requestBody.get("inm_padron");
 
-            inmuebleService.updateInmueble(destinoExistente);
+            // Obtener otros campos para actualizar
+            String nuevaDireccion = (String) requestBody.get("inm_direccion");
+            String nuevoCodPostal = (String) requestBody.get("inm_cod_postal");
+            Boolean nuevoInmActivo = (Boolean) requestBody.get("inm_activo");
 
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("200 OK")
-                    .message("La modificación se ha realizado correctamente.")
-                    .build();
-            return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
+            // Verificar que al menos un campo se proporciona para actualizar
+            if (nuevoDistritoId == null && nuevoDestinoId == null && nuevoPadron == null
+                    && nuevaDireccion == null && nuevoCodPostal == null
+                    && nuevoInmActivo == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        ErrorDTO.builder()
+                                .code("400 BAD REQUEST")
+                                .message("Debe proporcionar al menos un campo para actualizar.")
+                                .build()
+                );
+            }
+
+            StringBuilder mensajeExito = new StringBuilder("Actualización exitosa:");
+
+            // Verificar y actualizar el Distrito
+            if (nuevoDistritoId != null) {
+                Distrito nuevoDistrito = distritoService.buscarDistritoPorId(nuevoDistritoId);
+                if (nuevoDistrito == null) {
+                    mensajeExito.append(" (Error: No se encontró el Distrito con el ID proporcionado).");
+                } else {
+                    inmuebleExistente.setDistrito(nuevoDistrito);
+                    mensajeExito.append(" Distrito actualizado correctamente.");
+                }
+            }
+
+            // Verificar y actualizar el Destino
+            if (nuevoDestinoId != null) {
+                Destino nuevoDestino = destinoService.buscarDestinoPorId(nuevoDestinoId);
+                if (nuevoDestino == null) {
+                    mensajeExito.append(" (Error: No se encontró el Destino con el ID proporcionado).");
+                } else {
+                    inmuebleExistente.setDestino(nuevoDestino);
+                    mensajeExito.append(" Destino actualizado correctamente.");
+                }
+            }
+
+            // Verificar y actualizar el Padrón
+            if (nuevoPadron != null) {
+                inmuebleExistente.setInm_padron(nuevoPadron);
+                mensajeExito.append(" Padrón actualizado correctamente.");
+            }
+
+            // Actualizar otros campos
+            if (nuevaDireccion != null) {
+                inmuebleExistente.setInm_direccion(nuevaDireccion);
+                mensajeExito.append(" Dirección actualizada correctamente.");
+            }
+
+            if (nuevoCodPostal != null) {
+                inmuebleExistente.setInm_cod_postal(nuevoCodPostal);
+                mensajeExito.append(" Código postal actualizado correctamente.");
+            }
+
+            if (nuevoInmActivo != null) {
+                inmuebleExistente.setInm_activo(nuevoInmActivo);
+                mensajeExito.append(" Estado de actividad actualizado correctamente.");
+            }
+
+            // Guardar cambios
+            inmuebleService.updateInmueble(inmuebleExistente);
+
+            // Mensaje de éxito
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    ErrorDTO.builder()
+                            .code("200 OK")
+                            .message(mensajeExito.toString())
+                            .build()
+            );
 
         } catch (Exception e) {
-            // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("404 NOT FOUND")
-                    .message("Error al modificar el Inmueble."+ e.getMessage())
-                    .build();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
-
+            // Manejo de errores generales
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    ErrorDTO.builder()
+                            .code("500 INTERNAL SERVER ERROR")
+                            .message("Error al actualizar el Inmueble: " + e.getMessage())
+                            .build()
+            );
         }
     }
+
+
+
+
+
 
 
     //DELETE

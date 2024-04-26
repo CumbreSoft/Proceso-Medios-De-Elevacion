@@ -3,7 +3,10 @@ package com.maticolque.apirestelevadores.controller;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.Destino;
+import com.maticolque.apirestelevadores.model.Distrito;
+import com.maticolque.apirestelevadores.repository.DestinoRepository;
 import com.maticolque.apirestelevadores.service.DestinoService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,9 @@ public class DestinoController {
 
     @Autowired
     private DestinoService destinoService;
+
+    @Autowired
+    private DestinoRepository destinoRepository;
 
 
     //GET
@@ -179,6 +185,38 @@ public class DestinoController {
                     .message("Error al eliminar el destino. " + e.getMessage())
                     .build();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
+        }
+    }
+
+
+    //POST DATOS PRECARGADOS
+    @PostConstruct
+    public void init() {
+        // Verificar si ya hay datos cargados en la base de datos
+        if (destinoRepository.count() == 0) {
+
+            // Si no hay datos, cargar datos predefinidos
+            Destino destino1 = new Destino();
+            destino1.setDst_id(1);
+            destino1.setDst_codigo("1");
+            destino1.setDst_detalle("VIVIENDA");
+            destino1.setDst_activo(true);
+
+            Destino destino2 = new Destino();
+            destino2.setDst_id(2);
+            destino2.setDst_codigo("2");
+            destino2.setDst_detalle("COMERCIO");
+            destino2.setDst_activo(true);
+
+            Destino destino3 = new Destino();
+            destino3.setDst_id(3);
+            destino3.setDst_codigo("3");
+            destino3.setDst_detalle("DEPOSITO");
+            destino3.setDst_activo(true);
+
+            destinoRepository.save(destino1);
+            destinoRepository.save(destino2);
+            destinoRepository.save(destino3);
         }
     }
 }

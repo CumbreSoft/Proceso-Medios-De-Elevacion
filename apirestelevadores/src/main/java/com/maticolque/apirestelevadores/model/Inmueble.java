@@ -27,19 +27,19 @@ public class Inmueble {
     @Column(name = "inm_padron", nullable = false)
     private int inm_padron;
 
-    @OneToOne
-    @JoinColumn(name = "inm_dst_id", nullable = false)
-    private Destino destino;
-
-    @Column(name = "inm_dirección", nullable = false, length = 30)
+    @Column(name = "inm_dirección", nullable = false, length = 200)
     private String inm_direccion;
-
-    @OneToOne
-    @JoinColumn(name = "inm_dis_id", nullable = false)
-    private Distrito distrito;
 
     @Column(name = "inm_cod_postal", nullable = false, length = 4)
     private String inm_cod_postal;
+
+    @ManyToOne
+    @JoinColumn(name = "inm_dis_id", nullable = false)
+    private Distrito distrito;
+
+    @ManyToOne
+    @JoinColumn(name = "inm_dst_id", nullable = false)
+    private Destino destino;
 
     @Column(name = "inm_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean inm_activo;
