@@ -2,8 +2,7 @@ package com.maticolque.apirestelevadores.controller;
 
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
-import com.maticolque.apirestelevadores.model.Inmueble;
-import com.maticolque.apirestelevadores.model.InmuebleMedioElevacion;
+import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.service.InmuebleMedioElevacionService;
 import com.maticolque.apirestelevadores.service.InmuebleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/inmueblesMDE")
@@ -22,23 +21,58 @@ public class InmuebleMedioElevacionController {
     @Autowired
     private InmuebleMedioElevacionService inmuebleMedioElevacionService;
 
+    @Autowired
+    private InmuebleService inmuebleService;
+
 
     //GET
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
-            List<InmuebleMedioElevacion> medioElevacions = inmuebleMedioElevacionService.getAllInmueblesMDE();
 
-            if (medioElevacions.isEmpty()) {
-                // Crear instancia de ErrorDTO con el código de error y el mensaje
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("La base de datos está vacía, no se encontraron Inmuebles Medios de Elevación.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            List<InmuebleMedioElevacion> inmuebleMDE = inmuebleMedioElevacionService.getAllInmueblesMDE();
+            List<Map<String, Object>> inmuebleMDEDTO = new ArrayList<>();
+
+
+            for (InmuebleMedioElevacion inmuebleMedioElevacion : inmuebleMDE) {
+                Map<String, Object> inmuebleMDEMap = new LinkedHashMap<>();
+
+                inmuebleMDEMap.put("ime_id", inmuebleMedioElevacion.getIme_id());
+
+                // Extraer los datos del Inmueble asociado
+                Inmueble inmueble = inmuebleMedioElevacion.getInmueble();
+                Map<String, Object> inmuebleMap = new LinkedHashMap<>();
+                inmuebleMap.put("inm_id", inmueble.getInm_id());
+                inmuebleMap.put("inm_padron", inmueble.getInm_padron());
+                inmuebleMap.put("inm_direccion", inmueble.getInm_direccion());
+                inmuebleMap.put("inm_cod_postal", inmueble.getInm_cod_postal());
+                inmuebleMap.put("distrito", inmueble.getDistrito());
+                inmuebleMap.put("destino", inmueble.getDestino());
+                inmuebleMap.put("inm_activo", inmueble.isInm_activo());
+                inmuebleMDEMap.put("inmueble", inmuebleMap);
+
+                // Extraer los datos del Medio De Elevacion
+                MedioElevacion medioElevacion = inmuebleMedioElevacion.getMedioElevacion();
+                Map<String, Object> mdeMap = new LinkedHashMap<>();
+                mdeMap.put("mde_id", medioElevacion.getMde_id());
+                mdeMap.put("tiposMaquinas", medioElevacion.getTiposMaquinas());
+                mdeMap.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
+                mdeMap.put("mde_tipo", medioElevacion.getMde_tipo());
+                mdeMap.put("mde_niveles", medioElevacion.getMde_niveles());
+                mdeMap.put("mde_planos_aprob", medioElevacion.isMde_planos_aprob());
+                mdeMap.put("mde_expte_planos", medioElevacion.getMde_expte_planos());
+                mdeMap.put("empresa", medioElevacion.getEmpresa());
+                mdeMap.put("mde_activo", medioElevacion.isMde_activo());
+                inmuebleMDEMap.put("medio de Elevacion", mdeMap);
+
+                inmuebleMDEDTO.add(inmuebleMDEMap);
             }
 
-            return ResponseEntity.ok(medioElevacions);
+            Map<String, Object> response = new HashMap<>();
+            response.put("inmueblesMDE", inmuebleMDEDTO);
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
@@ -146,6 +180,69 @@ public class InmuebleMedioElevacionController {
 
         }
     }
+
+
+    @PutMapping("/editarInmuebleDeMedioElevacion/{id}")
+    public ResponseEntity<?> actualizarInmuebleDeMedioElevacion(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
+        try {
+            // Obtener el nuevo ID del inmueble (inm_id) desde el cuerpo de la solicitud
+            Integer nuevoInmuebleId = (Integer) requestBody.get("inm_id");
+
+            // Verificar que el ID del inmueble no sea nulo
+            if (nuevoInmuebleId == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("400 BAD REQUEST")
+                        .message("El campo 'inm_id' es obligatorio.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+            }
+
+            // Buscar la relación de InmuebleMedioElevación por ID
+            InmuebleMedioElevacion relacionExistente = inmuebleMedioElevacionService.buscarInmuebleMDEPorId(id);
+
+            if (relacionExistente == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró la relación InmuebleMedioElevación con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Buscar el nuevo inmueble por su ID
+            Inmueble nuevoInmueble = inmuebleService.buscarInmbublePorId(nuevoInmuebleId);
+
+            if (nuevoInmueble == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el inmueble con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Actualizar la relación con el nuevo inmueble
+            relacionExistente.setInmueble(nuevoInmueble);
+
+            // Guardar la relación actualizada
+            inmuebleMedioElevacionService.updateInmuebleMDE(relacionExistente);
+
+            // Retornar respuesta de éxito
+            ErrorDTO successDTO = ErrorDTO.builder()
+                    .code("200 OK")
+                    .message("El inmueble en la relación InmuebleMedioElevación se ha actualizado correctamente.")
+                    .build();
+            return ResponseEntity.status(HttpStatus.OK).body(successDTO);
+
+        } catch (Exception e) {
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("500 INTERNAL SERVER ERROR")
+                    .message("Error al actualizar el inmueble en la relación InmuebleMedioElevación: " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
+        }
+    }
+
+
+
 
 
     //DELETE

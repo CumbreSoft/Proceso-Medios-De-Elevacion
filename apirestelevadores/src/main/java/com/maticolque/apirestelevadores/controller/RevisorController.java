@@ -3,6 +3,7 @@ package com.maticolque.apirestelevadores.controller;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.Destino;
+import com.maticolque.apirestelevadores.model.Empresa;
 import com.maticolque.apirestelevadores.model.Revisor;
 import com.maticolque.apirestelevadores.service.RevisorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/revisor")
@@ -26,9 +27,9 @@ public class RevisorController {
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
-            List<Revisor> revisor = revisorService.getAllRevisor();
+            List<Revisor> revisores = revisorService.getAllRevisor();
 
-            if (revisor.isEmpty()) {
+            if (revisores.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -37,7 +38,33 @@ public class RevisorController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(revisor);
+            //return ResponseEntity.ok(revisor);
+
+            List<Map<String, Object>> revisoresDTO = new ArrayList<>();
+            for (Revisor revisor : revisores) {
+                Map<String, Object> revisorMap = new LinkedHashMap<>();
+
+                revisorMap.put("rev_id", revisor.getRev_id());
+                revisorMap.put("rev_apellido", revisor.getRev_apellido());
+                revisorMap.put("rev_nombre", revisor.getRev_nombre());
+                revisorMap.put("rev_cuit", revisor.getRev_cuit());
+                revisorMap.put("rev_tipodoc", revisor.getRev_tipodoc());
+                revisorMap.put("rev_numdoc", revisor.getRev_numdoc());
+                revisorMap.put("rev_correo", revisor.getRev_correo());
+                revisorMap.put("rev_telefono", revisor.getRev_telefono());
+                revisorMap.put("rev_usuario_sayges", revisor.getRev_usuario_sayges());
+                revisorMap.put("rev_aprob_mde", revisor.isRev_aprob_mde());
+                revisorMap.put("rev_renov_mde", revisor.isRev_renov_mde());
+                revisorMap.put("rev_aprob_emp", revisor.isRev_aprob_emp());
+                revisorMap.put("rev_activo", revisor.isRev_activo());
+
+                revisoresDTO.add(revisorMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("revisores", revisoresDTO);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
@@ -118,9 +145,15 @@ public class RevisorController {
 
 
             //Modificar valores
+            revisorExistente.setRev_apellido(revisor.getRev_apellido());
             revisorExistente.setRev_nombre(revisor.getRev_nombre());
+            revisorExistente.setRev_cuit(revisor.getRev_cuit());
+            revisorExistente.setRev_tipodoc(revisor.getRev_tipodoc());
             revisorExistente.setRev_numdoc(revisor.getRev_numdoc());
-            revisorExistente.setRev_renov_mde(revisor.isRev_renov_mde());
+            revisorExistente.setRev_correo(revisor.getRev_correo());
+            revisorExistente.setRev_telefono(revisor.getRev_telefono());
+            revisorExistente.setRev_usuario_sayges(revisor.getRev_usuario_sayges());
+            revisorExistente.setRev_aprob_mde(revisor.isRev_aprob_mde());
             revisorExistente.setRev_renov_mde(revisor.isRev_renov_mde());
             revisorExistente.setRev_aprob_emp(revisor.isRev_aprob_emp());
             revisorExistente.setRev_activo(revisor.isRev_activo());

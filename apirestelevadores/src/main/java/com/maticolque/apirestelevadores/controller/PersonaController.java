@@ -3,6 +3,8 @@ package com.maticolque.apirestelevadores.controller;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.*;
+import com.maticolque.apirestelevadores.service.EmpresaPersonaService;
+import com.maticolque.apirestelevadores.service.InmueblePersonaService;
 import com.maticolque.apirestelevadores.service.PersonaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -19,6 +21,12 @@ public class PersonaController {
 
     @Autowired
     private PersonaService personaService;
+
+    @Autowired
+    private EmpresaPersonaService empresaPersonaService;
+
+    @Autowired
+    private InmueblePersonaService inmueblePersonaService;
 
 
     //GET
@@ -234,67 +242,53 @@ public class PersonaController {
 
 
     @GetMapping("/primeraEmpresaInmueblePersona")
-    public Map<String, Object> obtenerPrimerDatoEmpresasEInmueblesPersona() {
+    public ResponseEntity<Map<String, Object>> obtenerDatosCompletos() {
         Map<String, Object> response = new HashMap<>();
 
-        // Obtener todos los datos de EmpresaPersona
-        List<EmpresaPersona> empresaPersonas = personaService.obtenerPrimeroLosDatosDeEmpresaPersona();
+        // Obtener todos los datos de EmpresaPersona e InmueblePersona
+        List<EmpresaPersona> empresaPersonas = empresaPersonaService.getAllEmpresaPersona();
+        List<InmueblePersona> inmueblePersonas = inmueblePersonaService.getAllInmueblePersona();
 
-        // Obtener todos los datos de InmueblePersona
-        List<InmueblePersona> inmueblePersonas = personaService.obtenerPrimeroLosDatosDeInmueblePersona();
+        // Lista para combinar todas las relaciones
+        List<Map<String, Object>> combinadas = new ArrayList<>();
 
-        // Mapear los datos por persona
-        Map<Integer, Map<String, Object>> personasMap = new HashMap<>();
-
-        // Agregar empresas a personasMap
+        // Agregar datos de EmpresaPersona
         for (EmpresaPersona empresaPersona : empresaPersonas) {
             Persona persona = empresaPersona.getPersona();
-            int perId = persona.getPer_id();
-            if (!personasMap.containsKey(perId)) {
-                Map<String, Object> personaMap = mapPersona(persona);
-                personaMap.put("empresas", null); // Inicializar como null
-                personaMap.put("inmuebles", null); // Inicializar como null
-                personasMap.put(perId, personaMap);
-            }
-            Map<String, Object> personaMap = personasMap.get(perId);
-            if (personaMap.get("empresas") == null) {
-                personaMap.put("empresas", mapEmpresa(empresaPersona.getEmpresa()));
-            }
+            Map<String, Object> item = new LinkedHashMap<>();
+
+            item.put("per_id", persona.getPer_id());
+            item.put("epe_id", empresaPersona.getEpe_id());
+            item.putAll(mapPersona(persona)); // Agregar detalles de la persona
+            item.put("empresas", mapEmpresa(empresaPersona.getEmpresa()));
+            item.put("inmuebles", null); // Iniciar como null si no hay inmuebles
+
+            combinadas.add(item);
         }
 
-        // Agregar inmuebles a personasMap
+        // Agregar datos de InmueblePersona
         for (InmueblePersona inmueblePersona : inmueblePersonas) {
             Persona persona = inmueblePersona.getPersona();
-            int perId = persona.getPer_id();
-            if (!personasMap.containsKey(perId)) {
-                Map<String, Object> personaMap = mapPersona(persona);
-                personaMap.put("empresas", null); // Inicializar como null
-                personaMap.put("inmuebles", null); // Inicializar como null
-                personasMap.put(perId, personaMap);
-            }
-            Map<String, Object> personaMap = personasMap.get(perId);
-            if (personaMap.get("inmuebles") == null) {
-                personaMap.put("inmuebles", mapInmueble(inmueblePersona.getInmueble()));
-            }
+            Map<String, Object> item = new LinkedHashMap<>();
+
+            item.put("per_id", persona.getPer_id());
+            item.put("ipe_id", inmueblePersona.getIpe_id());
+            item.putAll(mapPersona(persona)); // Agregar detalles de la persona
+            item.put("empresas", null); // Iniciar como null si no hay empresas
+            item.put("inmuebles", mapInmueble(inmueblePersona.getInmueble()));
+
+            combinadas.add(item);
         }
 
-        // Convertir personasMap a List<Map<String, Object>>
-        List<Map<String, Object>> personasDTO = new ArrayList<>();
-        for (Map.Entry<Integer, Map<String, Object>> entry : personasMap.entrySet()) {
-            personasDTO.add(entry.getValue());
-        }
+        // Ordenar combinadas por `per_id` para tener todos los datos completos pero ordenados por el ID de la persona
+        combinadas.sort(Comparator.comparing(map -> (Integer) map.get("per_id")));
 
-        // Agregar la lista completa al objeto de respuesta
-        response.put("empresaInmueblePersona", personasDTO);
+        response.put("empresaInmueblePersona", combinadas);
 
-        return response;
+        return ResponseEntity.ok(response); // Devolver la respuesta HTTP
     }
 
-
-
-
-
-    // Método para mapear los datos de la persona a un DTO
+    // Métodos para mapear datos de la persona
     private Map<String, Object> mapPersona(Persona persona) {
         Map<String, Object> personaMap = new LinkedHashMap<>();
         personaMap.put("per_id", persona.getPer_id());
@@ -314,21 +308,19 @@ public class PersonaController {
         return personaMap;
     }
 
-    // Método para mapear los datos de la empresa a un DTO
+    // Método para mapear datos de la empresa
     private Map<String, Object> mapEmpresa(Empresa empresa) {
         Map<String, Object> empresaMap = new LinkedHashMap<>();
         empresaMap.put("emp_id", empresa.getEmp_id());
         empresaMap.put("emp_razon", empresa.getEmp_razon());
-        // Agregar otros campos de empresa si es necesario
         return empresaMap;
     }
 
-    // Método para mapear los datos del inmueble a un DTO
+    // Método para mapear datos del inmueble
     private Map<String, Object> mapInmueble(Inmueble inmueble) {
         Map<String, Object> inmuebleMap = new LinkedHashMap<>();
         inmuebleMap.put("inm_id", inmueble.getInm_id());
         inmuebleMap.put("inm_padron", inmueble.getInm_padron());
-        // Agregar otros campos de inmueble si es necesario
         return inmuebleMap;
     }
 

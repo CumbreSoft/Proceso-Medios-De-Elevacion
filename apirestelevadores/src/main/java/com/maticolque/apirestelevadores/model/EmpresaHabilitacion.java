@@ -38,8 +38,11 @@ public class EmpresaHabilitacion {
     @Temporal(TemporalType.DATE)
     private Date eha_vto_hab;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "eha_rev_id", nullable = false)
     private Revisor revisor;
+
+    @Column(name = "eha_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean eha_activo;
 
 }

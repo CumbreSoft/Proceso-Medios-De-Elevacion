@@ -144,7 +144,7 @@ public class MedioElevacionController {
     }
 
 
-    //PUT
+    /*PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarMedioElevacion(@PathVariable Integer id, @RequestBody MedioElevacion medioElevacion) {
@@ -164,8 +164,10 @@ public class MedioElevacionController {
             medioElevacionExistente.setMde_ubicacion(medioElevacion.getMde_ubicacion());
             medioElevacionExistente.setMde_tipo(medioElevacion.getMde_tipo());
             medioElevacionExistente.setMde_niveles(medioElevacion.getMde_niveles());
+            medioElevacionExistente.setMde_planos_aprob(medioElevacion.isMde_planos_aprob());
+            medioElevacionExistente.setMde_expte_planos(medioElevacion.getMde_expte_planos());
             medioElevacionExistente.setMde_activo(medioElevacion.isMde_activo());
-            medioElevacionExistente.setTiposMaquinas(medioElevacion.getTiposMaquinas());
+            //medioElevacionExistente.setTiposMaquinas(medioElevacion.getTiposMaquinas());
 
             // Agrega más propiedades según tu modelo
             medioElevacionService.updateMedioElevacion(medioElevacionExistente);
@@ -184,78 +186,73 @@ public class MedioElevacionController {
                     .build();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
-    }
+    }*/
 
 
-    //PUT PARA CAMBIAR LA EMPRESA DE MANTENIMIENTO CON SU ID
-    @PutMapping("/editarEmpresaDeMedioDeElevacion/{id}")
-    public ResponseEntity<?> actualizarEmpresaDeMedioDeElevacion(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
+    //PUT PARA CAMBIAR LA EMPRESA DE MANTENIMIENTO Y TIPO DE MAQUINA CON SU ID
+    @PutMapping("/editar/{id}")
+    public ResponseEntity<?> actualizarMedioElevacionCompleto(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
         try {
-            // Verificar si el medio de elevación existe
+            // Buscar el Medio de Elevación por ID
             MedioElevacion mdeExistente = medioElevacionService.buscarMedioElevacionPorId(id);
             if (mdeExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("El Medio De Elevación con el ID proporcionado no existe.")
+                        .message("El Medio de Elevación con el ID proporcionado no existe.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            // Obtener el ID de la nueva empresa (si se proporciona)
-            Integer nuevaEmpresaId = (Integer) requestBody.get("emp_id");
-
-            // Obtener el ID de la nueva máquina (si se proporciona)
-            Integer nuevoTipoMaquinaId = (Integer) requestBody.get("tma_id");
-
-            // Verificar si se proporcionó un ID de empresa o máquina para actualizar
-            if (nuevaEmpresaId == null && nuevoTipoMaquinaId == null) {
-                // Si no se proporcionaron campos para actualizar, retornar un mensaje de error
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("400 BAD REQUEST")
-                        .message("Debe proporcionar al menos un campo para actualizar (emp_id o tma_id).")
-                        .build();
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+            // Actualizar propiedades básicas si están presentes
+            if (requestBody.containsKey("mde_ubicacion")) {
+                mdeExistente.setMde_ubicacion((String) requestBody.get("mde_ubicacion"));
+            }
+            if (requestBody.containsKey("mde_tipo")) {
+                mdeExistente.setMde_tipo((String) requestBody.get("mde_tipo"));
+            }
+            if (requestBody.containsKey("mde_niveles")) {
+                mdeExistente.setMde_niveles((Integer) requestBody.get("mde_niveles"));
+            }
+            if (requestBody.containsKey("mde_planos_aprob")) {
+                mdeExistente.setMde_planos_aprob((Boolean) requestBody.get("mde_planos_aprob"));
+            }
+            if (requestBody.containsKey("mde_expte_planos")) {
+                mdeExistente.setMde_expte_planos((String) requestBody.get("mde_expte_planos"));
+            }
+            if (requestBody.containsKey("mde_activo")) {
+                mdeExistente.setMde_activo((Boolean) requestBody.get("mde_activo"));
             }
 
-            // Mensajes de éxito
-            StringBuilder mensajeExito = new StringBuilder("Actualización exitosa:");
+            // Verificar y actualizar Empresa si se proporciona
+            Integer nuevaEmpresaId = (Integer) requestBody.get("emp_id");
             if (nuevaEmpresaId != null) {
                 Empresa nuevaEmpresa = empresaService.buscarEmpresaPorId(nuevaEmpresaId);
                 if (nuevaEmpresa == null) {
-                    // Si no se encuentra la empresa, agregar un mensaje de error
-                    mensajeExito.append(" (Error: No se encontró la empresa con el ID proporcionado).");
-                } else {
-                    // Actualizar la empresa del medio de elevación
-                    mdeExistente.setEmpresa(nuevaEmpresa);
-                    mensajeExito.append(" Empresa actualizada correctamente.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La empresa con el ID proporcionado no existe.");
                 }
+                mdeExistente.setEmpresa(nuevaEmpresa);
             }
+
+            // Verificar y actualizar Tipo de Máquina si se proporciona
+            Integer nuevoTipoMaquinaId = (Integer) requestBody.get("tma_id");
             if (nuevoTipoMaquinaId != null) {
                 TipoMaquina nuevoTipoMaquina = tipoMaquinaService.buscartipoMaquinaPorId(nuevoTipoMaquinaId);
                 if (nuevoTipoMaquina == null) {
-                    // Si no se encuentra la máquina, agregar un mensaje de error
-                    mensajeExito.append(" (Error: No se encontró el tipo de máquina con el ID proporcionado).");
-                } else {
-                    // Actualizar la máquina del medio de elevación
-                    mdeExistente.setTiposMaquinas(nuevoTipoMaquina);
-                    mensajeExito.append(" Máquina actualizada correctamente.");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El tipo de máquina con el ID proporcionado no existe.");
                 }
+                mdeExistente.setTiposMaquinas(nuevoTipoMaquina);
             }
 
-            // Actualizar el medio de elevación
+            // Guardar los cambios
             medioElevacionService.updateMedioElevacion(mdeExistente);
 
-            // Construir el mensaje de éxito
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("200 OK")
-                    .message(mensajeExito.toString())
-                    .build();
-            return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
+            return ResponseEntity.status(HttpStatus.OK).body("El Medio de Elevación se actualizó correctamente.");
 
         } catch (Exception e) {
+            // Manejar errores generales
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("500 INTERNAL SERVER ERROR")
-                    .message("Error al actualizar la empresa: " + e.getMessage())
+                    .message("Error al actualizar el Medio de Elevación: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
@@ -315,14 +312,18 @@ public class MedioElevacionController {
             // Obtener todos los datos de InmuebleMedioElevacion
             List<InmuebleMedioElevacion> inmuebleMedioElevacionList = medioElevacionService.obtenerTodosLosInmueblesMedioElevacion();
 
-            // Mapear los datos por medio de elevación
+            // Mapa para agrupar los datos por medio de elevación
             Map<Integer, Map<String, Object>> medioElevacionMap = new HashMap<>();
             for (InmuebleMedioElevacion ime : inmuebleMedioElevacionList) {
                 MedioElevacion medioElevacion = ime.getMedioElevacion();
                 int mdeId = medioElevacion.getMde_id();
                 if (!medioElevacionMap.containsKey(mdeId)) {
                     Map<String, Object> medioElevacionDTO = mapMedioElevacion(medioElevacion);
-                    medioElevacionDTO.put("inmueble", mapInmueble(ime.getInmueble()));
+
+                    // Incluir la relación entre medio de elevación e inmueble
+                    medioElevacionDTO.put("ime_id", ime.getIme_id()); // ID de la relación
+                    medioElevacionDTO.put("inmueble", mapInmueble(ime.getInmueble())); // Mapa del inmueble
+
                     medioElevacionMap.put(mdeId, medioElevacionDTO);
                 }
             }
@@ -336,7 +337,6 @@ public class MedioElevacionController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
                     .message("Error al obtener la lista de Medios de Elevación con su primer Inmueble: " + e.getMessage())
@@ -344,7 +344,6 @@ public class MedioElevacionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
 
     // Método para mapear los datos del medio de elevación a un DTO
     private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
@@ -357,14 +356,14 @@ public class MedioElevacionController {
         medioElevacionDTO.put("mde_planos_aprob", medioElevacion.isMde_planos_aprob());
         medioElevacionDTO.put("mde_expte_planos", medioElevacion.getMde_expte_planos());
         medioElevacionDTO.put("mde_activo", medioElevacion.isMde_activo());
-        medioElevacionDTO.put("empresa", medioElevacion.getEmpresa()); // Incluir la empresa asociada
+        medioElevacionDTO.put("empresa", mapEmpresa(medioElevacion.getEmpresa())); // Incluir la empresa asociada
         return medioElevacionDTO;
     }
 
     // Método para mapear los datos del inmueble a un DTO
     private Map<String, Object> mapInmueble(Inmueble inmueble) {
         Map<String, Object> inmuebleDTO = new LinkedHashMap<>();
-        inmuebleDTO.put("inm_id", inmueble.getInm_id());
+        inmuebleDTO.put("inm_id", inmueble.getInm_id()); // ID del inmueble
         inmuebleDTO.put("inm_padron", inmueble.getInm_padron());
         inmuebleDTO.put("destino", inmueble.getDestino());
         inmuebleDTO.put("inm_direccion", inmueble.getInm_direccion());
@@ -373,6 +372,16 @@ public class MedioElevacionController {
         inmuebleDTO.put("inm_activo", inmueble.isInm_activo());
         return inmuebleDTO;
     }
+
+    // Método para mapear datos de la empresa
+    private Map<String, Object> mapEmpresa(Empresa empresa) {
+        Map<String, Object> empresaDTO = new LinkedHashMap<>();
+        empresaDTO.put("emp_id", empresa.getEmp_id());
+        empresaDTO.put("emp_razon", empresa.getEmp_razon());
+        return empresaDTO;
+    }
+
+
 
 
 

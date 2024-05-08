@@ -141,7 +141,7 @@ public class EmpresaPersonaController {
             // Obtener la persona relacionada
             Persona persona = nuevoEmpresaPersona.getPersona();
 
-            /// Cargar la persona desde la base de datos para asegurarnos de tener la versión más reciente
+            // Cargar la persona desde la base de datos para asegurarnos de tener la versión más reciente
             persona = personaRepository.findById(persona.getPer_id()).orElse(null);
             if (persona == null) {
                 throw new EntityNotFoundException("No se encontró la persona con ID: " + nuevoEmpresaPersona.getPersona().getPer_id());

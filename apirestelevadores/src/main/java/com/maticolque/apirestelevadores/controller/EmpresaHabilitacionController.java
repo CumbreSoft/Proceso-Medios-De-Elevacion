@@ -11,8 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/empresaHabilitacion")
@@ -26,9 +25,9 @@ public class EmpresaHabilitacionController {
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
-            List<EmpresaHabilitacion> empresaHabilitacion = empresaHabilitacionService.getAllEmpresaHabilitacion();
+            List<EmpresaHabilitacion> empresasHabilitacion = empresaHabilitacionService.getAllEmpresaHabilitacion();
 
-            if (empresaHabilitacion.isEmpty()) {
+            if (empresasHabilitacion.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -37,7 +36,27 @@ public class EmpresaHabilitacionController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(empresaHabilitacion);
+            //return ResponseEntity.ok(empresaHabilitacion);
+            List<Map<String, Object>> empresaHDTO = new ArrayList<>();
+            for (EmpresaHabilitacion empresaHabilitacion : empresasHabilitacion) {
+                Map<String, Object> empresaHMap = new LinkedHashMap<>();
+
+                empresaHMap.put("eha_id", empresaHabilitacion.getEha_id());
+                empresaHMap.put("eha_fecha", empresaHabilitacion.getEha_fecha());
+                empresaHMap.put("empresa",empresaHabilitacion.getEmpresa());
+                empresaHMap.put("eha_expediente",empresaHabilitacion.getEha_expediente());
+                empresaHMap.put("eha_habilitada",empresaHabilitacion.isEha_habilitada());
+                empresaHMap.put("eha_vto_hab",empresaHabilitacion.getEha_vto_hab());
+                empresaHMap.put("revisor", empresaHabilitacion.getRevisor());
+                empresaHMap.put("eha_activo",empresaHabilitacion.isEha_activo());
+
+                empresaHDTO.add(empresaHMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("habilitacionEmpresas", empresaHDTO);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
