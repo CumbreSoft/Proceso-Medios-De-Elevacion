@@ -252,8 +252,55 @@ public class PersonaController {
         // Lista para combinar todas las relaciones
         List<Map<String, Object>> combinadas = new ArrayList<>();
 
+        //CON ESTOS 2 FOR, LISTO LA PRIMERA PERSONA RELACIONADA CON UNA EMPRESA O INMUEBLE
+        // Lista para almacenar los ID de empresas e inmuebles ya procesados
+        Set<Integer> empresasProcesadas = new HashSet<>();
+        Set<Integer> inmueblesProcesados = new HashSet<>();
+
         // Agregar datos de EmpresaPersona
         for (EmpresaPersona empresaPersona : empresaPersonas) {
+            Persona persona = empresaPersona.getPersona();
+            Empresa empresa = empresaPersona.getEmpresa();
+
+            // Verificar si ya se ha procesado la empresa
+            if (!empresasProcesadas.contains(empresa.getEmp_id())) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("per_id", persona.getPer_id());
+                item.put("epe_id", empresaPersona.getEpe_id());
+                item.putAll(mapPersona(persona)); // Agregar detalles de la persona
+                item.put("empresas", mapEmpresa(empresa));
+                item.put("inmuebles", null); // Iniciar como null si no hay inmuebles
+                combinadas.add(item);
+
+                // Agregar la empresa a la lista de procesadas
+                empresasProcesadas.add(empresa.getEmp_id());
+            }
+        }
+
+        // Agregar datos de InmueblePersona
+        for (InmueblePersona inmueblePersona : inmueblePersonas) {
+            Persona persona = inmueblePersona.getPersona();
+            Inmueble inmueble = inmueblePersona.getInmueble();
+
+            // Verificar si ya se ha procesado el inmueble
+            if (!inmueblesProcesados.contains(inmueble.getInm_id())) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("per_id", persona.getPer_id());
+                item.put("ipe_id", inmueblePersona.getIpe_id());
+                item.putAll(mapPersona(persona)); // Agregar detalles de la persona
+                item.put("empresas", null); // Iniciar como null si no hay empresas
+                item.put("inmuebles", mapInmueble(inmueble));
+                combinadas.add(item);
+
+                // Agregar el inmueble a la lista de procesados
+                inmueblesProcesados.add(inmueble.getInm_id());
+            }
+        }
+
+
+        //CON ESTOS 2 FOR, LISTO TODAS LAS PERSONAS RELACIONADAS CON UNA EMPRESA O INMUEBLE
+        // Agregar datos de EmpresaPersona
+        /*for (EmpresaPersona empresaPersona : empresaPersonas) {
             Persona persona = empresaPersona.getPersona();
             Map<String, Object> item = new LinkedHashMap<>();
 
@@ -278,7 +325,7 @@ public class PersonaController {
             item.put("inmuebles", mapInmueble(inmueblePersona.getInmueble()));
 
             combinadas.add(item);
-        }
+        }*/
 
         // Ordenar combinadas por `per_id` para tener todos los datos completos pero ordenados por el ID de la persona
         combinadas.sort(Comparator.comparing(map -> (Integer) map.get("per_id")));

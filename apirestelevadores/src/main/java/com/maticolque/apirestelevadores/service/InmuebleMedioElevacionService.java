@@ -6,6 +6,7 @@ import com.maticolque.apirestelevadores.repository.InmuebleMedioElevacionReposit
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,5 +43,19 @@ public class InmuebleMedioElevacionService {
 
     public List<InmuebleMedioElevacion> obtenerPrimeroLosDatosDeInmuebleMedioDeElevacion() {
         return inmuebleMedioElevacionRepository.findAll();
+    }
+
+    // Nuevo método para filtrar los medios de elevación por ID de inmueble
+    public List<InmuebleMedioElevacion> obtenerMediosDeElevacionPorInmuebleId(Integer inmuebleId) {
+        List<InmuebleMedioElevacion> inmuebleMedioElevacionList = inmuebleMedioElevacionRepository.findAll();
+        List<InmuebleMedioElevacion> mediosDeElevacionPorInmueble = new ArrayList<>();
+
+        for (InmuebleMedioElevacion ime : inmuebleMedioElevacionList) {
+            if (ime.getInmueble().getInm_id() == inmuebleId) {
+                mediosDeElevacionPorInmueble.add(ime);
+            }
+        }
+
+        return mediosDeElevacionPorInmueble;
     }
 }

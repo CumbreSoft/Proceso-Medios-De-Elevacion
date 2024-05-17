@@ -3,6 +3,7 @@ package com.maticolque.apirestelevadores.controller;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.*;
+import com.maticolque.apirestelevadores.service.EmpresaPersonaService;
 import com.maticolque.apirestelevadores.service.InmuebleMedioElevacionService;
 import com.maticolque.apirestelevadores.service.InmuebleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class InmuebleMedioElevacionController {
     @Autowired
     private InmuebleService inmuebleService;
 
+    @Autowired
+    private EmpresaPersonaService empresaPersonaService;
 
     //GET
     @GetMapping
@@ -273,4 +276,109 @@ public class InmuebleMedioElevacionController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }
     }
+
+    // Método para obtener todos los medios de elevación asociados a un inmueble específico
+    @GetMapping("/{inmuebleId}/mediosElevacion")
+    public ResponseEntity<?> obtenerMediosElevacionPorInmueble(@PathVariable("inmuebleId") Integer inmuebleId) {
+        try {
+
+            // Obtener todos los datos de InmuebleMedioElevacion asociados al inmueble
+            List<InmuebleMedioElevacion> inmuebleMedioElevacionList = inmuebleMedioElevacionService.obtenerMediosDeElevacionPorInmuebleId(inmuebleId);
+
+            // Lista para almacenar los medios de elevación asociados al inmueble
+            List<Map<String, Object>> mediosElevacionList = new ArrayList<>();
+            for (InmuebleMedioElevacion ime : inmuebleMedioElevacionList) {
+                Map<String, Object> medioElevacionDTO = mapMedioElevacion(ime.getMedioElevacion());
+
+                // Obtener la empresa asociada al medio de elevación
+                Empresa empresa = ime.getMedioElevacion().getEmpresa();
+                if (empresa != null) {
+                    // Obtener la lista de personas asociadas a la empresa
+                    List<Persona> personas = empresaPersonaService.obtenerPersonasPorEmpresa(empresa.getEmp_id());
+
+                    // Mapear los datos de la empresa y las personas a un DTO
+                    Map<String, Object> empresaDTO = mapEmpresa(empresa);
+                    medioElevacionDTO.put("empresa", empresaDTO);
+                }
+
+                mediosElevacionList.add(medioElevacionDTO);
+            }
+
+            // Crear la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("mediosElevacion", mediosElevacionList);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("ERR_INTERNAL_SERVER_ERROR")
+                    .message("Error al obtener la lista de Medios de Elevación para el Inmueble con ID: " + inmuebleId + ": " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
+        }
+    }
+
+    // Método para mapear los datos del medio de elevación a un DTO
+    private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
+        Map<String, Object> medioElevacionDTO = new LinkedHashMap<>();
+        medioElevacionDTO.put("mde_id", medioElevacion.getMde_id());
+        medioElevacionDTO.put("tiposMaquinas", medioElevacion.getTiposMaquinas());
+        medioElevacionDTO.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
+        medioElevacionDTO.put("mde_tipo", medioElevacion.getMde_tipo());
+        medioElevacionDTO.put("mde_niveles", medioElevacion.getMde_niveles());
+        medioElevacionDTO.put("mde_planos_aprob", medioElevacion.isMde_planos_aprob());
+        medioElevacionDTO.put("mde_expte_planos", medioElevacion.getMde_expte_planos());
+        medioElevacionDTO.put("mde_activo", medioElevacion.isMde_activo());
+        medioElevacionDTO.put("empresa", mapEmpresa(medioElevacion.getEmpresa())); // Incluir la empresa asociada
+        return medioElevacionDTO;
+    }
+
+    private Map<String, Object> mapEmpresa(Empresa empresa) {
+        if (empresa == null) {
+            return null;
+        }
+
+        Map<String, Object> empresaDTO = new LinkedHashMap<>();
+        empresaDTO.put("emp_id", empresa.getEmp_id());
+        empresaDTO.put("emp_razon", empresa.getEmp_razon());
+
+        // Obtener las personas asociadas a la empresa
+        List<Persona> personas = empresaPersonaService.obtenerPersonasPorEmpresa(empresa.getEmp_id());
+
+        // Mapear los datos de las personas a un DTO
+        List<Map<String, Object>> personasDTOList = new ArrayList<>();
+        for (Persona persona : personas) {
+            Map<String, Object> personaDTO = mapPersona(persona);
+            personasDTOList.add(personaDTO);
+        }
+        empresaDTO.put("personas", personasDTOList);
+
+        return empresaDTO;
+    }
+
+    // Método para mapear los datos de la persona a un DTO
+    private Map<String, Object> mapPersona(Persona persona) {
+        if (persona == null) {
+            return null;
+        }
+
+        Map<String, Object> personaDTO = new LinkedHashMap<>();
+        personaDTO.put("per_id", persona.getPer_id());
+        personaDTO.put("per_nombre", persona.getPer_nombre());
+        // Añadir más campos según tus necesidades
+
+        return personaDTO;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -316,4 +316,97 @@ public class EmpresaPersonaController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }
     }
+
+
+
+
+
+    @GetMapping("personasPorEmpresa/{empresaId}")
+    public ResponseEntity<?> obtenerEmpresaConPersonas(@PathVariable("empresaId") Integer empresaId) {
+        try {
+            // Obtener la empresa por su ID
+            Empresa empresa = empresaService.obtenerEmpresaPorId(empresaId);
+
+            // Verificar si la empresa existe
+            if (empresa == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("ERR_EMPRESA_NOT_FOUND")
+                        .message("Empresa con ID " + empresaId + " no encontrada.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Obtener las personas asociadas a la empresa
+            List<Persona> personas = empresaPersonaService.obtenerPersonasPorEmpresa(empresaId);
+
+            // Mapear los datos de la empresa y las personas a un DTO
+            Map<String, Object> empresaDTO = mapEmpresa(empresa, personas);
+
+            // Crear la respuesta
+            //return ResponseEntity.ok(empresaDTO);
+            // Crear la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("personasEmpresa", empresaDTO);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("ERR_INTERNAL_SERVER_ERROR")
+                    .message("Error al obtener la empresa con ID: " + empresaId + ": " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
+        }
+    }
+
+    // Método para mapear los datos de la empresa y las personas a un DTO
+    private Map<String, Object> mapEmpresa(Empresa empresa, List<Persona> personas) {
+        if (empresa == null) {
+            return null;
+        }
+
+        Map<String, Object> empresaDTO = new LinkedHashMap<>();
+        empresaDTO.put("emp_id", empresa.getEmp_id());
+        empresaDTO.put("emp_razon", empresa.getEmp_razon());
+
+        // Mapear los datos de las personas a un DTO
+        List<Map<String, Object>> personasDTOList = new ArrayList<>();
+        for (Persona persona : personas) {
+            Map<String, Object> personaDTO = mapPersona(persona);
+            personasDTOList.add(personaDTO);
+        }
+        empresaDTO.put("personas", personasDTOList);
+
+        return empresaDTO;
+
+    }
+
+    // Método para mapear los datos de la persona a un DTO (puedes reutilizar el existente)
+    private Map<String, Object> mapPersona(Persona persona) {
+        if (persona == null) {
+            return null;
+        }
+
+        Map<String, Object> personaDTO = new LinkedHashMap<>();
+        personaDTO.put("per_id", persona.getPer_id());
+        personaDTO.put("per_nombre", persona.getPer_nombre());
+        // Añadir más campos según tus necesidades
+
+        return personaDTO;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

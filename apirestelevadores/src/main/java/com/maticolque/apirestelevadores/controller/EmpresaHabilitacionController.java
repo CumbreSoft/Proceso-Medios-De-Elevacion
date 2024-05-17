@@ -4,6 +4,8 @@ import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.service.EmpresaHabilitacionService;
+import com.maticolque.apirestelevadores.service.EmpresaService;
+import com.maticolque.apirestelevadores.service.RevisorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -19,6 +24,12 @@ public class EmpresaHabilitacionController {
 
     @Autowired
     private EmpresaHabilitacionService empresaHabilitacionService;
+
+    @Autowired
+    private EmpresaService empresaService;
+
+    @Autowired
+    private RevisorService revisorService;
 
 
     //GET
@@ -36,17 +47,24 @@ public class EmpresaHabilitacionController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
+            // Definir el formato de fecha deseado
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
             //return ResponseEntity.ok(empresaHabilitacion);
             List<Map<String, Object>> empresaHDTO = new ArrayList<>();
             for (EmpresaHabilitacion empresaHabilitacion : empresasHabilitacion) {
                 Map<String, Object> empresaHMap = new LinkedHashMap<>();
 
+                // Formatear las fechas antes de agregarlas al mapa
+                String ehaFechaFormatted = dateFormat.format(empresaHabilitacion.getEha_fecha());
+                String ehaVtoHabFormatted = dateFormat.format(empresaHabilitacion.getEha_vto_hab());
+
                 empresaHMap.put("eha_id", empresaHabilitacion.getEha_id());
-                empresaHMap.put("eha_fecha", empresaHabilitacion.getEha_fecha());
+                empresaHMap.put("eha_fecha", ehaFechaFormatted);
                 empresaHMap.put("empresa",empresaHabilitacion.getEmpresa());
                 empresaHMap.put("eha_expediente",empresaHabilitacion.getEha_expediente());
                 empresaHMap.put("eha_habilitada",empresaHabilitacion.isEha_habilitada());
-                empresaHMap.put("eha_vto_hab",empresaHabilitacion.getEha_vto_hab());
+                empresaHMap.put("eha_vto_hab", ehaVtoHabFormatted);
                 empresaHMap.put("revisor", empresaHabilitacion.getRevisor());
                 empresaHMap.put("eha_activo",empresaHabilitacion.isEha_activo());
 
@@ -128,7 +146,8 @@ public class EmpresaHabilitacionController {
         }
     }
 
-    //PUT
+    
+    /*PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarEmpresaHabilitacion(@PathVariable Integer id, @RequestBody EmpresaHabilitacion empresaHabilitacion) {
@@ -159,6 +178,87 @@ public class EmpresaHabilitacionController {
                     .message("La modificación se ha realizado correctamente.")
                     .build();
             return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
+
+        } catch (Exception e) {
+            // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("404 NOT FOUND")
+                    .message("Error al modificar la Empresa de Habilitacion."+ e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+        }
+    }*/
+
+    //PUT EDITAR CON ID
+    @PutMapping("editar/{id}")
+    public ResponseEntity<?> editarDatosEmpresaHabilitacion(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
+        try {
+
+            // Buscar el Empresa Habilitacion por ID
+            EmpresaHabilitacion eHExistente = empresaHabilitacionService.buscarEmpresaHabilitacionPorId(id);
+            if (eHExistente == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("La Empresa Habilitación con el ID proporcionado no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Actualizar propiedades básicas si están presentes
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            if (requestBody.containsKey("eha_fecha")) {
+                try {
+                    Date ehaFecha = dateFormat.parse((String) requestBody.get("eha_fecha"));
+                    eHExistente.setEha_fecha(ehaFecha);
+                } catch (ParseException e) {
+                    // Manejar el error de formato de fecha
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Formato de fecha incorrecto.");
+                }
+            }
+            if (requestBody.containsKey("eha_expediente")) {
+                eHExistente.setEha_expediente((String) requestBody.get("eha_expediente"));
+            }
+            if (requestBody.containsKey("eha_habilitada")) {
+                eHExistente.setEha_habilitada((Boolean) requestBody.get("eha_habilitada"));
+            }
+            if (requestBody.containsKey("eha_vto_hab")) {
+                try {
+                    Date eha_vto_hab = dateFormat.parse((String) requestBody.get("eha_vto_hab"));
+                    eHExistente.setEha_vto_hab(eha_vto_hab);
+                } catch (ParseException e) {
+                    // Manejar el error de formato de fecha
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Formato de fecha incorrecto.");
+                }
+            }
+            if (requestBody.containsKey("eha_activo")) {
+                eHExistente.setEha_activo((Boolean) requestBody.get("eha_activo"));
+            }
+
+            // Verificar y actualizar Empresa si se proporciona
+            /*Integer nuevaEmpresaId = (Integer) requestBody.get("emp_id");
+            if (nuevaEmpresaId != null) {
+                Empresa nuevaEmpresa = empresaService.buscarEmpresaPorId(nuevaEmpresaId);
+                if (nuevaEmpresa == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La empresa con el ID proporcionado no existe.");
+                }
+                eHExistente.setEmpresa(nuevaEmpresa);
+            }*/
+
+            // Verificar y actualizar Revisor si se proporciona
+            Integer nuevoRevisorId = (Integer) requestBody.get("rev_id");
+            if (nuevoRevisorId != null) {
+                Revisor nuevoRevisor = revisorService.buscarRevisorPorId(nuevoRevisorId);
+                if (nuevoRevisor == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El Revisor con el ID proporcionado no existe.");
+                }
+                eHExistente.setRevisor(nuevoRevisor);
+            }
+
+            // Guardar los cambios
+            empresaHabilitacionService.updateEmpresaHabilitacion(eHExistente);
+
+            return ResponseEntity.status(HttpStatus.OK).body("La Empresa Habilitación se actualizó correctamente.");
 
         } catch (Exception e) {
             // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos

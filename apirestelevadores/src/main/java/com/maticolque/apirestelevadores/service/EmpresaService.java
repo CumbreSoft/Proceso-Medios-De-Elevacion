@@ -38,4 +38,24 @@ public class EmpresaService {
     public void deleteEmpresaById(Integer id){
         empresaRepository.deleteById(id);
     }
+
+    // Método para obtener una empresa por su ID
+    public Empresa obtenerEmpresaPorId(Integer empresaId) {
+
+        // Obtener todas las empresas del repositorio
+        List<Empresa> empresas = empresaRepository.findAll();
+
+        // Buscar la empresa con el ID proporcionado
+        for (Empresa empresa : empresas) {
+            if (empresa.getEmp_id() == empresaId) {
+                // Devolver la empresa si se encuentra
+                return empresa;
+            }
+        }
+
+        // Devolver null si no se encuentra ninguna empresa con el ID proporcionado
+        return null;
+    }
+
+
 }

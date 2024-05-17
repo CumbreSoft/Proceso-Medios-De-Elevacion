@@ -346,19 +346,19 @@ public class MedioElevacionController {
     }
 
     // Método para mapear los datos del medio de elevación a un DTO
-    private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
-        Map<String, Object> medioElevacionDTO = new LinkedHashMap<>();
-        medioElevacionDTO.put("mde_id", medioElevacion.getMde_id());
-        medioElevacionDTO.put("tiposMaquinas", medioElevacion.getTiposMaquinas());
-        medioElevacionDTO.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
-        medioElevacionDTO.put("mde_tipo", medioElevacion.getMde_tipo());
-        medioElevacionDTO.put("mde_niveles", medioElevacion.getMde_niveles());
-        medioElevacionDTO.put("mde_planos_aprob", medioElevacion.isMde_planos_aprob());
-        medioElevacionDTO.put("mde_expte_planos", medioElevacion.getMde_expte_planos());
-        medioElevacionDTO.put("mde_activo", medioElevacion.isMde_activo());
-        medioElevacionDTO.put("empresa", mapEmpresa(medioElevacion.getEmpresa())); // Incluir la empresa asociada
-        return medioElevacionDTO;
-    }
+            private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
+                Map<String, Object> medioElevacionDTO = new LinkedHashMap<>();
+                medioElevacionDTO.put("mde_id", medioElevacion.getMde_id());
+                medioElevacionDTO.put("tiposMaquinas", medioElevacion.getTiposMaquinas());
+                medioElevacionDTO.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
+                medioElevacionDTO.put("mde_tipo", medioElevacion.getMde_tipo());
+                medioElevacionDTO.put("mde_niveles", medioElevacion.getMde_niveles());
+                medioElevacionDTO.put("mde_planos_aprob", medioElevacion.isMde_planos_aprob());
+                medioElevacionDTO.put("mde_expte_planos", medioElevacion.getMde_expte_planos());
+                medioElevacionDTO.put("mde_activo", medioElevacion.isMde_activo());
+                medioElevacionDTO.put("empresa", mapEmpresa(medioElevacion.getEmpresa())); // Incluir la empresa asociada
+                return medioElevacionDTO;
+            }
 
     // Método para mapear los datos del inmueble a un DTO
     private Map<String, Object> mapInmueble(Inmueble inmueble) {
@@ -375,36 +375,16 @@ public class MedioElevacionController {
 
     // Método para mapear datos de la empresa
     private Map<String, Object> mapEmpresa(Empresa empresa) {
+
+        if (empresa == null) {
+            return null;
+        }
+
         Map<String, Object> empresaDTO = new LinkedHashMap<>();
         empresaDTO.put("emp_id", empresa.getEmp_id());
         empresaDTO.put("emp_razon", empresa.getEmp_razon());
         return empresaDTO;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
