@@ -20,6 +20,9 @@ public class MedioHabilitacion {
     @Column(name = "mha_id")
     private int mha_id;
 
+    @Column(name = "mha_inm_padron_guardado", nullable = false, length = 20)
+    private int mha_inm_padron_guardado;
+
     @ManyToOne
     @JoinColumn(name = "mha_mde_id", nullable = false)
     private MedioElevacion medioElevacion;

@@ -35,7 +35,7 @@ public class Persona {
     @Column(name = "per_numdoc", length = 8)
     private String per_numdoc;
 
-    @Column(name = "per_telefono", length = 12)
+    @Column(name = "per_telefono", length = 30)
     private String per_telefono;
 
     @Column(name = "per_correo",  length = 40)

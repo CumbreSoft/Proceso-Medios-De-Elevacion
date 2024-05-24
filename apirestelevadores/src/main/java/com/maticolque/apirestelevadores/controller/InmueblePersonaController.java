@@ -125,44 +125,53 @@ public class InmueblePersonaController {
 
     //POST
     @PostMapping
-    public RespuestaDTO<InmueblePersona> crearInmublePersona(@RequestBody InmueblePersona inmueblePersona) {
+    public RespuestaDTO<InmueblePersona> crearInmueblePersona(@RequestBody InmueblePersona inmueblePersona) {
         try {
-            // Realizar validación de los datos
-            if (inmueblePersona.getInmueble().getInm_id() == 0) {
-                throw new IllegalArgumentException("El Inmueble es obligatorio.");
-            }else if (inmueblePersona.getPersona().getPer_id() == 0){
+            // Validar que el inmueble tenga el padron
+            if (inmueblePersona.getInmueble().getInm_padron() == 0) {
+                throw new IllegalArgumentException("El padrón del inmueble es obligatorio.");
+            } else if (inmueblePersona.getPersona().getPer_id() == 0) {
                 throw new IllegalArgumentException("La Persona es obligatoria.");
             }
 
-            // Llamar al servicio para crear el Inmueble Persona
-            InmueblePersona nuevoinmueblePersona = inmueblePersonaService.createInmueblePersona(inmueblePersona);
+            // Buscar el inmueble por padrón
+            Inmueble inmueble = inmuebleService.buscarInmueblePorPadron(inmueblePersona.getInmueble().getInm_padron());
+            if (inmueble == null) {
+                throw new IllegalArgumentException("No se encontró el inmueble con el padrón especificado.");
+            }
+
+            // Asignar el inmueble encontrado al objeto InmueblePersona
+            inmueblePersona.setInmueble(inmueble);
+
+            // Crear la relación Inmueble-Persona
+            InmueblePersona nuevoInmueblePersona = inmueblePersonaService.createInmueblePersona(inmueblePersona);
 
             // Obtener la persona relacionada
-            Persona persona = nuevoinmueblePersona.getPersona();
+            Persona persona = nuevoInmueblePersona.getPersona();
 
             // Cargar la persona desde la base de datos para asegurarnos de tener la versión más reciente
             persona = personaRepository.findById(persona.getPer_id()).orElse(null);
             if (persona == null) {
-                throw new EntityNotFoundException("No se encontró la persona con ID: " + nuevoinmueblePersona.getPersona().getPer_id());
+                throw new EntityNotFoundException("No se encontró la persona con ID: " + nuevoInmueblePersona.getPersona().getPer_id());
             }
 
-            // Actualizar los valores de per_es_dueno_emp y per_es_reptec_emp
+            // Actualizar los valores de per_es_admin_edif y per_es_coprop_edif
             persona.setPer_es_admin_edif(inmueblePersona.isIpe_es_admin_edif());
             persona.setPer_es_coprop_edif(inmueblePersona.isIpe_es_coprop_edif());
 
             // Guardar la persona actualizada en la base de datos
             personaRepository.save(persona);
 
-            return new RespuestaDTO<>(nuevoinmueblePersona, "Inmueble Persona creado con éxito.");
+            return new RespuestaDTO<>(nuevoInmueblePersona, "Inmueble Persona creado con éxito.");
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
             return new RespuestaDTO<>(null, "Error al crear un nuevo Inmueble Persona: " + e.getMessage());
-
         } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Inmueble Persona: "+ e.getMessage());
+            return new RespuestaDTO<>(null, "Error al crear un nuevo Inmueble Persona: " + e.getMessage());
         }
     }
+
 
 
     //PUT

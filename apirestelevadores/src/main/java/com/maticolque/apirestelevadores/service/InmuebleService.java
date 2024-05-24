@@ -25,6 +25,11 @@ public class InmuebleService {
         return inmuebleRepository.findById(id).orElse(null);
     }
 
+    // Mostrar por ID
+    public Inmueble buscarInmueblePorIds(Integer id) {
+        return inmuebleRepository.findById(id).orElse(null);
+    }
+
     //Crear inmueble
     public Inmueble createInmueble(Inmueble inmuble){
         return inmuebleRepository.save(inmuble);
@@ -38,5 +43,16 @@ public class InmuebleService {
     //ELiminar inmueble
     public void deleteInmuebleById(Integer id){
         inmuebleRepository.deleteById(id);
+    }
+
+    // Buscar inmueble por padron
+    public Inmueble buscarInmueblePorPadron(Integer inmPadron) {
+        List<Inmueble> inmuebles = inmuebleRepository.findAll();
+        for (Inmueble inmueble : inmuebles) {
+            if (inmueble.getInm_padron() == inmPadron) {
+                return inmueble;
+            }
+        }
+        return null; // Devuelve null si no se encuentra el inmueble con el padron dado
     }
 }

@@ -27,7 +27,7 @@ public class Empresa {
     @Column(name = "emp_cuit", nullable = false, length = 13)
     private String emp_cuit;
 
-    @Column(name = "emp_domic_legal", nullable = false, length = 50)
+    @Column(name = "emp_domic_legal", nullable = false, length = 200)
     private String emp_domic_legal;
 
     @Column(name = "emp_telefono", nullable = false, length = 30)

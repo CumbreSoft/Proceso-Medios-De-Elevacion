@@ -29,7 +29,7 @@ public class MedioElevacion {
     @JoinColumn(name = "mde_tma_id", nullable = false)
     private TipoMaquina tiposMaquinas;
 
-    @Column(name = "mde_ubicacion", nullable = false, length = 30)
+    @Column(name = "mde_ubicacion", nullable = false, length = 200)
     private String mde_ubicacion;
 
     @Column(name = "mde_tipo", nullable = false, length = 25) //NO SE SABA PARA QUE SIRVE AUN

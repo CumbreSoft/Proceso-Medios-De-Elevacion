@@ -6,6 +6,7 @@ import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.service.EmpresaPersonaService;
 import com.maticolque.apirestelevadores.service.InmuebleMedioElevacionService;
 import com.maticolque.apirestelevadores.service.InmuebleService;
+import com.maticolque.apirestelevadores.service.MedioElevacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,9 @@ public class InmuebleMedioElevacionController {
 
     @Autowired
     private EmpresaPersonaService empresaPersonaService;
+
+    @Autowired
+    private MedioElevacionService medioElevacionService;
 
     //GET
     @GetMapping
@@ -64,7 +68,10 @@ public class InmuebleMedioElevacionController {
                 mdeMap.put("mde_niveles", medioElevacion.getMde_niveles());
                 mdeMap.put("mde_planos_aprob", medioElevacion.isMde_planos_aprob());
                 mdeMap.put("mde_expte_planos", medioElevacion.getMde_expte_planos());
-                mdeMap.put("empresa", medioElevacion.getEmpresa());
+                //mdeMap.put("empresa", medioElevacion.getEmpresa());
+                // Mapear los datos de la empresa utilizando mapEmpresa
+                Map<String, Object> empresaMap = mapEmpresa(medioElevacion.getEmpresa());
+                mdeMap.put("empresa", empresaMap);
                 mdeMap.put("mde_activo", medioElevacion.isMde_activo());
                 inmuebleMDEMap.put("medio de Elevacion", mdeMap);
 
@@ -114,25 +121,40 @@ public class InmuebleMedioElevacionController {
     }
 
 
-    //POST
     @PostMapping
-    public RespuestaDTO<InmuebleMedioElevacion> crearInmuebleMDE(@RequestBody InmuebleMedioElevacion inmuebleMedioElevacion) {
-        // Llamar al servicio para crear el Inmueble Medios de Elevación
-
+    public RespuestaDTO<InmuebleMedioElevacion> crearInmuebleMDE(@RequestBody Map<String, Integer> requestData) {
         try {
-            // Realizar validación de los datos
-             if(inmuebleMedioElevacion.getInmueble().getInm_id() == 0){
+            Integer inmPadron = requestData.get("inm_padron");
+            Integer medioElevacionId = requestData.get("medioElevacionId");
 
-                 throw new IllegalArgumentException("El Inmueble es obligatorio.");
+            // Validaciones
+            if (inmPadron == null) {
+                throw new IllegalArgumentException("El padron del inmueble es obligatorio.");
+            }
+            if (medioElevacionId == null) {
+                throw new IllegalArgumentException("El ID del medio de elevación es obligatorio.");
+            }
 
-            }else if(inmuebleMedioElevacion.getMedioElevacion().getMde_id() == 0){
+            // Buscar el inmueble por su padron
+            Inmueble inmueble = inmuebleService.buscarInmueblePorPadron(inmPadron);
+            if (inmueble == null) {
+                throw new IllegalArgumentException("No se encontró un inmueble con el padron: " + inmPadron);
+            }
 
-                 throw new IllegalArgumentException("El  Medio de Elevacion es obligatorio.");
+            // Buscar el medio de elevación por su ID
+            MedioElevacion medioElevacion = medioElevacionService.buscarMedioElevacionPorId(medioElevacionId);
+            if (medioElevacion == null) {
+                throw new IllegalArgumentException("No se encontró un medio de elevación con el ID: " + medioElevacionId);
+            }
 
-             }
+            // Crear la entidad de InmuebleMedioElevacion y establecer las relaciones
+            InmuebleMedioElevacion inmuebleMedioElevacion = new InmuebleMedioElevacion();
+            inmuebleMedioElevacion.setInmueble(inmueble);
+            inmuebleMedioElevacion.setMedioElevacion(medioElevacion);
 
             // Llamar al servicio para crear el Inmueble Medios de Elevación
             InmuebleMedioElevacion nuevoInmuebleMedioElevacion = inmuebleMedioElevacionService.createInmuebleMDE(inmuebleMedioElevacion);
+
             return new RespuestaDTO<>(nuevoInmuebleMedioElevacion, "Inmueble Medio de Elevación creado con éxito.");
 
         } catch (IllegalArgumentException e) {
@@ -140,9 +162,11 @@ public class InmuebleMedioElevacionController {
             return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Elevación: " + e.getMessage());
 
         } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Elevación:  " + e.getMessage());
+            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Elevación: " + e.getMessage());
         }
     }
+
+
 
 
     //PUT
@@ -212,7 +236,7 @@ public class InmuebleMedioElevacionController {
             }
 
             // Buscar el nuevo inmueble por su ID
-            Inmueble nuevoInmueble = inmuebleService.buscarInmbublePorId(nuevoInmuebleId);
+            Inmueble nuevoInmueble = inmuebleService.buscarInmueblePorIds(nuevoInmuebleId);
 
             if (nuevoInmueble == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
@@ -278,12 +302,21 @@ public class InmuebleMedioElevacionController {
     }
 
     // Método para obtener todos los medios de elevación asociados a un inmueble específico
-    @GetMapping("/{inmuebleId}/mediosElevacion")
-    public ResponseEntity<?> obtenerMediosElevacionPorInmueble(@PathVariable("inmuebleId") Integer inmuebleId) {
+    @GetMapping("/padron/{inmPadron}/mediosElevacion")
+    public ResponseEntity<?> obtenerMediosElevacionPorPadron(@PathVariable("inmPadron") Integer inmPadron) {
         try {
+            // Obtener el inmueble por su padron
+            Inmueble inmueble = inmuebleService.buscarInmueblePorPadron(inmPadron);
+            if (inmueble == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró un inmueble con el padron: " + inmPadron)
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
 
             // Obtener todos los datos de InmuebleMedioElevacion asociados al inmueble
-            List<InmuebleMedioElevacion> inmuebleMedioElevacionList = inmuebleMedioElevacionService.obtenerMediosDeElevacionPorInmuebleId(inmuebleId);
+            List<InmuebleMedioElevacion> inmuebleMedioElevacionList = inmuebleMedioElevacionService.obtenerMediosDeElevacionPorInmuebleId(inmueble.getInm_id());
 
             // Lista para almacenar los medios de elevación asociados al inmueble
             List<Map<String, Object>> mediosElevacionList = new ArrayList<>();
@@ -312,11 +345,66 @@ public class InmuebleMedioElevacionController {
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista de Medios de Elevación para el Inmueble con ID: " + inmuebleId + ": " + e.getMessage())
+                    .message("Error al obtener la lista de Medios de Elevación para el Inmueble con padron: " + inmPadron + ": " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
+
+
+
+
+
+
+
+
+
+    // Método para obtener el medio de elevación por su ID
+    @GetMapping("/medioElevacion/{medioElevacionId}")
+    public ResponseEntity<?> obtenerMedioElevacionPorId(@PathVariable("medioElevacionId") Integer medioElevacionId) {
+        try {
+            // Obtener el InmuebleMedioElevacion asociado al medio de elevación
+            MedioElevacion medioElevacion = medioElevacionService.buscarMedioElevacionPorId(medioElevacionId);
+
+            if (medioElevacion == null) {
+                // Crear instancia de ErrorDTO con el código de error y el mensaje
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("El Medio de Elevación con ID: " + medioElevacionId + " no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Mapear los datos del medio de elevación a un DTO
+            Map<String, Object> medioElevacionDTO = mapMedioElevacion(medioElevacion);
+
+            // Obtener la empresa asociada al medio de elevación
+            Empresa empresa = medioElevacion.getEmpresa();
+            if (empresa != null) {
+                // Obtener la lista de personas asociadas a la empresa
+                List<Persona> personas = empresaPersonaService.obtenerPersonasPorEmpresa(empresa.getEmp_id());
+
+                // Mapear los datos de la empresa y las personas a un DTO
+                Map<String, Object> empresaDTO = mapEmpresa(empresa);
+                medioElevacionDTO.put("empresa", empresaDTO);
+            } else {
+                medioElevacionDTO.put("empresa", null);
+            }
+
+            // Crear la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("medioElevacion", medioElevacionDTO);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("ERR_INTERNAL_SERVER_ERROR")
+                    .message("Error al obtener el Medio de Elevación con ID: " + medioElevacionId + ": " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
+        }
+    }
+
 
     // Método para mapear los datos del medio de elevación a un DTO
     private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
@@ -364,21 +452,10 @@ public class InmuebleMedioElevacionController {
 
         Map<String, Object> personaDTO = new LinkedHashMap<>();
         personaDTO.put("per_id", persona.getPer_id());
-        personaDTO.put("per_nombre", persona.getPer_nombre());
+        personaDTO.put("per_apellido", persona.getPer_apellido());
         // Añadir más campos según tus necesidades
 
         return personaDTO;
     }
-
-
-
-
-
-
-
-
-
-
-
 
 }

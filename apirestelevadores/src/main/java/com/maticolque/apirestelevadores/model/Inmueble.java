@@ -27,7 +27,7 @@ public class Inmueble {
     @Column(name = "inm_padron", nullable = false)
     private int inm_padron;
 
-    @Column(name = "inm_dirección", nullable = false, length = 200)
+    @Column(name = "inm_direccion", nullable = false, length = 200)
     private String inm_direccion;
 
     @Column(name = "inm_cod_postal", nullable = false, length = 4)

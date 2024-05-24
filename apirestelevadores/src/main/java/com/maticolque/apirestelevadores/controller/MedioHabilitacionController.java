@@ -3,7 +3,7 @@ package com.maticolque.apirestelevadores.controller;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.*;
-import com.maticolque.apirestelevadores.service.MedioHabilitacionService;
+import com.maticolque.apirestelevadores.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -19,6 +22,21 @@ public class MedioHabilitacionController {
 
     @Autowired
     private MedioHabilitacionService medioHabilitacionService;
+
+    @Autowired
+    private MedioElevacionService medioElevacionService;
+
+    @Autowired
+    private TipoMaquinaService tipoMaquinaService;
+
+    @Autowired
+    private EmpresaService empresaService;
+
+    @Autowired
+    private PersonaService personaService;
+
+    @Autowired
+    private RevisorService revisorService;
 
 
     //GET
@@ -43,13 +61,14 @@ public class MedioHabilitacionController {
                 Map<String, Object> mediosHabilitacionMap = new LinkedHashMap<>();
 
                 mediosHabilitacionMap.put("mha_id", medioHabilitacion.getMha_id());
+                mediosHabilitacionMap.put("mha_inm_padron_guardado", medioHabilitacion.getMha_inm_padron_guardado());
 
                 // Verificar si la empresa no es nula antes de agregarla al DTO y mapear solo los campos necesarios
                 if (medioHabilitacion.getMedioElevacion() != null) {
                     Map<String, Object> mdeMap = new LinkedHashMap<>();
                     mdeMap.put("mde_id", medioHabilitacion.getMedioElevacion().getMde_id());
                     mdeMap.put("mde_ubicacion", medioHabilitacion.getMedioElevacion().getMde_ubicacion());
-                    mdeMap.put("tma_id", medioHabilitacion.getMedioElevacion().getTiposMaquinas().getTma_id());
+                    //mdeMap.put("tma_id", medioHabilitacion.getMedioElevacion().getTiposMaquinas().getTma_id());
                     mdeMap.put("tma_detalle", medioHabilitacion.getMedioElevacion().getTiposMaquinas().getTma_detalle());
 
 
@@ -150,7 +169,20 @@ public class MedioHabilitacionController {
     public RespuestaDTO<MedioHabilitacion> crearMedioHabilitacion(@RequestBody MedioHabilitacion medioHabilitacion) {
         try {
             // Realizar validación de los datos
-            if (medioHabilitacion.getMha_fecha() == null  || medioHabilitacion.getMha_expediente().isEmpty()
+            if(medioHabilitacion.getMha_inm_padron_guardado() == 0){
+                throw new IllegalArgumentException("El Padrón es obligatorio.");
+            }
+            else if(medioHabilitacion.getMedioElevacion().getMde_id() == 0){
+                throw new IllegalArgumentException("El Medio de Elevación es obligatorio.");
+            }
+            else if(medioHabilitacion.getEmpresa().getEmp_id() == 0){
+                throw new IllegalArgumentException("La Empresa es obligatoria.");
+            }
+            else if(medioHabilitacion.getPersona().getPer_id() == 0){
+                throw new IllegalArgumentException("La Persona es obligatoria.");
+
+            }
+            else if (medioHabilitacion.getMha_fecha() == null  || medioHabilitacion.getMha_expediente().isEmpty()
                     || medioHabilitacion.getMha_fecha_vto() == null
                     || medioHabilitacion.getMha_fecha_pago() == null
                     || medioHabilitacion.getMha_fecha_inspec() == null
@@ -158,16 +190,10 @@ public class MedioHabilitacionController {
 
                 throw new IllegalArgumentException("Todos los datos de destino son obligatorios.");
 
-            }/*else if(medioHabilitacion.getEmpresa().getEmp_id() == 0){
-                throw new IllegalArgumentException("La Empresa es obligatoria.");
-
-            }else if(medioHabilitacion.getPersona().getPer_id() == 0){
-                throw new IllegalArgumentException("La Persona es obligatoria.");
-
-            }*//*else if(medioHabilitacion.getRevisor().getRev_id() == 0){
+            }
+            else if(medioHabilitacion.getRevisor().getRev_id() == 0){
                 throw new IllegalArgumentException("El Revisor es obligatorio.");
-            }*/
-
+            }
             // Llamar al servicio para crear el Medio de Habilitacion
             MedioHabilitacion nuevoMedioHabilitacion = medioHabilitacionService.createMedioHabilitacion(medioHabilitacion);
             return new RespuestaDTO<>(nuevoMedioHabilitacion, "Medio Habilitación creado con éxito.");
@@ -182,6 +208,7 @@ public class MedioHabilitacionController {
     }
 
 
+    /*
     //PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
@@ -228,7 +255,158 @@ public class MedioHabilitacionController {
                     .build();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
+    }*/
+
+
+
+    //PUT EDITAR CON ID
+    @PutMapping("editar/{id}")
+    //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
+    public ResponseEntity<?> actualizarMedioHabilitacion(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
+        try {
+            // Lógica para modificar el Medio Habilitación
+            MedioHabilitacion medioHabilitacionExistente = medioHabilitacionService.buscarmedioHabilitacionPorId(id);
+
+            if (medioHabilitacionExistente == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("El Medio de Elevación-Habilitación con el ID proporcionado no existe.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            //Actualizar Datos
+
+            //Actulizar PADRON
+            if (requestBody.containsKey("mha_inm_padron_guardado")) {
+                medioHabilitacionExistente.setMha_inm_padron_guardado((int) requestBody.get("mha_inm_padron_guardado"));
+            }
+
+            //Actualizar ID MDE
+            Integer nuevoMDEId = (Integer) requestBody.get("mde_id");
+            if (nuevoMDEId != null) {
+                MedioElevacion nuevoMDE = medioElevacionService.buscarMedioElevacionPorId(nuevoMDEId);
+                if (nuevoMDE == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El Medio de Elevación con el ID proporcionado no existe.");
+                }
+                medioHabilitacionExistente.setMedioElevacion(nuevoMDE);
+            }
+
+            /*Actualizar ID Tipo Máquina
+            Integer nuevoTipoMId = (Integer) requestBody.get("tma_id");
+            if (nuevoTipoMId != null) {
+                TipoMaquina nuevoTipoMaquina = tipoMaquinaService.buscartipoMaquinaPorId(nuevoTipoMId);
+                if (nuevoTipoMaquina == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El Tipo de Máquina con el ID proporcionado no existe.");
+                }
+                medioHabilitacionExistente.getMedioElevacion().setTiposMaquinas(nuevoTipoMaquina);
+            }*/
+
+            //Actualizar ID Empresa
+            Integer nuevaEmpresaId = (Integer) requestBody.get("emp_id");
+            if (nuevaEmpresaId != null) {
+                Empresa nuevaEmpresa = empresaService.buscarEmpresaPorId(nuevaEmpresaId);
+                if (nuevaEmpresa == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La empresa con el ID proporcionado no existe.");
+                }
+                medioHabilitacionExistente.setEmpresa(nuevaEmpresa);
+            }
+
+            //Actualizar ID Persona/Técnico
+            Integer nuevoTecnicoId = (Integer) requestBody.get("per_id");
+            if (nuevoTecnicoId != null) {
+                Persona nuevaPersona = personaService.buscarPersonaPorId(nuevoTecnicoId);
+                if (nuevaPersona == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La Persona con el ID proporcionado no existe.");
+                }
+                medioHabilitacionExistente.setPersona(nuevaPersona);
+            }
+
+            //Actulizar Fecha Habilitación
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            if (requestBody.containsKey("mha_fecha")) {
+                try {
+                    Date mha_fecha = dateFormat.parse((String) requestBody.get("mha_fecha"));
+                    medioHabilitacionExistente.setMha_fecha(mha_fecha);
+                } catch (ParseException e) {
+                    // Manejar el error de formato de fecha
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Formato de fecha incorrecto.");
+                }
+            }
+
+            //Actulizar Expediente Sayges
+            if (requestBody.containsKey("mha_expediente")) {
+                medioHabilitacionExistente.setMha_expediente((String) requestBody.get("mha_expediente"));
+            }
+
+            //Actulizar Fecha Vencimiento
+            if (requestBody.containsKey("mha_fecha_vto")) {
+                try {
+                    Date mha_fecha_vto = dateFormat.parse((String) requestBody.get("mha_fecha_vto"));
+                    medioHabilitacionExistente.setMha_fecha_vto(mha_fecha_vto);
+                } catch (ParseException e) {
+                    // Manejar el error de formato de fecha
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Formato de fecha incorrecto.");
+                }
+            }
+
+            //Actulizar Fecha Pago
+            if (requestBody.containsKey("mha_fecha_pago")) {
+                try {
+                    Date mha_fecha_pago = dateFormat.parse((String) requestBody.get("mha_fecha_pago"));
+                    medioHabilitacionExistente.setMha_fecha_pago(mha_fecha_pago);
+                } catch (ParseException e) {
+                    // Manejar el error de formato de fecha
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Formato de fecha incorrecto.");
+                }
+            }
+
+            //Actulizar Fecha Inspección
+            if (requestBody.containsKey("mha_fecha_inspec")) {
+                try {
+                    Date mha_fecha_inspec = dateFormat.parse((String) requestBody.get("mha_fecha_inspec"));
+                    medioHabilitacionExistente.setMha_fecha_inspec(mha_fecha_inspec);
+                } catch (ParseException e) {
+                    // Manejar el error de formato de fecha
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Formato de fecha incorrecto.");
+                }
+            }
+
+            //Actulizar Medio Habilitado
+            if (requestBody.containsKey("mha_habilitado")) {
+                medioHabilitacionExistente.setMha_habilitado((Boolean) requestBody.get("mha_habilitado"));
+            }
+
+            //Actulizar Oblea
+            if (requestBody.containsKey("mha_oblea_entregada")) {
+                medioHabilitacionExistente.setMha_oblea_entregada((Boolean) requestBody.get("mha_oblea_entregada"));
+            }
+
+            //Actualizar ID Revisor
+            Integer nuevoRevisorId = (Integer) requestBody.get("rev_id");
+            if (nuevoRevisorId != null) {
+                Revisor nuevoRevisor = revisorService.buscarRevisorPorId(nuevoRevisorId);
+                if (nuevoRevisor == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El Revisor con el ID proporcionado no existe.");
+                }
+                medioHabilitacionExistente.setRevisor(nuevoRevisor);
+            }
+
+            // Guardar los cambios
+            medioHabilitacionService.updateMedioHabilitacion(medioHabilitacionExistente);
+
+            return ResponseEntity.status(HttpStatus.OK).body("La Empresa Habilitación se actualizó correctamente.");
+
+        } catch (Exception e) {
+            // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("404 NOT FOUND")
+                    .message("Error al modificar el Medio de Habilitación. " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+        }
     }
+
 
 
     //DELETE
