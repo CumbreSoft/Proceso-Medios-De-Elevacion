@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RevisorService {
@@ -37,5 +38,24 @@ public class RevisorService {
     //ELiminar Revisor
     public void deleteRevisorById(Integer id){
         revisorRepository.deleteById(id);
+    }
+
+
+    // Método para filtrar revisores basado en el parámetro
+    public List<Revisor> getRevisoresByParameter(int valor) {
+        List<Revisor> revisores = revisorRepository.findAll();
+        switch (valor) {
+            case 1:
+                return revisores.stream()
+                        .filter(revisor -> (revisor.isRev_aprob_mde() || revisor.isRev_renov_mde()) && !revisor.isRev_aprob_emp())
+                        .collect(Collectors.toList());
+            case 2:
+                return revisores.stream()
+                        .filter(revisor -> revisor.isRev_aprob_emp() && !revisor.isRev_aprob_mde() && !revisor.isRev_renov_mde())
+                        .collect(Collectors.toList());
+            case 0:
+            default:
+                return revisores;
+        }
     }
 }

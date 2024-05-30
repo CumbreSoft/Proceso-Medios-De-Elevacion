@@ -20,11 +20,11 @@ public class MedioDocumento {
     @Column(name = "mdo_id")
     private int mdo_id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "mdo_mha_id", nullable = false)
     private MedioHabilitacion medioHabilitacion;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "mdo_tad_id", nullable = false)
     private TipoAdjunto tipoAdjunto;
 
@@ -35,7 +35,7 @@ public class MedioDocumento {
     @Temporal(TemporalType.DATE)
     private Date mdo_adjunto_fecha;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "mdo_rev_id", nullable = false)
     private Revisor revisor;
 

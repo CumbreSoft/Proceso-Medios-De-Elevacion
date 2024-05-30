@@ -3,6 +3,7 @@ package com.maticolque.apirestelevadores.controller;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.Destino;
+import com.maticolque.apirestelevadores.model.Empresa;
 import com.maticolque.apirestelevadores.model.TipoAdjunto;
 import com.maticolque.apirestelevadores.service.TipoAdjuntoService;
 import jakarta.persistence.Column;
@@ -13,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/tipoAdjunto")
@@ -38,7 +39,23 @@ public class TipoAdjuntoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            return ResponseEntity.ok(tipoAdjuntos);
+            //return ResponseEntity.ok(tipoAdjuntos);
+            List<Map<String, Object>> tipoAdjuntoDTO = new ArrayList<>();
+            for (TipoAdjunto tipoAdjunto : tipoAdjuntos) {
+                Map<String, Object> tipoAdjuntoMap = new LinkedHashMap<>();
+
+                tipoAdjuntoMap.put("tad_id", tipoAdjunto.getTad_id());
+                tipoAdjuntoMap.put("tad_nombre", tipoAdjunto.getTad_nombre());
+                tipoAdjuntoMap.put("tad_cod", tipoAdjunto.getTad_cod());
+                tipoAdjuntoMap.put("tad_activo", tipoAdjunto.isTad_activo());
+
+                tipoAdjuntoDTO.add(tipoAdjuntoMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("tiposAdjuntos", tipoAdjuntoDTO);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje

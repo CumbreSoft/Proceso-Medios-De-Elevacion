@@ -24,7 +24,7 @@ public class RevisorController {
 
 
     //GET
-    @GetMapping
+    /*@GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
             List<Revisor> revisores = revisorService.getAllRevisor();
@@ -74,11 +74,71 @@ public class RevisorController {
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
+    }*/
+
+
+    // GET: Listar revisores basado en un parámetro
+    @GetMapping("parametro/{param}")
+    public ResponseEntity<?> listarRevisoresPorParametro(@PathVariable int param) {
+
+        // Validar que el parámetro sea 0, 1 o 2
+        if (param < 0 || param > 2) {
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("400 BAD REQUEST")
+                    .message("El parámetro debe ser 0, 1 o 2.")
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+        }
+
+        try {
+            List<Revisor> revisores = revisorService.getRevisoresByParameter(param);
+
+            if (revisores.isEmpty()) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontraron Revisores según el criterio especificado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            List<Map<String, Object>> revisoresDTO = new ArrayList<>();
+            for (Revisor revisor : revisores) {
+                Map<String, Object> revisorMap = new LinkedHashMap<>();
+
+                revisorMap.put("rev_id", revisor.getRev_id());
+                revisorMap.put("rev_apellido", revisor.getRev_apellido());
+                revisorMap.put("rev_nombre", revisor.getRev_nombre());
+                revisorMap.put("rev_cuit", revisor.getRev_cuit());
+                revisorMap.put("rev_tipodoc", revisor.getRev_tipodoc());
+                revisorMap.put("rev_numdoc", revisor.getRev_numdoc());
+                revisorMap.put("rev_correo", revisor.getRev_correo());
+                revisorMap.put("rev_telefono", revisor.getRev_telefono());
+                revisorMap.put("rev_usuario_sayges", revisor.getRev_usuario_sayges());
+                revisorMap.put("rev_aprob_mde", revisor.isRev_aprob_mde());
+                revisorMap.put("rev_renov_mde", revisor.isRev_renov_mde());
+                revisorMap.put("rev_aprob_emp", revisor.isRev_aprob_emp());
+                revisorMap.put("rev_activo", revisor.isRev_activo());
+
+                revisoresDTO.add(revisorMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("revisores", revisoresDTO);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("ERR_INTERNAL_SERVER_ERROR")
+                    .message("Error al obtener la lista de Revisores: " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
+        }
     }
 
 
     //GET POR ID
-    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     public ResponseEntity<?> buscarRevisorPorId(@PathVariable Integer id) {
         try {
             Revisor revisorExistente = revisorService.buscarRevisorPorId(id);
@@ -101,7 +161,7 @@ public class RevisorController {
                     .build();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }
-    }
+    }*/
 
 
     //POST
@@ -111,6 +171,11 @@ public class RevisorController {
             // Realizar validación de los datos
             if (revisor.getRev_nombre().isEmpty() || revisor.getRev_numdoc().isEmpty()) {
                 throw new IllegalArgumentException("Todos los datos del Revisor son obligatorios.");
+            }
+
+            // Validar que al menos una de las variables sea true
+            if (!revisor.isRev_aprob_mde() && !revisor.isRev_renov_mde() && !revisor.isRev_aprob_emp()) {
+                throw new IllegalArgumentException("Al menos una de las variables rev_aprob_mde, rev_renov_mde, o rev_aprob_emp debe estar en true.");
             }
 
             // Llamar al servicio para crear el Revisor

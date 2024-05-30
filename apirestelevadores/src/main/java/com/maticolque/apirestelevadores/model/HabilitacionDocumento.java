@@ -20,11 +20,11 @@ public class HabilitacionDocumento {
     @Column(name = "hdo_id")
     private int hdo_id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "hdo_eha_id", nullable = false)
     private EmpresaHabilitacion empresaHabilitacion;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "hdo_tad_id", nullable = false)
     private TipoAdjunto tipoAdjunto;
 
@@ -35,7 +35,7 @@ public class HabilitacionDocumento {
     @Temporal(TemporalType.DATE)
     private Date hdo_adjunto_fecha;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "hdo_rev_id", nullable = false)
     private Revisor revisor;
 
