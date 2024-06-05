@@ -31,6 +31,34 @@ public class EmpresaHabilitacionController {
     @Autowired
     private RevisorService revisorService;
 
+    //METODOS
+
+    //EMPRESA
+    private Map<String, Object> mapEmpresa(Empresa empresa) {
+
+        if (empresa == null) {
+            return null;
+        }
+
+        Map<String, Object> empresaDTO = new LinkedHashMap<>();
+        empresaDTO.put("emp_id", empresa.getEmp_id());
+        empresaDTO.put("emp_razon", empresa.getEmp_razon());
+        return empresaDTO;
+    }
+
+    //REVISOR
+    private Map<String, Object> mapRevisor(Revisor revisor) {
+        if (revisor == null) {
+            return null;
+        }
+
+        Map<String, Object> revisorMap = new LinkedHashMap<>();
+        revisorMap.put("rev_id", revisor.getRev_id());
+        revisorMap.put("rev_apellido", revisor.getRev_apellido());
+        return revisorMap;
+    }
+    //METODOS
+
 
     //GET
     @GetMapping
@@ -61,11 +89,11 @@ public class EmpresaHabilitacionController {
 
                 empresaHMap.put("eha_id", empresaHabilitacion.getEha_id());
                 empresaHMap.put("eha_fecha", ehaFechaFormatted);
-                empresaHMap.put("empresa",empresaHabilitacion.getEmpresa());
+                empresaHMap.put("empresa",mapEmpresa(empresaHabilitacion.getEmpresa()));
                 empresaHMap.put("eha_expediente",empresaHabilitacion.getEha_expediente());
                 empresaHMap.put("eha_habilitada",empresaHabilitacion.isEha_habilitada());
                 empresaHMap.put("eha_vto_hab", ehaVtoHabFormatted);
-                empresaHMap.put("revisor", empresaHabilitacion.getRevisor());
+                empresaHMap.put("revisor", mapRevisor(empresaHabilitacion.getRevisor()));
                 empresaHMap.put("eha_activo",empresaHabilitacion.isEha_activo());
 
                 empresaHDTO.add(empresaHMap);

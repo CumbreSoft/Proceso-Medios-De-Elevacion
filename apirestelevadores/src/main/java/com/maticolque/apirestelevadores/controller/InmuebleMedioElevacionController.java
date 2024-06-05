@@ -353,12 +353,6 @@ public class InmuebleMedioElevacionController {
 
 
 
-
-
-
-
-
-
     // Método para obtener el medio de elevación por su ID
     @GetMapping("/medioElevacion/{medioElevacionId}")
     public ResponseEntity<?> obtenerMedioElevacionPorId(@PathVariable("medioElevacionId") Integer medioElevacionId) {
@@ -410,17 +404,30 @@ public class InmuebleMedioElevacionController {
     private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
         Map<String, Object> medioElevacionDTO = new LinkedHashMap<>();
         medioElevacionDTO.put("mde_id", medioElevacion.getMde_id());
-        medioElevacionDTO.put("tiposMaquinas", medioElevacion.getTiposMaquinas());
+        medioElevacionDTO.put("tiposMaquinas", mapTiposMaquinas(medioElevacion.getTiposMaquinas()));
+        //Descomentar para ver mas datos
         medioElevacionDTO.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
-        medioElevacionDTO.put("mde_tipo", medioElevacion.getMde_tipo());
-        medioElevacionDTO.put("mde_niveles", medioElevacion.getMde_niveles());
-        medioElevacionDTO.put("mde_planos_aprob", medioElevacion.isMde_planos_aprob());
-        medioElevacionDTO.put("mde_expte_planos", medioElevacion.getMde_expte_planos());
-        medioElevacionDTO.put("mde_activo", medioElevacion.isMde_activo());
+        //medioElevacionDTO.put("mde_tipo", medioElevacion.getMde_tipo());
+        //medioElevacionDTO.put("mde_niveles", medioElevacion.getMde_niveles());
+        //medioElevacionDTO.put("mde_planos_aprob", medioElevacion.isMde_planos_aprob());
+        //medioElevacionDTO.put("mde_expte_planos", medioElevacion.getMde_expte_planos());
+        //medioElevacionDTO.put("mde_activo", medioElevacion.isMde_activo());
         medioElevacionDTO.put("empresa", mapEmpresa(medioElevacion.getEmpresa())); // Incluir la empresa asociada
         return medioElevacionDTO;
     }
 
+    //TIPO MAQUINA
+    private Map<String, Object> mapTiposMaquinas(TipoMaquina tiposMaquinas) {
+        if (tiposMaquinas == null) {
+            return null;
+        }
+        Map<String, Object> tiposMaquinasDTO = new LinkedHashMap<>();
+        tiposMaquinasDTO.put("tma_id", tiposMaquinas.getTma_id());
+        tiposMaquinasDTO.put("tma_detalle", tiposMaquinas.getTma_detalle());
+        return tiposMaquinasDTO;
+    }
+
+    //EMPRESA
     private Map<String, Object> mapEmpresa(Empresa empresa) {
         if (empresa == null) {
             return null;

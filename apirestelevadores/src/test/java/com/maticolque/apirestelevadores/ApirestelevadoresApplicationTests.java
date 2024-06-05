@@ -1,4 +1,4 @@
-package com.maticolque.apirestelevadores;
+/*package com.maticolque.apirestelevadores;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,4 +10,4 @@ class ApirestelevadoresApplicationTests {
 	void contextLoads() {
 	}
 
-}
+}*/

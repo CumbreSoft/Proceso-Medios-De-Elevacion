@@ -133,6 +133,11 @@ public class MedioElevacionController {
                 throw new IllegalArgumentException("La Máquina es obligatoria.");
             }
 
+            // Validar si el emp_id es 0
+            if (medioElevacion.getEmpresa() != null && medioElevacion.getEmpresa().getEmp_id() == 0) {
+                medioElevacion.setEmpresa(null); // No relacionar con ninguna empresa
+            }
+
             // Llamar al servicio para crear el destino
             MedioElevacion nuevoMedioElevacion = medioElevacionService.createMedioElevacion(medioElevacion);
 
@@ -353,7 +358,7 @@ public class MedioElevacionController {
     private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
         Map<String, Object> medioElevacionDTO = new LinkedHashMap<>();
         medioElevacionDTO.put("mde_id", medioElevacion.getMde_id());
-        medioElevacionDTO.put("tiposMaquinas", medioElevacion.getTiposMaquinas());
+        medioElevacionDTO.put("tiposMaquinas", mapTiposMaquinas(medioElevacion.getTiposMaquinas()));
         medioElevacionDTO.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
         medioElevacionDTO.put("mde_tipo", medioElevacion.getMde_tipo());
         medioElevacionDTO.put("mde_niveles", medioElevacion.getMde_niveles());
@@ -381,11 +386,13 @@ public class MedioElevacionController {
         Map<String, Object> inmuebleDTO = new LinkedHashMap<>();
         inmuebleDTO.put("inm_id", inmueble.getInm_id()); // ID del inmueble
         inmuebleDTO.put("inm_padron", inmueble.getInm_padron());
-        inmuebleDTO.put("destino", inmueble.getDestino());
-        inmuebleDTO.put("inm_direccion", inmueble.getInm_direccion());
-        inmuebleDTO.put("distrito", inmueble.getDistrito());
-        inmuebleDTO.put("inm_cod_postal", inmueble.getInm_cod_postal());
-        inmuebleDTO.put("inm_activo", inmueble.isInm_activo());
+
+        //si quiero mostrar mas datos descomento esto
+        //inmuebleDTO.put("destino", inmueble.getDestino());
+        //inmuebleDTO.put("inm_direccion", inmueble.getInm_direccion());
+        //inmuebleDTO.put("distrito", inmueble.getDistrito());
+        //inmuebleDTO.put("inm_cod_postal", inmueble.getInm_cod_postal());
+        //inmuebleDTO.put("inm_activo", inmueble.isInm_activo());
         return inmuebleDTO;
     }
 
@@ -401,181 +408,4 @@ public class MedioElevacionController {
         empresaDTO.put("emp_razon", empresa.getEmp_razon());
         return empresaDTO;
     }
-
-
-
-
-
-
-
-
-    /*LISTAR TODOS LOS MEDIOS DE ELEVACION CON SU LISTA DE [INMUEBLES]
-    @GetMapping("/medioDeElevacionConListInmuebles")
-    public Map<String, Object> obtenerMediosDeElevacionConInmuebles() {
-
-        Map<String, Object> response = new HashMap<>();
-
-        // Obtener todos los datos de InmuebleMedioDeElevacion
-        List<InmuebleMedioElevacion> inmuebleMediosDeElevacion = medioElevacionService.obtenerPrimeroLosDatosDeInmueblePersona();
-
-        // Mapear los datos por Medio De Elevacion
-        Map<Integer, Map<String, Object>> mediosDeElevacionMap = new HashMap<>();
-
-        // Agregar inmuebles a mediosDeElevacionMap
-        for (InmuebleMedioElevacion inmuebleMedioElevacion : inmuebleMediosDeElevacion) {
-            MedioElevacion medioElevacion = inmuebleMedioElevacion.getMedioElevacion();
-
-            int mdeID = medioElevacion.getMde_id();
-
-            if (!mediosDeElevacionMap.containsKey(mdeID)) {
-                Map<String, Object> mdeMap = mapMedioElevacion(medioElevacion);
-                mdeMap.put("inmuebles", new ArrayList<>());
-                mediosDeElevacionMap.put(mdeID, mdeMap);
-            }
-
-            Map<String, Object> mdeinmueblesMap = mediosDeElevacionMap.get(mdeID);
-            List<Map<String, Object>> inmuebles = (List<Map<String, Object>>) mdeinmueblesMap.get("inmuebles");
-            Map<String, Object> inmuebleMap = mapInmueble(inmuebleMedioElevacion.getInmueble());
-            inmuebles.add(inmuebleMap);
-        }
-
-        // Convertir personasMap a List<Map<String, Object>>
-        List<Map<String, Object>> mediosDeElevacionDTO = new ArrayList<>();
-        for (Map.Entry<Integer, Map<String, Object>> entry : mediosDeElevacionMap.entrySet()) {
-            mediosDeElevacionDTO.add(entry.getValue());
-        }
-
-        // Agregar la lista completa al objeto de respuesta
-        response.put("mediosDeElevacionInmuebles", mediosDeElevacionDTO);
-
-        return response;
-    }
-
-
-    // Método para mapear los datos de la persona a un DTO
-    private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
-        Map<String, Object> medioElevacionDTO = new LinkedHashMap<>();
-        medioElevacionDTO.put("mde_id", medioElevacion.getMde_id());
-        medioElevacionDTO.put("tiposMaquinas", medioElevacion.getTiposMaquinas());
-        medioElevacionDTO.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
-        medioElevacionDTO.put("mde_tipo", medioElevacion.getMde_tipo());
-        medioElevacionDTO.put("mde_niveles", medioElevacion.getMde_niveles());
-        medioElevacionDTO.put("mde_activo", medioElevacion.isMde_activo());
-        return medioElevacionDTO;
-    }
-
-
-    // Método para mapear los datos del inmueble a un DTO
-    private Map<String, Object> mapInmueble(Inmueble inmueble) {
-        Map<String, Object> inmuebleMap = new LinkedHashMap<>();
-        inmuebleMap.put("inm_id", inmueble.getInm_id());
-        inmuebleMap.put("inm_padron", inmueble.getInm_padron());
-        // Agregar otros campos de inmueble si es necesario
-        return inmuebleMap;
-    }*/
-
-    //Este metodo agregar al Service
-    /*public List<InmuebleMedioElevacion> obtenerPrimeroLosDatosDeInmueblePersona() {
-        return inmuebleMedioElevacionRepository.findAll();
-    }*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //LISTAR TODOS LOS MEDIOS DE ELEVACION CON SU LISTA DE [INMUEBLES] Y SU EMPRESA
-    /*@GetMapping("/medioDeElevacionConListInmuebles")
-    public Map<String, Object> obtenerMediosDeElevacionConInmuebles() {
-        Map<String, Object> response = new HashMap<>();
-
-        List<InmuebleMedioElevacion> inmuebleMediosDeElevacion = medioElevacionService.obtenerPrimeroLosDatosDeInmueblePersona();
-
-        Map<Integer, Map<String, Object>> mediosDeElevacionMap = new HashMap<>();
-
-        for (InmuebleMedioElevacion inmuebleMedioElevacion : inmuebleMediosDeElevacion) {
-            MedioElevacion medioElevacion = inmuebleMedioElevacion.getMedioElevacion();
-            int mdeID = medioElevacion.getMde_id();
-
-            if (!mediosDeElevacionMap.containsKey(mdeID)) {
-                Map<String, Object> mdeMap = mapMedioElevacion(medioElevacion);
-                mdeMap.put("inmuebles", new ArrayList<>());
-                mediosDeElevacionMap.put(mdeID, mdeMap);
-            }
-
-            Map<String, Object> mdeinmueblesMap = mediosDeElevacionMap.get(mdeID);
-            List<Map<String, Object>> inmuebles = (List<Map<String, Object>>) mdeinmueblesMap.get("inmuebles");
-            Map<String, Object> inmuebleMap = mapInmueble(inmuebleMedioElevacion.getInmueble());
-            inmuebles.add(inmuebleMap);
-
-            // Agregar información de la empresa
-            Empresa empresa = medioElevacion.getEmpresa();
-            Map<String, Object> empresaMap = mapEmpresa(empresa);
-            mdeinmueblesMap.put("empresa", empresaMap);
-        }
-
-        List<Map<String, Object>> mediosDeElevacionDTO = new ArrayList<>();
-        for (Map.Entry<Integer, Map<String, Object>> entry : mediosDeElevacionMap.entrySet()) {
-            mediosDeElevacionDTO.add(entry.getValue());
-        }
-
-        response.put("mediosDeElevacionInmuebles", mediosDeElevacionDTO);
-
-        return response;
-    }
-
-    private Map<String, Object> mapEmpresa(Empresa empresa) {
-        if (empresa == null) {
-            return null;
-        }
-        Map<String, Object> empresaMap = new LinkedHashMap<>();
-        empresaMap.put("emp_id", empresa.getEmp_id());
-        empresaMap.put("emp_razon", empresa.getEmp_razon());
-        // Agregar otros campos de empresa si es necesario
-        return empresaMap;
-    }
-
-
-
-    // Método para mapear los datos de la persona a un DTO
-    private Map<String, Object> mapMedioElevacion(MedioElevacion medioElevacion) {
-        Map<String, Object> medioElevacionDTO = new LinkedHashMap<>();
-        medioElevacionDTO.put("mde_id", medioElevacion.getMde_id());
-        medioElevacionDTO.put("tiposMaquinas", medioElevacion.getTiposMaquinas());
-        medioElevacionDTO.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
-        medioElevacionDTO.put("mde_tipo", medioElevacion.getMde_tipo());
-        medioElevacionDTO.put("mde_niveles", medioElevacion.getMde_niveles());
-        medioElevacionDTO.put("mde_activo", medioElevacion.isMde_activo());
-        return medioElevacionDTO;
-    }
-
-
-    // Método para mapear los datos del inmueble a un DTO
-    private Map<String, Object> mapInmueble(Inmueble inmueble) {
-        Map<String, Object> inmuebleMap = new LinkedHashMap<>();
-        inmuebleMap.put("inm_id", inmueble.getInm_id());
-        inmuebleMap.put("inm_padron", inmueble.getInm_padron());
-        // Agregar otros campos de inmueble si es necesario
-        return inmuebleMap;
-    }*/
-
-
-
-
-
-
-
-
 }
