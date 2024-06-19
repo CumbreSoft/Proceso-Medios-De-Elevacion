@@ -140,10 +140,10 @@ meh.eha_habilitada = 1
 			<textField>
 				<reportElement x="109" y="160" width="100" height="20" uuid="0eb2b309-49d0-4358-b7a2-c628c8840c29"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{p_fechaDesde}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{p_fechaDesde}.equals("-") ? "Todas" :$P{p_fechaDesde}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" x="37" y="160" width="70" height="20" uuid="8e05cab9-85f0-4c26-a9b3-86f6637300c7"/>
+				<reportElement positionType="Float" x="11" y="160" width="96" height="20" uuid="8e05cab9-85f0-4c26-a9b3-86f6637300c7"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10" isBold="true" isUnderline="false"/>
 				</textElement>
@@ -160,10 +160,10 @@ F. Vto:  Fecha Vencimiento]]></text>
 			<textField>
 				<reportElement x="294" y="160" width="100" height="20" uuid="945d3b37-df25-4a11-ad62-38eb431a2659"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{p_fechaHasta}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{p_fechaHasta}.equals("-") ? "Todas" :$P{p_fechaHasta}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" x="222" y="160" width="70" height="20" uuid="5632f329-34c2-492b-af79-d5e4e6d61b63"/>
+				<reportElement positionType="Float" x="209" y="160" width="83" height="20" uuid="5632f329-34c2-492b-af79-d5e4e6d61b63"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10" isBold="true" isUnderline="false"/>
 				</textElement>

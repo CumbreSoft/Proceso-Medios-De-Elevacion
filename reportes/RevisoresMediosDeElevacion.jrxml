@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.21.2.final using JasperReports Library version 6.21.2-8434a0bd7c3bbc37cbf916f2968d35e4b165821a  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="RevisoresMediosDeElevacion" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e0ea1e90-45a0-48f6-bdbd-5394b8f2777e">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="RevisoresMediosDeElevacion" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e0ea1e90-45a0-48f6-bdbd-5394b8f2777e">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Desarrollo"/>
 	<parameter name="prutaImagen" class="java.lang.String"/>
@@ -8,23 +8,30 @@
 	<parameter name="p_tipoDoc" class="java.lang.String"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT 
-CONCAT (rev_apellido, ', ', rev_nombre) as nombreCompleto,
-rev_cuit ,
-rev_tipodoc ,
-rev_numdoc ,
-rev_telefono ,
-rev_correo ,
-rev_usuario_sayges, 
-rev_aprob_mde ,
-rev_renov_mde ,
-rev_aprob_emp ,
-rev_activo 
-FROM mediosdeelevacion.mde_revisores mr 
+    CONCAT(rev_apellido, ', ', rev_nombre) as nombreCompleto,
+    rev_cuit,
+    rev_tipodoc,
+    rev_numdoc,
+    rev_telefono,
+    rev_correo,
+    rev_usuario_sayges, 
+    rev_aprob_mde,
+    rev_renov_mde,
+    rev_aprob_emp,
+    rev_activo 
+FROM 
+    mediosdeelevacion.mde_revisores mr 
 WHERE 
-    $P{p_numDoc} = '-' OR (rev_numdoc = $P{p_numDoc} AND rev_activo = 1)
-AND (
-    $P{p_tipoDoc} = '-' OR rev_tipodoc = $P{p_tipoDoc}
-    )]]>
+    (
+        $P{p_numDoc} = '-' 
+        OR rev_numdoc = $P{p_numDoc}
+    )
+    AND rev_activo = 1
+    AND (
+        $P{p_tipoDoc} NOT IN ('1', '2') 
+        OR rev_tipodoc = $P{p_tipoDoc}
+    )
+]]>
 	</queryString>
 	<field name="nombreCompleto" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="nombreCompleto"/>
@@ -149,7 +156,7 @@ AND (
 			<textField>
 				<reportElement x="109" y="160" width="100" height="20" uuid="0eb2b309-49d0-4358-b7a2-c628c8840c29"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{p_tipoDoc}  == "1" ? "DNI" : ($P{p_tipoDoc} == "2" ? "PAS" : "Todos")]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{p_tipoDoc}  == "1" ? "DNI" : ($P{p_tipoDoc} == "2" ? "Pasaporte" : "Todos")]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" x="37" y="160" width="70" height="20" uuid="8e05cab9-85f0-4c26-a9b3-86f6637300c7"/>
