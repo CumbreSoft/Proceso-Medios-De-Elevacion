@@ -29,15 +29,15 @@
     mmh.mha_oblea_entregada, 
     mmh.mha_habilitado 
 FROM 
-    mediosdeelevacion.mde_medios_habilitacion mmh 
+	mediosdeelevacion.mde_medioselevacion mm
 JOIN 
-    mediosdeelevacion.mde_empresas me ON mmh.mha_emp_id = me.emp_id 
+	mediosdeelevacion.mde_empresas me ON mm.mde_emp_id = me.emp_id 
 JOIN 
-    mediosdeelevacion.mde_revisores mr ON mmh.mha_rev_id = mr.rev_id 
+	mediosdeelevacion.mde_tipos_maquinas mtm ON mm.mde_tma_id = mtm.tma_id 
 JOIN 
-    mediosdeelevacion.mde_medioselevacion mm ON mmh.mha_mde_id = mm.mde_id 
+	mediosdeelevacion.mde_medios_habilitacion mmh ON mm.mde_id = mmh.mha_mde_id  
 JOIN 
-    mediosdeelevacion.mde_tipos_maquinas mtm ON mm.mde_tma_id = mtm.tma_id 
+	mediosdeelevacion.mde_revisores mr ON mmh.mha_rev_id  = mr.rev_id 
 WHERE 
     mmh.mha_activo = 1 
     AND ($P{p_fecha_desde} = '-' OR mmh.mha_fecha >= $P{p_fecha_desde}) 

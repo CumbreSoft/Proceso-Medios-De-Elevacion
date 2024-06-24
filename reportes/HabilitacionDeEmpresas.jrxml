@@ -25,17 +25,19 @@ meh.eha_fecha ,
 meh.eha_expediente ,
 meh.eha_vto_hab ,
 meh.eha_habilitada ,
-CONCAT(mr.rev_nombre ," " ,mr.rev_apellido) as nombreCompleto 
+CONCAT(mr.rev_nombre , mr.rev_apellido) as nombreCompleto 
 
 FROM mediosdeelevacion.mde_empresas me 
 JOIN mediosdeelevacion.mde_empresas_habilitacion meh on me.emp_id = meh.eha_emp_id 
 JOIN mediosdeelevacion.mde_revisores mr on meh.eha_rev_id = mr.rev_id 
 
 WHERE
-meh.eha_habilitada = 1
+me.emp_activa = 1 
     AND ($P{p_empID} = '-' OR me.emp_id = $P{p_empID}) 
-    AND ($P{p_fechaDesde} = '-' OR meh.eha_fecha > $P{p_fechaDesde}) 
-    AND ($P{p_fechaHasta} = '-' OR meh.eha_fecha < $P{p_fechaHasta})]]>
+    AND ($P{p_fechaDesde} = '-' OR meh.eha_fecha >= $P{p_fechaDesde}) 
+    AND ($P{p_fechaHasta} = '-' OR meh.eha_fecha <= $P{p_fechaHasta}) 
+
+]]>
 	</queryString>
 	<field name="emp_id" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.name" value="emp_id"/>

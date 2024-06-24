@@ -26,16 +26,26 @@
     mm.mde_expte_planos,
     me.emp_razon,
     mm.mde_activo
-FROM mediosdeelevacion.mde_medioselevacion mm
-JOIN mediosdeelevacion.mde_tipos_maquinas mtm ON mm.mde_tma_id = mtm.tma_id
-JOIN mediosdeelevacion.mde_inmuebles_medioselevacion mim ON mm.mde_id = mim.ime_mde_id
-JOIN mediosdeelevacion.mde_inmuebles mi ON mim.ime_inm_id = mi.inm_id
-JOIN mediosdeelevacion.mde_distrito md ON mi.inm_dis_id = md.dis_id
-JOIN mediosdeelevacion.mde_empresas me ON mm.mde_emp_id = me.emp_id
+FROM 
+	mediosdeelevacion.mde_medioselevacion mm
+JOIN	
+	mediosdeelevacion.mde_inmuebles_medioselevacion mim ON mm.mde_id = mim.ime_mde_id 
+JOIN 
+	mediosdeelevacion.mde_inmuebles mi ON mim.ime_inm_id = mi.inm_id 
+JOIN 
+	mediosdeelevacion.mde_distrito md ON mi.inm_dis_id = md.dis_id 
+JOIN 
+	mediosdeelevacion.mde_empresas me ON mm.mde_emp_id = me.emp_id 
+JOIN 
+	mediosdeelevacion.mde_tipos_maquinas mtm ON mm.mde_tma_id = mtm.tma_id 
+JOIN 
+	mediosdeelevacion.mde_medios_habilitacion mmh ON mm.mde_id = mmh.mha_mde_id  
+JOIN 
+	mediosdeelevacion.mde_revisores mr ON mmh.mha_rev_id  = mr.rev_id 
 WHERE mm.mde_activo = 1
     AND ($P{p_tipoMaquina} = '-' OR mtm.tma_cod = $P{p_tipoMaquina}) 
     AND ($P{p_padronNum} = '-' OR mi.inm_padron = $P{p_padronNum}) 
-    AND ($P{p_empresa} = '-' OR me.emp_razon = $P{p_empresa})
+    AND ($P{p_empresa} = '-' OR me.emp_id = $P{p_empresa})
     AND ($P{p_distrito} = '-' OR md.dis_id = $P{p_distrito})
  ORDER BY
   mi.inm_padron ASC]]>
