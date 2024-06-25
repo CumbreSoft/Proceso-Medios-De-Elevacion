@@ -85,10 +85,9 @@ JOIN
 JOIN 
     mediosdeelevacion.mde_personas mp ON mp.per_id = mep.epe_per_id 
 WHERE
-    
-        $P{p_cuit} = '-' OR (me.emp_cuit = $P{p_cuit} AND me.emp_activa = 1)
-      AND (
-        $P{p_empName} = '-' OR (me.emp_razon LIKE CONCAT('%', $P{p_empName}, '%') AND me.emp_activa = 1)
+    ($P{p_cuit} = '-' OR (me.emp_cuit = $P{p_cuit} AND me.emp_activa = 1))
+    AND (
+        $P{p_empName} = '-' OR (me.emp_razon = $P{p_empName} AND me.emp_activa = 1)
     )
 ]]>
 	</queryString>
