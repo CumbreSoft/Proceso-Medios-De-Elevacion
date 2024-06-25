@@ -20,6 +20,7 @@
     mtm.tma_detalle, 
     mm.mde_ubicacion, 
     me.emp_razon, 
+    me.emp_id, 
     mmh.mha_fecha, 
     mmh.mha_expediente, 
     mmh.mha_fecha_vto, 
@@ -44,7 +45,7 @@ WHERE
     AND ($P{p_fecha_hasta} = '-' OR mmh.mha_fecha <= $P{p_fecha_hasta}) 
     AND ($P{p_tipoMaquina} = '-' OR mtm.tma_cod = $P{p_tipoMaquina}) 
     AND ($P{p_padronNum} = '-' OR mmh.mha_inm_padron_guardado = $P{p_padronNum}) 
-    AND ($P{p_empresa} = '-' OR me.emp_razon = $P{p_empresa})
+    AND ($P{p_empresa} = '-' OR me.emp_id = $P{p_empresa})
  ORDER BY
   mmh.mha_fecha ASC]]>
 	</queryString>
@@ -71,6 +72,11 @@ WHERE
 	<field name="emp_razon" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="emp_razon"/>
 		<property name="com.jaspersoft.studio.field.label" value="emp_razon"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_empresas"/>
+	</field>
+	<field name="emp_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="emp_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="emp_id"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="mde_empresas"/>
 	</field>
 	<field name="mha_fecha" class="java.sql.Date">
