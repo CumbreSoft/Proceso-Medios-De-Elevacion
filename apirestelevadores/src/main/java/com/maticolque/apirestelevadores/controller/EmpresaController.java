@@ -67,6 +67,55 @@ public class EmpresaController {
         }
     }
 
+    //LISTAR CON PARAMETROS
+    //GET
+    /*@GetMapping
+    public ResponseEntity<?> listarTodo(@RequestParam(value = "activos", required = false) Boolean activos) {
+        try {
+            List<Empresa> empresas;
+            if (activos == null) {
+                empresas = empresaService.getAllEmpresa();
+            } else {
+                empresas = empresaService.getEmpresasByActiva(activos);
+            }
+
+            if (empresas.isEmpty()) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontraron Empresas.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            List<Map<String, Object>> empresasDTO = new ArrayList<>();
+            for (Empresa empresa : empresas) {
+                Map<String, Object> empresaMap = new LinkedHashMap<>();
+
+                empresaMap.put("emp_id", empresa.getEmp_id());
+                empresaMap.put("emp_razon", empresa.getEmp_razon());
+                empresaMap.put("emp_cuit", empresa.getEmp_cuit());
+                empresaMap.put("emp_domic_legal", empresa.getEmp_domic_legal());
+                empresaMap.put("emp_telefono", empresa.getEmp_telefono());
+                empresaMap.put("emp_correo", empresa.getEmp_correo());
+                empresaMap.put("emp_activa", empresa.isActiva());
+
+                empresasDTO.add(empresaMap);
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("empresas", empresasDTO);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("ERR_INTERNAL_SERVER_ERROR")
+                    .message("Error al obtener la lista de Empresas: " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
+        }
+    }*/
+
 
 
     //GET POR ID

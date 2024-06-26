@@ -20,7 +20,7 @@ public class InmuebleService {
     }
 
     //Mostrar por ID
-    public Inmueble buscarInmbublePorId(Integer id)
+    public Inmueble buscarInmueblePorId(Integer id)
     {
         return inmuebleRepository.findById(id).orElse(null);
     }

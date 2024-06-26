@@ -82,7 +82,7 @@ public class InmuebleController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarInmueblePorId(@PathVariable Integer id) {
         try {
-            Inmueble inmuebleExistente = inmuebleService.buscarInmbublePorId(id);
+            Inmueble inmuebleExistente = inmuebleService.buscarInmueblePorId(id);
 
             if (inmuebleExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
@@ -140,7 +140,7 @@ public class InmuebleController {
     public ResponseEntity<?> modificarInmueble(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
         try {
             // Verificar si el inmueble existe
-            Inmueble inmuebleExistente = inmuebleService.buscarInmbublePorId(id);
+            Inmueble inmuebleExistente = inmuebleService.buscarInmueblePorId(id);
             if (inmuebleExistente == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                         ErrorDTO.builder()
@@ -250,7 +250,7 @@ public class InmuebleController {
     @DeleteMapping("eliminar/{id}")
     public ResponseEntity<?> eliminarInmuble(@PathVariable Integer id) {
         try {
-            Inmueble inmuebleExistente = inmuebleService.buscarInmbublePorId(id);
+            Inmueble inmuebleExistente = inmuebleService.buscarInmueblePorId(id);
 
             if (inmuebleExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()

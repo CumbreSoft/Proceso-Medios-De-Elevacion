@@ -37,7 +37,7 @@ public class Revisor {
     @Column(name = "rev_correo",  length = 40)
     private String rev_correo;
 
-    @Column(name = "rev_telefono", length = 12)
+    @Column(name = "rev_telefono", length = 30)
     private String rev_telefono;
 
     @Column(name = "rev_usuario_sayges", length = 100)

@@ -44,7 +44,7 @@ public class Inmueble {
     @Column(name = "inm_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean inm_activo;
 
-    @OneToMany(mappedBy = "inmueble")
-    private Set<InmueblePersona> inmueblePersonas;
+    /*@OneToMany(mappedBy = "inmueble")
+    private Set<InmueblePersona> inmueblePersonas;*/
 
 }

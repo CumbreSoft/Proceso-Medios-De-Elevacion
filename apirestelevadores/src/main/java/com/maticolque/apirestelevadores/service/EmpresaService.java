@@ -57,5 +57,10 @@ public class EmpresaService {
         return null;
     }
 
+    //LISTAR CON PARAMETROS
+    /*public List<Empresa> getEmpresasByActiva(Boolean activa) {
+        return empresaRepository.findByActiva(activa);
+    }*/
+
 
 }

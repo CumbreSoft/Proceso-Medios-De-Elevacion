@@ -219,22 +219,12 @@ public class EmpresaPersonaController {
             boolean esDueno = (boolean) requestBody.getOrDefault("epe_es_dueno_emp", false);
             boolean esReptec = (boolean) requestBody.getOrDefault("epe_es_reptec_emp", false);
 
-            // Verificar si la persona existe
-            Persona personaExistente = personaService.buscarPersonaPorId(id);
-            if (personaExistente == null) {
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("La persona con el ID proporcionado no existe.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
-            }
-
-            // Obtener la EmpresaPersona actual de la persona
+            // Verificar si la relación EmpresaPersona existe para la persona específica
             EmpresaPersona empresaPersonaExistente = empresaPersonaService.buscarEmpresaPersonaPorId(id);
             if (empresaPersonaExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("No se encontró una relación Empresa-Persona para la persona especificada.")
+                        .message("No se encontró una relación Empresa-Persona para la persona con ID: " + id)
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
@@ -256,7 +246,8 @@ public class EmpresaPersonaController {
             empresaPersonaExistente.setEpe_es_dueno_emp(esDueno);
             empresaPersonaExistente.setEpe_es_reptec_emp(esReptec);
 
-            // Actualizar los valores de per_es_dueno_emp y per_es_reptec_emp en la entidad Persona
+            // Actualizar los valores de epe_es_dueno_emp y epe_es_reptec_emp en la entidad Persona
+            Persona personaExistente = empresaPersonaExistente.getPersona();
             personaExistente.setPer_es_dueno_emp(esDueno);
             personaExistente.setPer_es_reptec_emp(esReptec);
 
@@ -278,6 +269,7 @@ public class EmpresaPersonaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
+
 
 
 

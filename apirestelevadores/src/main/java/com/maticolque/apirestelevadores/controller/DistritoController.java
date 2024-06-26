@@ -194,7 +194,7 @@ public class DistritoController {
 
 
     //POST DATOS PRECARGADOS
-    @PostConstruct
+    /*@PostConstruct
     public void init() {
         // Verificar si ya hay datos cargados en la base de datos
         if (distritoRepository.count() == 0) {
@@ -238,5 +238,5 @@ public class DistritoController {
             distritoRepository.save(distrito5);
 
         }
-    }
+    }*/
 }

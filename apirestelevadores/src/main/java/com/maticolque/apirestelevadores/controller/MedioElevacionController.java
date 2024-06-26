@@ -390,7 +390,7 @@ public class MedioElevacionController {
         //si quiero mostrar mas datos descomento esto
         //inmuebleDTO.put("destino", inmueble.getDestino());
         //inmuebleDTO.put("inm_direccion", inmueble.getInm_direccion());
-        //inmuebleDTO.put("distrito", inmueble.getDistrito());
+        inmuebleDTO.put("distrito", inmueble.getDistrito());
         //inmuebleDTO.put("inm_cod_postal", inmueble.getInm_cod_postal());
         //inmuebleDTO.put("inm_activo", inmueble.isInm_activo());
         return inmuebleDTO;

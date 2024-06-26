@@ -124,21 +124,21 @@ public class InmuebleMedioElevacionController {
     @PostMapping
     public RespuestaDTO<InmuebleMedioElevacion> crearInmuebleMDE(@RequestBody Map<String, Integer> requestData) {
         try {
-            Integer inmPadron = requestData.get("inm_padron");
+            Integer inmuebleId = requestData.get("inmuebleId");
             Integer medioElevacionId = requestData.get("medioElevacionId");
 
             // Validaciones
-            if (inmPadron == null) {
-                throw new IllegalArgumentException("El padron del inmueble es obligatorio.");
+            if (inmuebleId == null) {
+                throw new IllegalArgumentException("El ID del inmueble es obligatorio.");
             }
             if (medioElevacionId == null) {
                 throw new IllegalArgumentException("El ID del medio de elevación es obligatorio.");
             }
 
-            // Buscar el inmueble por su padron
-            Inmueble inmueble = inmuebleService.buscarInmueblePorPadron(inmPadron);
+            // Buscar el inmueble por su ID
+            Inmueble inmueble = inmuebleService.buscarInmueblePorId(inmuebleId);
             if (inmueble == null) {
-                throw new IllegalArgumentException("No se encontró un inmueble con el padron: " + inmPadron);
+                throw new IllegalArgumentException("No se encontró un inmueble con el ID: " + inmuebleId);
             }
 
             // Buscar el medio de elevación por su ID
@@ -165,6 +165,7 @@ public class InmuebleMedioElevacionController {
             return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Elevación: " + e.getMessage());
         }
     }
+
 
 
 

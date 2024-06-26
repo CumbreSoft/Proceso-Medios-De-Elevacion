@@ -39,7 +39,6 @@ public class Empresa {
     @Column(name = "emp_activa", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean emp_activa;
 
-    @OneToMany(mappedBy = "empresa")
-    private Set<EmpresaPersona> empresaPersonas;
+    //cambiar de emp_activa a activa para poder listar empresas con true o false
 
 }

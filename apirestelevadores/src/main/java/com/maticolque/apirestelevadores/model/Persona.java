@@ -59,9 +59,9 @@ public class Persona {
     @Column(name = "per_activa", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean per_activa;
 
-    @OneToMany(mappedBy = "persona")
+    /*@OneToMany(mappedBy = "persona")
     private Set<EmpresaPersona> empresaPersonas;
 
     @OneToMany(mappedBy = "persona")
-    private Set<InmueblePersona> inmueblePersonas;
+    private Set<InmueblePersona> inmueblePersonas;*/
 }
