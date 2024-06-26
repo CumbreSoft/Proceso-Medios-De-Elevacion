@@ -1,36 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.21.2.final using JasperReports Library version 6.21.2-8434a0bd7c3bbc37cbf916f2968d35e4b165821a  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MedioElevacion" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="571" leftMargin="12" rightMargin="12" topMargin="20" bottomMargin="20" uuid="5ebd0d91-ef6d-46d3-95ff-70b59b2e2789">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="NoHabMedioElevacion" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="571" leftMargin="12" rightMargin="12" topMargin="20" bottomMargin="20" uuid="5ebd0d91-ef6d-46d3-95ff-70b59b2e2789">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Desarrollo"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<parameter name="p_fecha_hasta" class="java.lang.String"/>
 	<parameter name="p_empresaName" class="java.lang.String"/>
 	<parameter name="p_empresa" class="java.lang.String"/>
 	<parameter name="p_maquinaName" class="java.lang.String"/>
+	<parameter name="p_distrito" class="java.lang.String"/>
 	<parameter name="p_tipoMaquina" class="java.lang.String"/>
-	<parameter name="p_fecha_desde" class="java.lang.String"/>
 	<parameter name="prutaImagen" class="java.lang.String">
 		<defaultValueExpression><![CDATA[null]]></defaultValueExpression>
 	</parameter>
 	<parameter name="p_padronNum" class="java.lang.String"/>
+	<parameter name="p_distritoName" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT 
-    mmh.mha_activo, 
-    mmh.mha_inm_padron_guardado, 
-    mtm.tma_detalle, 
-    mm.mde_ubicacion, 
-    me.emp_razon, 
-    me.emp_id, 
-    mmh.mha_fecha, 
-    mmh.mha_expediente, 
-    mmh.mha_fecha_vto, 
-    mmh.mha_fecha_pago, 
-    mmh.mha_fecha_inspec, 
-    mr.rev_apellido, 
-    mmh.mha_oblea_entregada, 
-    mmh.mha_habilitado 
+	mm.mde_id,
+    mi.inm_padron,
+    mi.inm_direccion,
+    md.dis_nombre,
+    mtm.tma_detalle,
+    mm.mde_ubicacion,
+    mm.mde_niveles,
+    mm.mde_planos_aprob,
+    mm.mde_expte_planos,
+    me.emp_razon,
+    mm.mde_activo
 FROM 
 	mediosdeelevacion.mde_medioselevacion mm
+JOIN	
+	mediosdeelevacion.mde_inmuebles_medioselevacion mim ON mm.mde_id = mim.ime_mde_id 
+JOIN 
+	mediosdeelevacion.mde_inmuebles mi ON mim.ime_inm_id = mi.inm_id 
+JOIN 
+	mediosdeelevacion.mde_distrito md ON mi.inm_dis_id = md.dis_id 
 JOIN 
 	mediosdeelevacion.mde_empresas me ON mm.mde_emp_id = me.emp_id 
 JOIN 
@@ -39,25 +42,33 @@ JOIN
 	mediosdeelevacion.mde_medios_habilitacion mmh ON mm.mde_id = mmh.mha_mde_id  
 JOIN 
 	mediosdeelevacion.mde_revisores mr ON mmh.mha_rev_id  = mr.rev_id 
-WHERE 
-    mmh.mha_activo = 1 
-    AND ($P{p_fecha_desde} = '-' OR mmh.mha_fecha >= $P{p_fecha_desde}) 
-    AND ($P{p_fecha_hasta} = '-' OR mmh.mha_fecha <= $P{p_fecha_hasta}) 
+WHERE mm.mde_activo = 1
     AND ($P{p_tipoMaquina} = '-' OR mtm.tma_cod = $P{p_tipoMaquina}) 
-    AND ($P{p_padronNum} = '-' OR mmh.mha_inm_padron_guardado = $P{p_padronNum}) 
+    AND ($P{p_padronNum} = '-' OR mi.inm_padron = $P{p_padronNum}) 
     AND ($P{p_empresa} = '-' OR me.emp_id = $P{p_empresa})
+    AND ($P{p_distrito} = '-' OR md.dis_id = $P{p_distrito})
  ORDER BY
-  mmh.mha_fecha ASC]]>
+  mi.inm_padron ASC]]>
 	</queryString>
-	<field name="mha_activo" class="java.lang.Boolean">
-		<property name="com.jaspersoft.studio.field.name" value="mha_activo"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_activo"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
+	<field name="mde_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="mde_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="mde_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medioselevacion"/>
 	</field>
-	<field name="mha_inm_padron_guardado" class="java.lang.Integer">
-		<property name="com.jaspersoft.studio.field.name" value="mha_inm_padron_guardado"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_inm_padron_guardado"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
+	<field name="inm_padron" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="inm_padron"/>
+		<property name="com.jaspersoft.studio.field.label" value="inm_padron"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
+	</field>
+	<field name="inm_direccion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="inm_direccion"/>
+		<property name="com.jaspersoft.studio.field.label" value="inm_direccion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
+	</field>
+	<field name="dis_nombre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="dis_nombre"/>
+		<property name="com.jaspersoft.studio.field.label" value="dis_nombre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_distrito"/>
 	</field>
 	<field name="tma_detalle" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="tma_detalle"/>
@@ -69,55 +80,30 @@ WHERE
 		<property name="com.jaspersoft.studio.field.label" value="mde_ubicacion"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medioselevacion"/>
 	</field>
+	<field name="mde_niveles" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="mde_niveles"/>
+		<property name="com.jaspersoft.studio.field.label" value="mde_niveles"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medioselevacion"/>
+	</field>
+	<field name="mde_planos_aprob" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="mde_planos_aprob"/>
+		<property name="com.jaspersoft.studio.field.label" value="mde_planos_aprob"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medioselevacion"/>
+	</field>
+	<field name="mde_expte_planos" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="mde_expte_planos"/>
+		<property name="com.jaspersoft.studio.field.label" value="mde_expte_planos"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medioselevacion"/>
+	</field>
 	<field name="emp_razon" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="emp_razon"/>
 		<property name="com.jaspersoft.studio.field.label" value="emp_razon"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="mde_empresas"/>
 	</field>
-	<field name="emp_id" class="java.lang.Integer">
-		<property name="com.jaspersoft.studio.field.name" value="emp_id"/>
-		<property name="com.jaspersoft.studio.field.label" value="emp_id"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_empresas"/>
-	</field>
-	<field name="mha_fecha" class="java.sql.Date">
-		<property name="com.jaspersoft.studio.field.name" value="mha_fecha"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_fecha"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
-	</field>
-	<field name="mha_expediente" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="mha_expediente"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_expediente"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
-	</field>
-	<field name="mha_fecha_vto" class="java.sql.Date">
-		<property name="com.jaspersoft.studio.field.name" value="mha_fecha_vto"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_fecha_vto"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
-	</field>
-	<field name="mha_fecha_pago" class="java.sql.Date">
-		<property name="com.jaspersoft.studio.field.name" value="mha_fecha_pago"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_fecha_pago"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
-	</field>
-	<field name="mha_fecha_inspec" class="java.sql.Date">
-		<property name="com.jaspersoft.studio.field.name" value="mha_fecha_inspec"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_fecha_inspec"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
-	</field>
-	<field name="rev_apellido" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="rev_apellido"/>
-		<property name="com.jaspersoft.studio.field.label" value="rev_apellido"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_revisores"/>
-	</field>
-	<field name="mha_oblea_entregada" class="java.lang.Boolean">
-		<property name="com.jaspersoft.studio.field.name" value="mha_oblea_entregada"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_oblea_entregada"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
-	</field>
-	<field name="mha_habilitado" class="java.lang.Boolean">
-		<property name="com.jaspersoft.studio.field.name" value="mha_habilitado"/>
-		<property name="com.jaspersoft.studio.field.label" value="mha_habilitado"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medios_habilitacion"/>
+	<field name="mde_activo" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="mde_activo"/>
+		<property name="com.jaspersoft.studio.field.label" value="mde_activo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_medioselevacion"/>
 	</field>
 	<background>
 		<band splitType="Stretch"/>
@@ -136,7 +122,7 @@ WHERE
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="12" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Habilitación de Medios de Elevación]]></text>
+				<text><![CDATA[Medios de Elevación]]></text>
 			</staticText>
 			<staticText>
 				<reportElement positionType="Float" x="142" y="40" width="278" height="23" backcolor="#EBE8E8" uuid="c81ab367-d212-4923-b34b-9ddf83b175f6"/>
@@ -167,21 +153,14 @@ WHERE
 				<imageExpression><![CDATA[$P{prutaImagen}]]></imageExpression>
 			</image>
 			<staticText>
-				<reportElement positionType="Float" x="30" y="140" width="78" height="20" uuid="8b5d043f-1787-4843-8cf5-7faa0ae9728d"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font size="10" isBold="true" isUnderline="false"/>
-				</textElement>
-				<text><![CDATA[Fecha Desde:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="Float" x="38" y="160" width="70" height="20" uuid="244fced7-5b11-4f68-a0be-0e452c474d07"/>
+				<reportElement positionType="Float" x="38" y="136" width="70" height="20" uuid="244fced7-5b11-4f68-a0be-0e452c474d07"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10" isBold="true" isUnderline="false"/>
 				</textElement>
 				<text><![CDATA[Máquina:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" x="38" y="180" width="70" height="20" uuid="222a8929-6f9b-4b0f-9089-b660af8f85f3"/>
+				<reportElement positionType="Float" x="38" y="156" width="70" height="20" uuid="222a8929-6f9b-4b0f-9089-b660af8f85f3"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10" isBold="true" isUnderline="false"/>
 				</textElement>
@@ -195,14 +174,7 @@ WHERE
 				<text><![CDATA[FILTROS]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" x="230" y="140" width="40" height="20" uuid="87ab66ab-22ac-4f01-832e-dc477a0372eb"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font size="10" isBold="true" isUnderline="false"/>
-				</textElement>
-				<text><![CDATA[Hasta:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="Float" x="38" y="200" width="70" height="20" uuid="22bdeb27-12fe-401c-8baf-438f2cbf6fa6"/>
+				<reportElement positionType="Float" x="38" y="176" width="70" height="20" uuid="22bdeb27-12fe-401c-8baf-438f2cbf6fa6"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10" isBold="true" isUnderline="false"/>
 				</textElement>
@@ -213,46 +185,56 @@ WHERE
 				<textElement verticalAlignment="Bottom">
 					<font size="8"/>
 				</textElement>
-				<text><![CDATA[F. Hab: Fecha de Habilitación
-Exp: Expediente
-F. Ven: Fecha Vencimiento Habilitación 
-F. Pago: Fecha de Pago
-F. I: Fecha de Inspección
-Ape. R: Nombre del Revisor
-Oblea. E: Oblea Entregada
-H: Habilitada]]></text>
+				<text><![CDATA[Nv. : Niveles
+P. A: Planos Aprobados
+Exp: Expediente de planos
+A: Activo]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="272" y="140" width="80" height="20" uuid="04dbf3ba-f117-45e3-b054-1a2d52b7f587"/>
-				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{p_fecha_hasta}.equals("-") ? "Todas" : $P{p_fecha_hasta}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="110" y="200" width="110" height="20" uuid="e3e0a22c-664c-49ba-a166-10c61c2ff0db"/>
+				<reportElement x="110" y="176" width="110" height="20" uuid="e3e0a22c-664c-49ba-a166-10c61c2ff0db"/>
 				<textElement verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$P{p_empresa}.equals("-") ? "Todos" : $P{p_empresaName}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="110" y="160" width="100" height="20" uuid="5d7b4541-efa2-4370-9822-5c5a08c9f212"/>
+				<reportElement x="110" y="136" width="100" height="20" uuid="5d7b4541-efa2-4370-9822-5c5a08c9f212"/>
 				<textElement verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$P{p_tipoMaquina}.equals("-") ? "Todos" : $P{p_maquinaName}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="110" y="140" width="100" height="20" uuid="45ac9e87-4673-4eac-a329-8c7450757686"/>
-				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{p_fecha_desde}.equals("-") ? "Todas" : $P{p_fecha_desde}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="110" y="180" width="100" height="20" uuid="47d8145d-07fd-4519-80f8-219368bf89c4"/>
+				<reportElement x="110" y="156" width="100" height="20" uuid="47d8145d-07fd-4519-80f8-219368bf89c4"/>
 				<textElement verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$P{p_padronNum}.equals("-") ? "Todos" : $P{p_padronNum}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="38" y="196" width="70" height="20" uuid="3b022ae6-26a6-426a-b041-68a5b06e43c3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Distrito:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="110" y="196" width="110" height="20" uuid="b192d5a9-e0df-49dc-8828-771709e1f263"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{p_distrito}.equals("-") ? "Todos" : $P{p_distritoName}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
 	<columnHeader>
 		<band height="32" splitType="Stretch">
 			<staticText>
-				<reportElement mode="Opaque" x="35" y="2" width="51" height="30" backcolor="#B591BA" uuid="3cf75976-c995-4dbd-b223-a20ed9ed6a15">
+				<reportElement mode="Opaque" x="35" y="2" width="104" height="30" backcolor="#B591BA" uuid="3cf75976-c995-4dbd-b223-a20ed9ed6a15">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="0">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dirección]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="203" y="2" width="51" height="30" backcolor="#B591BA" uuid="83426b03-4c0a-42cd-a838-ffaed2f528fe">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box padding="0">
@@ -264,34 +246,28 @@ H: Habilitada]]></text>
 				<text><![CDATA[Máquina]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="189" y="2" width="86" height="30" backcolor="#B591BA" uuid="83426b03-4c0a-42cd-a838-ffaed2f528fe"/>
+				<reportElement mode="Opaque" x="349" y="2" width="30" height="30" backcolor="#B591BA" uuid="4504aa39-d9c5-48cb-8486-5c436fd6c3b7">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
 				<box padding="0">
 					<pen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Empresa]]></text>
+				<text><![CDATA[Nv.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="311" y="2" width="42" height="30" backcolor="#B591BA" uuid="4504aa39-d9c5-48cb-8486-5c436fd6c3b7"/>
+				<reportElement mode="Opaque" x="254" y="2" width="95" height="30" backcolor="#B591BA" uuid="d4521802-7f18-40d7-badc-2ce5d4ea0326">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
 				<box padding="0">
 					<pen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Exp]]></text>
-			</staticText>
-			<staticText>
-				<reportElement mode="Opaque" x="275" y="2" width="36" height="30" backcolor="#B591BA" uuid="d4521802-7f18-40d7-badc-2ce5d4ea0326"/>
-				<box padding="0">
-					<pen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[F. Hab]]></text>
+				<text><![CDATA[Ubicación]]></text>
 			</staticText>
 			<staticText>
 				<reportElement mode="Opaque" x="0" y="2" width="35" height="30" backcolor="#B591BA" uuid="3ae95101-2572-4a53-a033-1b0edd5e990b"/>
@@ -304,7 +280,7 @@ H: Habilitada]]></text>
 				<text><![CDATA[Padrón]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="86" y="2" width="103" height="30" backcolor="#B591BA" uuid="76b15868-ef3d-40ad-9d87-46272f0feb9b">
+				<reportElement mode="Opaque" x="139" y="2" width="64" height="30" backcolor="#B591BA" uuid="76b15868-ef3d-40ad-9d87-46272f0feb9b">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box padding="0">
@@ -313,30 +289,20 @@ H: Habilitada]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Ubicación]]></text>
+				<text><![CDATA[Distrito]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="389" y="2" width="36" height="30" backcolor="#B591BA" uuid="d86d013c-cc13-4a8f-a89d-3808d8241dff"/>
+				<reportElement mode="Opaque" x="409" y="2" width="36" height="30" backcolor="#B591BA" uuid="d86d013c-cc13-4a8f-a89d-3808d8241dff"/>
 				<box padding="0">
 					<pen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[F. Pago]]></text>
+				<text><![CDATA[Exp]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="353" y="2" width="36" height="30" backcolor="#B591BA" uuid="bd00ecbe-cecf-49ca-ac8d-1c2d6ea0ea55"/>
-				<box padding="0">
-					<pen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[F. Ven]]></text>
-			</staticText>
-			<staticText>
-				<reportElement mode="Opaque" x="461" y="2" width="50" height="30" backcolor="#B591BA" uuid="ac860550-a2ed-44cd-9b76-cc1edebb9202">
+				<reportElement mode="Opaque" x="379" y="2" width="30" height="30" backcolor="#B591BA" uuid="bd00ecbe-cecf-49ca-ac8d-1c2d6ea0ea55">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box padding="0">
@@ -345,30 +311,10 @@ H: Habilitada]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Ape. rev]]></text>
+				<text><![CDATA[P. A]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="425" y="2" width="36" height="30" backcolor="#B591BA" uuid="5727e719-a2ee-46c3-97b7-cdacda5d930b"/>
-				<box padding="0">
-					<pen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[F. I]]></text>
-			</staticText>
-			<staticText>
-				<reportElement mode="Opaque" x="511" y="2" width="30" height="30" backcolor="#B591BA" uuid="891c6b1c-0db3-4fbe-89d5-5d3f1726b7e6"/>
-				<box padding="0">
-					<pen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Oblea. E]]></text>
-			</staticText>
-			<staticText>
-				<reportElement mode="Opaque" x="541" y="2" width="30" height="30" backcolor="#B591BA" uuid="d4748adc-577f-44c5-8d56-43228c24e8f6">
+				<reportElement mode="Opaque" x="540" y="2" width="30" height="30" backcolor="#B591BA" uuid="ac860550-a2ed-44cd-9b76-cc1edebb9202">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box padding="0">
@@ -377,7 +323,19 @@ H: Habilitada]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<text><![CDATA[H]]></text>
+				<text><![CDATA[A]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="445" y="2" width="95" height="30" backcolor="#B591BA" uuid="5727e719-a2ee-46c3-97b7-cdacda5d930b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box padding="0">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Empresa de Mantenimiento]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
@@ -396,12 +354,37 @@ H: Habilitada]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{mha_inm_padron_guardado}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{inm_padron}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="35" y="0" width="51" height="22" uuid="6a469701-0d75-4f53-a954-894486b2462f">
+				<reportElement x="35" y="0" width="104" height="22" uuid="6a469701-0d75-4f53-a954-894486b2462f">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="64531824-4619-4212-a88b-9c03541d2ef3"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inm_direccion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="139" y="0" width="64" height="22" uuid="bd150f3d-4f92-4b8e-b37d-cc19bb8334eb">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5d7d00d7-faac-43f4-bf33-9a6a3551c853"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dis_nombre}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="203" y="0" width="51" height="22" uuid="13e804d9-1c8b-4a48-a16a-48ceb49cc8e1">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c066c7ab-4437-499c-85cc-b86a34af03ba"/>
 				</reportElement>
 				<box>
 					<pen lineWidth="0.5"/>
@@ -412,8 +395,8 @@ H: Habilitada]]></text>
 				<textFieldExpression><![CDATA[$F{tma_detalle}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="86" y="0" width="103" height="22" uuid="bd150f3d-4f92-4b8e-b37d-cc19bb8334eb">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5d7d00d7-faac-43f4-bf33-9a6a3551c853"/>
+				<reportElement x="254" y="0" width="95" height="22" uuid="78a32de0-09ce-4f77-afd5-5f883ca708fd">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1ba9fcdb-31f9-4300-9d5c-98f585415ba2"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box>
@@ -422,11 +405,49 @@ H: Habilitada]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{mde_ubicacion}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{inm_direccion}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="189" y="0" width="86" height="22" uuid="13e804d9-1c8b-4a48-a16a-48ceb49cc8e1">
+				<reportElement x="349" y="0" width="30" height="22" uuid="d5d12344-21ae-4f11-8829-b690c5a55f8e">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1ba9fcdb-31f9-4300-9d5c-98f585415ba2"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mde_niveles}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="379" y="0" width="30" height="22" uuid="048014f0-312b-41e2-9c73-01845f6124e3">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1ba9fcdb-31f9-4300-9d5c-98f585415ba2"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mde_planos_aprob} == true ? "Si" : ($F{mde_planos_aprob} == false ? "No" : "E")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="409" y="0" width="36" height="22" uuid="213e73f3-02e1-4144-afe6-4a33105e4189">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c066c7ab-4437-499c-85cc-b86a34af03ba"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mde_expte_planos}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="445" y="0" width="95" height="22" uuid="c75f2e91-8a88-4bd0-8cd0-2e9b46a816b3">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c066c7ab-4437-499c-85cc-b86a34af03ba"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box>
 					<pen lineWidth="0.5"/>
@@ -437,70 +458,7 @@ H: Habilitada]]></text>
 				<textFieldExpression><![CDATA[$F{emp_razon}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="311" y="0" width="42" height="22" uuid="dbb055ef-34fa-4f73-b00c-9130506a505c">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="26f56ade-cb51-4552-84ae-679425717999"/>
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-				</reportElement>
-				<box>
-					<pen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{mha_expediente}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="275" y="0" width="36" height="22" uuid="78a32de0-09ce-4f77-afd5-5f883ca708fd">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1ba9fcdb-31f9-4300-9d5c-98f585415ba2"/>
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-				</reportElement>
-				<box>
-					<pen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yy").format($F{mha_fecha})]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="353" y="0" width="36" height="22" uuid="b4904a45-5336-46ac-a3b9-81ce3341c2a2">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1ba9fcdb-31f9-4300-9d5c-98f585415ba2"/>
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-				</reportElement>
-				<box>
-					<pen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yy").format($F{mha_fecha_vto})]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="389" y="0" width="36" height="22" uuid="d5d12344-21ae-4f11-8829-b690c5a55f8e">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1ba9fcdb-31f9-4300-9d5c-98f585415ba2"/>
-				</reportElement>
-				<box>
-					<pen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yy").format($F{mha_fecha_pago})]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="425" y="0" width="36" height="22" uuid="048014f0-312b-41e2-9c73-01845f6124e3">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1ba9fcdb-31f9-4300-9d5c-98f585415ba2"/>
-				</reportElement>
-				<box>
-					<pen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new SimpleDateFormat("dd/MM/yy").format($F{mha_fecha_inspec})]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="461" y="0" width="50" height="22" uuid="213e73f3-02e1-4144-afe6-4a33105e4189">
+				<reportElement x="540" y="0" width="30" height="22" uuid="984abb42-3ef1-4e08-b654-cb00977207e6">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c066c7ab-4437-499c-85cc-b86a34af03ba"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
@@ -510,33 +468,7 @@ H: Habilitada]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{rev_apellido}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="511" y="0" width="30" height="22" uuid="1fa542e4-4dd1-4794-b4ff-d7bba2714724">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c066c7ab-4437-499c-85cc-b86a34af03ba"/>
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-				</reportElement>
-				<box>
-					<pen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{mha_oblea_entregada} == true ? "SI" : ($F{mha_oblea_entregada} == false ? "-" : "E")]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="541" y="0" width="30" height="22" uuid="4db4dad8-23e2-49da-bb92-d983a13ca39b">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c066c7ab-4437-499c-85cc-b86a34af03ba"/>
-					<property name="com.jaspersoft.studio.unit.width" value="px"/>
-				</reportElement>
-				<box>
-					<pen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{mha_habilitado} == true ? "SI" : ($F{mha_habilitado} == false ? "-" : "E")]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{mde_activo} == true ? "Si" : ($F{mde_activo}== false ? "-" : "E")]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

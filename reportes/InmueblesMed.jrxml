@@ -11,31 +11,17 @@
 	<parameter name="p_padronNum" class="java.lang.String"/>
 	<parameter name="p_distrito" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[SELECT
-    i.inm_id,
-    i.inm_activo,
-    i.inm_cod_postal,
-    i.inm_direccion,
-    i.inm_padron,
-    i.inm_dst_id,
-    i.inm_dis_id,
-    d.dis_nombre,
-    des.dst_detalle
-FROM
-    mediosdeelevacion.mde_inmuebles i
-    JOIN mediosdeelevacion.mde_distrito d ON i.inm_dis_id = d.dis_id 
-    JOIN mediosdeelevacion.mde_destinos des ON i.inm_dst_id = des.dst_codigo
+		<![CDATA[SELECT * 
+FROM mediosdeelevacion.mde_inmuebles mi
+JOIN mediosdeelevacion.mde_distrito md ON mi.inm_dis_id = md.dis_id
+JOIN mediosdeelevacion.mde_destinos md2 ON mi.inm_dst_id = md2.dst_codigo
 WHERE
-    ($P{p_activo} = '-' OR i.inm_activo = $P{p_activo})
-    AND ($P{p_padronNum} = '-' OR i.inm_padron = $P{p_padronNum})
-    AND ($P{p_distrito} = '-' OR i.inm_dis_id = $P{p_distrito})
- ORDER BY i.inm_padron]]>
+    ($P{p_activo} = '-' OR mi.inm_activo = $P{p_activo})
+    AND ($P{p_padronNum} = '-' OR mi.inm_padron = $P{p_padronNum})
+    AND ($P{p_distrito} = '-' OR mi.inm_dis_id = $P{p_distrito})
+ORDER BY mi.inm_padron;
+]]>
 	</queryString>
-	<field name="inm_id" class="java.lang.Integer">
-		<property name="com.jaspersoft.studio.field.name" value="inm_id"/>
-		<property name="com.jaspersoft.studio.field.label" value="inm_id"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
-	</field>
 	<field name="inm_activo" class="java.lang.Boolean">
 		<property name="com.jaspersoft.studio.field.name" value="inm_activo"/>
 		<property name="com.jaspersoft.studio.field.label" value="inm_activo"/>
@@ -46,14 +32,9 @@ WHERE
 		<property name="com.jaspersoft.studio.field.label" value="inm_cod_postal"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
 	</field>
-	<field name="inm_direccion" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="inm_direccion"/>
-		<property name="com.jaspersoft.studio.field.label" value="inm_direccion"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
-	</field>
-	<field name="inm_padron" class="java.lang.Integer">
-		<property name="com.jaspersoft.studio.field.name" value="inm_padron"/>
-		<property name="com.jaspersoft.studio.field.label" value="inm_padron"/>
+	<field name="inm_dis_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="inm_dis_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="inm_dis_id"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
 	</field>
 	<field name="inm_dst_id" class="java.lang.Integer">
@@ -61,15 +42,55 @@ WHERE
 		<property name="com.jaspersoft.studio.field.label" value="inm_dst_id"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
 	</field>
-	<field name="inm_dis_id" class="java.lang.Integer">
-		<property name="com.jaspersoft.studio.field.name" value="inm_dis_id"/>
-		<property name="com.jaspersoft.studio.field.label" value="inm_dis_id"/>
+	<field name="inm_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="inm_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="inm_id"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
+	</field>
+	<field name="inm_padron" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="inm_padron"/>
+		<property name="com.jaspersoft.studio.field.label" value="inm_padron"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
+	</field>
+	<field name="inm_direccion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="inm_direccion"/>
+		<property name="com.jaspersoft.studio.field.label" value="inm_direccion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_inmuebles"/>
+	</field>
+	<field name="dis_activo" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="dis_activo"/>
+		<property name="com.jaspersoft.studio.field.label" value="dis_activo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_distrito"/>
+	</field>
+	<field name="dis_codigo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="dis_codigo"/>
+		<property name="com.jaspersoft.studio.field.label" value="dis_codigo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_distrito"/>
+	</field>
+	<field name="dis_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="dis_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="dis_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_distrito"/>
 	</field>
 	<field name="dis_nombre" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="dis_nombre"/>
 		<property name="com.jaspersoft.studio.field.label" value="dis_nombre"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="mde_distrito"/>
+	</field>
+	<field name="dst_activo" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="dst_activo"/>
+		<property name="com.jaspersoft.studio.field.label" value="dst_activo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_destinos"/>
+	</field>
+	<field name="dst_codigo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="dst_codigo"/>
+		<property name="com.jaspersoft.studio.field.label" value="dst_codigo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_destinos"/>
+	</field>
+	<field name="dst_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="dst_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="dst_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="mde_destinos"/>
 	</field>
 	<field name="dst_detalle" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="dst_detalle"/>
@@ -136,9 +157,7 @@ WHERE
 			<textField>
 				<reportElement x="110" y="140" width="110" height="20" uuid="12ad5e94-c580-4d20-bbe8-c88b352eadfc"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{p_padronNum}.equals("-") ? "Todos" : $P{p_padronNum}
-
-]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{p_padronNum}.equals("-") ? "Todos" : $P{p_padronNum}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" x="38" y="160" width="70" height="20" uuid="244fced7-5b11-4f68-a0be-0e452c474d07"/>
@@ -157,15 +176,12 @@ WHERE
 			<textField>
 				<reportElement x="110" y="160" width="100" height="20" uuid="1bb62bcc-a510-45e8-8407-45bd45f01e24"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{p_distrito}.equals("-") ? "Todos" : $P{p_distritoName}
-
-]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{p_distrito}.equals("-") ? "Todos" : $P{p_distritoName}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="110" y="180" width="100" height="20" uuid="d90ab4bf-9d11-4498-a975-7f607652e885"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{p_activo}.equals("1") ? "SI" : ($P{p_activo}.equals("0") ? "NO" : "Todos")
-]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{p_activo}.equals("1") ? "SI" : ($P{p_activo}.equals("0") ? "NO" : "Todos")]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" x="50" y="115" width="59" height="20" uuid="75c4925b-71f0-48e3-99fe-8629c8ad59da"/>
