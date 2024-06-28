@@ -4,7 +4,7 @@ import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.Destino;
 import com.maticolque.apirestelevadores.model.Empresa;
-import com.maticolque.apirestelevadores.service.EmpresaService;
+import com.maticolque.apirestelevadores.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -20,6 +20,18 @@ public class EmpresaController {
 
     @Autowired
     private EmpresaService empresaService;
+
+    @Autowired
+    private EmpresaPersonaService empresaPersonaService;
+
+    @Autowired
+    private MedioElevacionService medioElevacionService;
+
+    @Autowired
+    private EmpresaHabilitacionService empresaHabilitacionService;
+
+    @Autowired
+    private MedioHabilitacionService medioHabilitacionService;
 
 
     //GET
@@ -210,31 +222,26 @@ public class EmpresaController {
 
 
     //DELETE
-    @DeleteMapping("eliminar/{id}")
-    public ResponseEntity<?> elimimarEmpresa(@PathVariable Integer id) {
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<?> eliminarEmpresa(@PathVariable Integer id) {
         try {
-            Empresa empresaExistente = empresaService.buscarEmpresaPorId(id);
 
-            if (empresaExistente == null) {
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("El ID que intenta eliminar no existe.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            String resultado = empresaService.eliminarEmpresaSiNoTieneRelaciones(id);
+
+            if (resultado.equals("Empresa eliminada correctamente.")) {
+                return ResponseEntity.ok().body(ErrorDTO.builder().code("200 OK").message(resultado).build());
+            } else if (resultado.equals("El ID proporcionado de la Empresa no existe.")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDTO.builder().code("404 NOT FOUND").message(resultado).build());
             } else {
-                empresaService.deleteEmpresaById(id);
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("200 OK")
-                        .message("Empresa eliminada correctamente.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDTO.builder().code("400 BAD REQUEST").message(resultado).build());
             }
-        } catch (DataAccessException e) { // Captura la excepción específica de acceso a datos
+
+        } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al eliminar la Empresa. " + e.getMessage())
+                    .code("500 INTERNAL SERVER ERROR")
+                    .message("Error al eliminar la empresa: " + e.getMessage())
                     .build();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.maticolque.apirestelevadores.service;
 
+import com.maticolque.apirestelevadores.model.EmpresaPersona;
 import com.maticolque.apirestelevadores.model.TipoMaquina;
 import com.maticolque.apirestelevadores.repository.TipoMaquinaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,9 @@ public class TipoMaquinaService {
         return tipoMaquinaRepository.save(tipoMaquina);
     }
 
-    //ELiminar Tipo Maquina
+    //Eliminar Tipo Maquina
     public void deleteTipoMaquinaById(Integer id){
         tipoMaquinaRepository.deleteById(id);
     }
+
 }

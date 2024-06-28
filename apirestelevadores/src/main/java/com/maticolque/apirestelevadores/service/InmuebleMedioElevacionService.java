@@ -2,6 +2,8 @@ package com.maticolque.apirestelevadores.service;
 
 import com.maticolque.apirestelevadores.model.HabilitacionDocumento;
 import com.maticolque.apirestelevadores.model.InmuebleMedioElevacion;
+import com.maticolque.apirestelevadores.model.InmueblePersona;
+import com.maticolque.apirestelevadores.model.TipoMaquina;
 import com.maticolque.apirestelevadores.repository.InmuebleMedioElevacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,9 +38,15 @@ public class InmuebleMedioElevacionService {
         return inmuebleMedioElevacionRepository.save(inmuebleMedioElevacion);
     }
 
-    //ELiminar inmueble
+    //Eliminar inmueble
     public void deleteInmuebleMDEById(Integer id){
         inmuebleMedioElevacionRepository.deleteById(id);
+    }
+
+    //Metodo para buscar si un Inmueble tiene una relacion con un MDE (InmuebleMDE)
+    public boolean verificarRelacionMDEEnIMDE(Integer inmuebleId) {
+        List<InmuebleMedioElevacion> relaciones = inmuebleMedioElevacionRepository.findAll();
+        return relaciones.stream().anyMatch(i -> i.getInmueble().getInm_id() == inmuebleId);
     }
 
     public List<InmuebleMedioElevacion> obtenerPrimeroLosDatosDeInmuebleMedioDeElevacion() {

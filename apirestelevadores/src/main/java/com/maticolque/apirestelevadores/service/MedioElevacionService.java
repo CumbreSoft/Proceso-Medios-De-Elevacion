@@ -4,6 +4,7 @@ import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.EmpresaPersona;
 import com.maticolque.apirestelevadores.model.InmuebleMedioElevacion;
 import com.maticolque.apirestelevadores.model.MedioElevacion;
+import com.maticolque.apirestelevadores.model.Persona;
 import com.maticolque.apirestelevadores.repository.EmpresaPersonaRepository;
 import com.maticolque.apirestelevadores.repository.InmuebleMedioElevacionRepository;
 import com.maticolque.apirestelevadores.repository.MedioElevacionRepository;
@@ -20,6 +21,9 @@ public class MedioElevacionService {
 
     @Autowired
     private InmuebleMedioElevacionRepository inmuebleMedioElevacionRepository;
+
+    @Autowired
+    private InmuebleMedioElevacionService inmuebleMedioElevacionService;
 
 
     //Mostrar Medio Elevacion
@@ -43,10 +47,34 @@ public class MedioElevacionService {
         return medioElevacionRepository.save(medioElevacion);
     }
 
-    //ELiminar Medio Elevacion
+    //Eliminar Medio Elevacion
     public void deleteMedioElevacionById(Integer id){
         medioElevacionRepository.deleteById(id);
     }
+
+
+    // *************** LOGICA PARA ELIMINAR UN MDE ***************
+
+    //Verificar si hay relacion de un MDE en InmuebleMDE
+    public boolean verificarRelacionMDEEnIMDE(Integer mdeId) {
+        return inmuebleMedioElevacionService.verificarRelacionMDEEnIMDE(mdeId);
+    }
+    public String eliminarMDESiNoTieneRelaciones(Integer mdeId) {
+        MedioElevacion mdeExistente = buscarMedioElevacionPorId(mdeId);
+        if (mdeExistente == null) {
+            return "El ID proporcionado del Medio de Elevación no existe.";
+        }
+
+        if (verificarRelacionMDEEnIMDE(mdeId)) {
+            return "El Medio de Elevación tiene una relación con un Inmueble (Inmueble-MDE) y no puede ser eliminado.";
+        }
+
+        deleteMedioElevacionById(mdeId);
+        return "Medio de Elevación eliminado correctamente.";
+    }
+    // *************** LOGICA PARA ELIMINAR UNA MDE ***************
+
+
 
 
     public List<InmuebleMedioElevacion> obtenerTodosLosInmueblesMedioElevacion() {

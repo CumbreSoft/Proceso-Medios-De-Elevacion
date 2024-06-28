@@ -2,6 +2,7 @@ package com.maticolque.apirestelevadores.service;
 
 import com.maticolque.apirestelevadores.model.Destino;
 import com.maticolque.apirestelevadores.model.Inmueble;
+import com.maticolque.apirestelevadores.model.Persona;
 import com.maticolque.apirestelevadores.repository.InmuebleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,12 @@ public class InmuebleService {
 
     @Autowired
     private InmuebleRepository inmuebleRepository;
+
+    @Autowired
+    private InmueblePersonaService inmueblePersonaService;
+
+    @Autowired
+    private InmuebleMedioElevacionService inmuebleMedioElevacionService;
 
     //Mostrar inmueble
     public List<Inmueble> getAllInmuebles(){
@@ -40,10 +47,36 @@ public class InmuebleService {
         return inmuebleRepository.save(inmueble);
     }
 
-    //ELiminar inmueble
+    //Eliminar inmueble
     public void deleteInmuebleById(Integer id){
         inmuebleRepository.deleteById(id);
     }
+
+
+    // *************** LOGICA PARA ELIMINAR UN INMUEBLE ***************
+
+    //Verificar si hay relacion de un Inmueble en InmueblePersona
+    public boolean verificarRelacionInmuebleEnIP(Integer inmuebleId) {
+        return inmueblePersonaService.verificarRelacionInmuebleEnIP(inmuebleId);
+    }
+
+    public String eliminarInmuebleSiNoTieneRelaciones(Integer inmuebleId) {
+        Inmueble inmuebleExistente = buscarInmueblePorId(inmuebleId);
+        if (inmuebleExistente == null) {
+            return "El ID proporcionado del Inmueble no existe.";
+        }
+
+        if (verificarRelacionInmuebleEnIP(inmuebleId)) {
+            return "El Inmueble tiene una relación con una Persona (Inmueble-Persona) y no puede ser eliminada.";
+        }
+
+        deleteInmuebleById(inmuebleId);
+        return "Inmueble eliminado correctamente.";
+    }
+    // *************** LOGICA PARA ELIMINAR UNA INMUEBLE ***************
+
+
+
 
     // Buscar inmueble por padron
     public Inmueble buscarInmueblePorPadron(Integer inmPadron) {

@@ -4,6 +4,7 @@ import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.service.EmpresaHabilitacionService;
+import com.maticolque.apirestelevadores.service.EmpresaPersonaService;
 import com.maticolque.apirestelevadores.service.EmpresaService;
 import com.maticolque.apirestelevadores.service.RevisorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class EmpresaHabilitacionController {
 
     @Autowired
     private EmpresaHabilitacionService empresaHabilitacionService;
+
+    @Autowired
+    private EmpresaPersonaService empresaPersonaService;
 
     @Autowired
     private EmpresaService empresaService;
@@ -159,6 +163,12 @@ public class EmpresaHabilitacionController {
             }else if(empresaHabilitacion.getRevisor().getRev_id() == 0){
 
                 throw new IllegalArgumentException("El Revisor es obligatorio.");
+            }
+
+            // Verificar si la empresa tiene al menos una persona asociada
+            boolean tienePersonas = empresaPersonaService.verificarRelacionesConPersonas(empresaHabilitacion.getEmpresa().getEmp_id());
+            if (!tienePersonas) {
+                throw new IllegalArgumentException("La Empresa debe tener al menos una persona asociada antes de ser habilitada.");
             }
 
             // Llamar al servicio para crear el destino

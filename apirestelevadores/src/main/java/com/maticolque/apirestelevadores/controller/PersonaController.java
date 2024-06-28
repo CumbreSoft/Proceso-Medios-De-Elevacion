@@ -193,22 +193,15 @@ public class PersonaController {
     @DeleteMapping("eliminar/{id}")
     public ResponseEntity<?> eliminarPersona(@PathVariable Integer id) {
         try {
-            Persona personaExistente = personaService.buscarPersonaPorId(id);
 
-            if (personaExistente == null) {
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("El ID que intenta eliminar no existe.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            String resultado = personaService.eliminarPersonaSiNoTieneRelaciones(id);
 
+            if (resultado.equals("Persona eliminada correctamente.")) {
+                return ResponseEntity.ok().body(ErrorDTO.builder().code("200 OK").message(resultado).build());
+            } else if (resultado.equals("El ID proporcionado de la Persona no existe.")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDTO.builder().code("404 NOT FOUND").message(resultado).build());
             } else {
-                personaService.deletePersonaById(id);
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("200 OK")
-                        .message("Persona eliminada correctamente.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDTO.builder().code("400 BAD REQUEST").message(resultado).build());
             }
 
         } catch (DataAccessException e) { // Captura la excepción específica de acceso a datos

@@ -22,6 +22,12 @@ public class PersonaService {
     @Autowired
     private InmueblePersonaRepository inmueblePersonaRepository;
 
+    @Autowired
+    private EmpresaPersonaService empresaPersonaService;
+
+    @Autowired
+    private InmueblePersonaService inmueblePersonaService;
+
     //Mostrar Persona
     public List<Persona> getAllPersona(){
         return personaRepository.findAll();
@@ -43,10 +49,42 @@ public class PersonaService {
         return personaRepository.save(persona);
     }
 
-    //ELiminar Persona
+    //Eliminar Persona
     public void deletePersonaById(Integer id){
         personaRepository.deleteById(id);
     }
+
+
+    // *************** LOGICA PARA ELIMINAR UNA PERSONA ***************
+
+    //Verificar si hay relacion de una Persona en EmpresaPersona
+    public boolean verificarRelacionPersonaEnEP(Integer personaId) {
+        return empresaPersonaService.verificarRelacionPersonaEnEP(personaId);
+    }
+
+    //Verificar si hay relacion de una Persona en InmueblePersona
+    public boolean verificarRelacionPersonaEnIP(Integer personaId) {
+        return inmueblePersonaService.verificarRelacionPersonaEnIP(personaId);
+    }
+
+    public String eliminarPersonaSiNoTieneRelaciones(Integer personaId) {
+        Persona personaExistente = buscarPersonaPorId(personaId);
+        if (personaExistente == null) {
+            return "El ID proporcionado de la Persona no existe.";
+        }
+
+        if (verificarRelacionPersonaEnEP(personaId)) {
+            return "La Persona tiene una relación con una Empresa (Empresa-Persona) y no puede ser eliminada.";
+        }
+
+        if (verificarRelacionPersonaEnIP(personaId)) {
+            return "La Persona tiene una relación con un Inmueble (Inmueble-Persona) y no puede ser eliminada.";
+        }
+
+        deletePersonaById(personaId);
+        return "Persona eliminada correctamente.";
+    }
+    // *************** LOGICA PARA ELIMINAR UNA PERSONA ***************
 
 
 

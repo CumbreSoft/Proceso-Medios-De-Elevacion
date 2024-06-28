@@ -13,6 +13,18 @@ public class EmpresaService {
     @Autowired
     private EmpresaRepository empresaRepository;
 
+    @Autowired
+    private EmpresaPersonaService empresaPersonaService;
+
+    @Autowired
+    private MedioElevacionService medioElevacionService;
+
+    @Autowired
+    private EmpresaHabilitacionService empresaHabilitacionService;
+
+    @Autowired
+    private MedioHabilitacionService medioHabilitacionService;
+
     //Mostrar Empresa
     public List<Empresa> getAllEmpresa(){
         return empresaRepository.findAll();
@@ -34,10 +46,36 @@ public class EmpresaService {
         return empresaRepository.save(empresa);
     }
 
-    //ELiminar Empresa
+    //Eliminar Empresa
     public void deleteEmpresaById(Integer id){
         empresaRepository.deleteById(id);
     }
+
+
+    /* ******************************************************************************
+    Este codigo llama a los metodos de las clases que tienen una relación con empresa,
+    verifica que no exista una relación antes de eliminar de eliminar una empresa. */
+    public boolean verificarRelacionEmpresaEnEP(Integer empresaId) {
+        return empresaPersonaService.verificarRelacionEmpresaEnEP(empresaId);
+    }
+
+    public String eliminarEmpresaSiNoTieneRelaciones(Integer empresaId) {
+        Empresa empresaExistente = buscarEmpresaPorId(empresaId);
+        if (empresaExistente == null) {
+            return "El ID proporcionado de la Empresa no existe.";
+        }
+
+        if (verificarRelacionEmpresaEnEP(empresaId)) {
+            return "La empresa tiene una relación con Persona/s (Empresas-Persona) y no puede ser eliminada.";
+        }
+
+        deleteEmpresaById(empresaId);
+        return "Empresa eliminada correctamente.";
+    }
+    /* ****************************************************************************** */
+
+
+
 
     // Método para obtener una empresa por su ID
     public Empresa obtenerEmpresaPorId(Integer empresaId) {

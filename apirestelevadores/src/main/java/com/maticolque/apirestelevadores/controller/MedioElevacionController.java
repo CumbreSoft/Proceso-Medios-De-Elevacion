@@ -270,37 +270,21 @@ public class MedioElevacionController {
 
 
 
-
-
-
-
-
-
-
-
-
-
     //DELETE
     @DeleteMapping("eliminar/{id}")
     public ResponseEntity<?> eliminarMedioElevacion(@PathVariable Integer id) {
         try {
-            MedioElevacion medioElevacionExistente = medioElevacionService.buscarMedioElevacionPorId(id);
 
-            if (medioElevacionExistente == null) {
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("El ID que intenta eliminar no existe.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            String resultado = medioElevacionService.eliminarMDESiNoTieneRelaciones(id);
 
+            if (resultado.equals("Medio de Elevación eliminado correctamente.")) {
+                return ResponseEntity.ok().body(ErrorDTO.builder().code("200 OK").message(resultado).build());
+            } else if (resultado.equals("El ID proporcionado del Medio de Elevación no existe.")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDTO.builder().code("404 NOT FOUND").message(resultado).build());
             } else {
-                medioElevacionService.deleteMedioElevacionById(id);
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("200 OK")
-                        .message("Medio de Elevación eliminado correctamente.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDTO.builder().code("400 BAD REQUEST").message(resultado).build());
             }
+
 
         } catch (DataAccessException e) { // Captura la excepción específica de acceso a datos
             ErrorDTO errorDTO = ErrorDTO.builder()

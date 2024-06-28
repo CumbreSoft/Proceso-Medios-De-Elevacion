@@ -250,21 +250,15 @@ public class InmuebleController {
     @DeleteMapping("eliminar/{id}")
     public ResponseEntity<?> eliminarInmuble(@PathVariable Integer id) {
         try {
-            Inmueble inmuebleExistente = inmuebleService.buscarInmueblePorId(id);
 
-            if (inmuebleExistente == null) {
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("El ID que intenta eliminar no existe.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            String resultado = inmuebleService.eliminarInmuebleSiNoTieneRelaciones(id);
+
+            if (resultado.equals("Inmueble eliminado correctamente.")) {
+                return ResponseEntity.ok().body(ErrorDTO.builder().code("200 OK").message(resultado).build());
+            } else if (resultado.equals("El ID proporcionado del Inmueble no existe.")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDTO.builder().code("404 NOT FOUND").message(resultado).build());
             } else {
-                inmuebleService.deleteInmuebleById(id);
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("200 OK")
-                        .message("Inmueble eliminado correctamente.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDTO.builder().code("400 BAD REQUEST").message(resultado).build());
             }
         } catch (DataAccessException e) { // Captura la excepción específica de acceso a datos
             ErrorDTO errorDTO = ErrorDTO.builder()

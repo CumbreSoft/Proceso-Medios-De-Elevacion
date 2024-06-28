@@ -1,6 +1,7 @@
 package com.maticolque.apirestelevadores.service;
 
 import com.maticolque.apirestelevadores.model.EmpresaHabilitacion;
+import com.maticolque.apirestelevadores.model.EmpresaPersona;
 import com.maticolque.apirestelevadores.repository.EmpresaHabilitacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,8 +35,15 @@ public class EmpresaHabilitacionService {
         return empresaHabilitacionRepository.save(empresaHabilitacion);
     }
 
-    //ELiminar Empresa Habilitacion
+    //Eliminar Empresa Habilitacion
     public void deleteEmpresaHabilitacionById(Integer id){
         empresaHabilitacionRepository.deleteById(id);
+    }
+
+
+    //Metodo para buscar si un Revisor tiene una relacion con una Empresa (EmpresaHabilitacion)
+    public boolean verificarRelacionRevisorEnEH(Integer revisorId) {
+        List<EmpresaHabilitacion> relaciones = empresaHabilitacionRepository.findAll();
+        return relaciones.stream().anyMatch(eh -> eh.getRevisor().getRev_id() == revisorId);
     }
 }

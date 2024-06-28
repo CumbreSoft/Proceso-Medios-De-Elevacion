@@ -1,5 +1,6 @@
 package com.maticolque.apirestelevadores.service;
 
+import com.maticolque.apirestelevadores.model.EmpresaHabilitacion;
 import com.maticolque.apirestelevadores.model.MedioHabilitacion;
 import com.maticolque.apirestelevadores.repository.MedioHabilitacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,15 @@ public class MedioHabilitacionService {
         return medioHabilitacionRepository.save(medioHabilitacion);
     }
 
-    //ELiminar Medio Habilitacion
+    //Eliminar Medio Habilitacion
     public void deleteMedioHabilitacionById(Integer id){
         medioHabilitacionRepository.deleteById(id);
+    }
+
+
+    //Metodo para buscar si un Revisor tiene una relacion con una Medio de Elevacion (MedioHabilitacion)
+    public boolean verificarRelacionRevisorEnMH(Integer revisorId) {
+        List<MedioHabilitacion> relaciones = medioHabilitacionRepository.findAll();
+        return relaciones.stream().anyMatch(eh -> eh.getRevisor().getRev_id() == revisorId);
     }
 }
