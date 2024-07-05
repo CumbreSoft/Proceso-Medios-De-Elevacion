@@ -36,11 +36,64 @@ public class EmpresaPersonaController {
     private PersonaRepository personaRepository;
 
 
+
+    /* ******************** METODOS ********************
+     * Estos metodos sirven para traer solo los datos que
+     * necesito de cada Clase*/
+
+    //EMPRESA
+    private Map<String, Object> mapEmpresa(Empresa empresa, List<Persona> personas) {
+        if (empresa == null) {
+            return null;
+        }
+
+        Map<String, Object> empresaDTO = new LinkedHashMap<>();
+        empresaDTO.put("emp_id", empresa.getEmp_id());
+        empresaDTO.put("emp_razon", empresa.getEmp_razon());
+
+        // Mapear los datos de las personas a un DTO
+        List<Map<String, Object>> personasDTOList = new ArrayList<>();
+        for (Persona persona : personas) {
+            Map<String, Object> personaDTO = mapPersona(persona);
+            personasDTOList.add(personaDTO);
+        }
+        empresaDTO.put("personas", personasDTOList);
+
+        return empresaDTO;
+
+    }
+
+    //PERSONA
+    private Map<String, Object> mapPersona(Persona persona) {
+        if (persona == null) {
+            return null;
+        }
+
+        Map<String, Object> personaDTO = new LinkedHashMap<>();
+        personaDTO.put("per_id", persona.getPer_id());
+        personaDTO.put("per_nombre", persona.getPer_nombre());
+        // Añadir más campos según tus necesidades
+
+        return personaDTO;
+    }
+    /* ******************** METODOS ******************** */
+
+
     //GET
     @GetMapping
     public ResponseEntity<?> listarEmpresaPersonas() {
         try {
+
             List<EmpresaPersona> empresaPersonas = empresaPersonaService.getAllEmpresaPersona();
+
+            /* Crear lista de mapas para la respuesta
+            1)--> Creo una lista llamada empresaPersonasDTO que contendrá mapas (Map) con claves String y valores Object.
+            Cada mapa representará una Empresa Persona con sus atributos correspondientes.
+            2)--> Inicio un bucle for-each que iterará sobre cada Empresa Persona en la lista empresaPersonas.
+            3)--> Creo un nuevo mapa llamado empresaPersonaMap que almacenará los datos que quiero de Empresa Persona.
+            Creo un nuevo mapa llamado empresaMap que almacenará los datos que quiero de Empresa.
+            Creo un nuevo mapa llamado personaMap que almacenará los datos que quiero de Persona.*/
+
             List<Map<String, Object>> empresaPersonasDTO = new ArrayList<>();
 
             for (EmpresaPersona empresaPersona : empresaPersonas) {
@@ -83,9 +136,11 @@ public class EmpresaPersonaController {
                 empresaPersonasDTO.add(empresaPersonaMap);
             }
 
+            //Crear un nuevo mapa llamado response para estructurar la respuesta que se enviará como parte de la respuesta HTTP.
             Map<String, Object> response = new HashMap<>();
             response.put("empresaPersonas", empresaPersonasDTO);
 
+            //Crear y devolver una respuesta HTTP 200 OK con el contenido del mapa response.
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -135,13 +190,13 @@ public class EmpresaPersonaController {
                 throw new IllegalArgumentException("La Persona es obligatoria.");
             }
 
-            // Llamar al servicio para crear la Empresa Persona
+            // Llamo al servicio para crear la Empresa Persona
             EmpresaPersona nuevoEmpresaPersona = empresaPersonaService.createEmpresaPersona(empresaPersona);
 
-            // Obtener la persona relacionada
+            // Obtengo la persona relacionada
             Persona persona = nuevoEmpresaPersona.getPersona();
 
-            // Cargar la persona desde la base de datos para asegurarnos de tener la versión más reciente
+            // Cargo la persona desde la base de datos para asegurarnos de tener la versión más reciente
             persona = personaRepository.findById(persona.getPer_id()).orElse(null);
             if (persona == null) {
                 throw new EntityNotFoundException("No se encontró la persona con ID: " + nuevoEmpresaPersona.getPersona().getPer_id());
@@ -171,7 +226,7 @@ public class EmpresaPersonaController {
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarEmpresaPersona(@PathVariable Integer id, @RequestBody EmpresaPersona empresaPersona) {
         try {
-            // Lógica para modificar la Empresa Persona
+
             EmpresaPersona empresaPersonaExistente = empresaPersonaService.buscarEmpresaPersonaPorId(id);
 
             if (empresaPersonaExistente == null) {
@@ -198,7 +253,6 @@ public class EmpresaPersonaController {
 
 
         } catch (Exception e) {
-            // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("404 NOT FOUND")
                     .message("Error al modificar la Empresa Persona."+ e.getMessage())
@@ -212,6 +266,7 @@ public class EmpresaPersonaController {
     @PutMapping("/editarEmpresaDePersona/{id}")
     public ResponseEntity<?> actualizarEmpresaDePersona(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
         try {
+
             // Obtener el ID de la nueva empresa
             Integer nuevaEmpresaId = (Integer) requestBody.get("emp_id");
 
@@ -270,14 +325,6 @@ public class EmpresaPersonaController {
         }
     }
 
-
-
-
-
-
-
-
-
     //DELETE
     @DeleteMapping("eliminar/{id}")
     public ResponseEntity<?> eliminarEmpresaPersona(@PathVariable Integer id) {
@@ -309,10 +356,7 @@ public class EmpresaPersonaController {
         }
     }
 
-
-
-
-
+    //Metodo para obtener todas las Personas que pertenecen a una Empresa
     @GetMapping("personasPorEmpresa/{empresaId}")
     public ResponseEntity<?> obtenerEmpresaConPersonas(@PathVariable("empresaId") Integer empresaId) {
         try {
@@ -335,8 +379,6 @@ public class EmpresaPersonaController {
             Map<String, Object> empresaDTO = mapEmpresa(empresa, personas);
 
             // Crear la respuesta
-            //return ResponseEntity.ok(empresaDTO);
-            // Crear la respuesta
             Map<String, Object> response = new HashMap<>();
             response.put("personasEmpresa", empresaDTO);
             return ResponseEntity.ok(response);
@@ -349,56 +391,4 @@ public class EmpresaPersonaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
-    // Método para mapear los datos de la empresa y las personas a un DTO
-    private Map<String, Object> mapEmpresa(Empresa empresa, List<Persona> personas) {
-        if (empresa == null) {
-            return null;
-        }
-
-        Map<String, Object> empresaDTO = new LinkedHashMap<>();
-        empresaDTO.put("emp_id", empresa.getEmp_id());
-        empresaDTO.put("emp_razon", empresa.getEmp_razon());
-
-        // Mapear los datos de las personas a un DTO
-        List<Map<String, Object>> personasDTOList = new ArrayList<>();
-        for (Persona persona : personas) {
-            Map<String, Object> personaDTO = mapPersona(persona);
-            personasDTOList.add(personaDTO);
-        }
-        empresaDTO.put("personas", personasDTOList);
-
-        return empresaDTO;
-
-    }
-
-    // Método para mapear los datos de la persona a un DTO (puedes reutilizar el existente)
-    private Map<String, Object> mapPersona(Persona persona) {
-        if (persona == null) {
-            return null;
-        }
-
-        Map<String, Object> personaDTO = new LinkedHashMap<>();
-        personaDTO.put("per_id", persona.getPer_id());
-        personaDTO.put("per_nombre", persona.getPer_nombre());
-        // Añadir más campos según tus necesidades
-
-        return personaDTO;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

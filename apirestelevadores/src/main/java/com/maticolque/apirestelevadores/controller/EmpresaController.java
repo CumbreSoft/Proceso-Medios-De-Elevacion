@@ -128,8 +128,6 @@ public class EmpresaController {
         }
     }*/
 
-
-
     //GET POR ID
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarEmpresaPorId(@PathVariable Integer id) {

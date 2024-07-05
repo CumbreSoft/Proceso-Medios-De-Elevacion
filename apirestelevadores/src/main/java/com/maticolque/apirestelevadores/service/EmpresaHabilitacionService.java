@@ -14,12 +14,12 @@ public class EmpresaHabilitacionService {
     @Autowired
     private EmpresaHabilitacionRepository empresaHabilitacionRepository;
 
-    //Mostrar Empresa Habilitacion
+    //Listar todas las Empresas Habilitacion
     public List<EmpresaHabilitacion> getAllEmpresaHabilitacion(){
         return empresaHabilitacionRepository.findAll();
     }
 
-    //Mostrar por ID
+    //Listar Empresa Habilitacion por ID
     public EmpresaHabilitacion buscarEmpresaHabilitacionPorId(Integer id)
     {
         return empresaHabilitacionRepository.findById(id).orElse(null);

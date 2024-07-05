@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 public class RespuestaDTO<T> {
     private T entidad;
-    private String mensaje;
+    private String message;
 
-    public RespuestaDTO(T entidad, String mensaje) {
+    public RespuestaDTO(T entidad, String message) {
         this.entidad = entidad;
-        this.mensaje = mensaje;
+        this.message = message;
     }
 }

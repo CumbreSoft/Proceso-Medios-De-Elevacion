@@ -60,6 +60,11 @@ public class InmuebleService {
         return inmueblePersonaService.verificarRelacionInmuebleEnIP(inmuebleId);
     }
 
+    // Verificar si hay relacion de un Inmueble en MedioElevacion
+    public boolean verificarRelacionInmuebleEnME(Integer inmuebleId) {
+        return inmuebleMedioElevacionService.verificarRelacionInmuebleEnIMDE(inmuebleId);
+    }
+
     public String eliminarInmuebleSiNoTieneRelaciones(Integer inmuebleId) {
         Inmueble inmuebleExistente = buscarInmueblePorId(inmuebleId);
         if (inmuebleExistente == null) {
@@ -67,7 +72,11 @@ public class InmuebleService {
         }
 
         if (verificarRelacionInmuebleEnIP(inmuebleId)) {
-            return "El Inmueble tiene una relación con una Persona (Inmueble-Persona) y no puede ser eliminada.";
+            return "El Inmueble tiene una relación con una Persona (Inmueble-Persona) y no puede ser eliminado.";
+        }
+
+        if (verificarRelacionInmuebleEnME(inmuebleId)) {
+            return "El Inmueble tiene una relación con un Medio de Elevación y no puede ser eliminado.";
         }
 
         deleteInmuebleById(inmuebleId);

@@ -35,7 +35,9 @@ public class EmpresaHabilitacionController {
     @Autowired
     private RevisorService revisorService;
 
-    //METODOS
+    /* ******************** METODOS ********************
+    * Estos metodos sirven para traer solo los datos que
+    * necesito de cada Clase*/
 
     //EMPRESA
     private Map<String, Object> mapEmpresa(Empresa empresa) {
@@ -61,13 +63,15 @@ public class EmpresaHabilitacionController {
         revisorMap.put("rev_apellido", revisor.getRev_apellido());
         return revisorMap;
     }
-    //METODOS
+    /* ******************** METODOS ******************** */
 
 
     //GET
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
+
+            // Obtener todas las empresas de habilitación
             List<EmpresaHabilitacion> empresasHabilitacion = empresaHabilitacionService.getAllEmpresaHabilitacion();
 
             if (empresasHabilitacion.isEmpty()) {
@@ -82,7 +86,12 @@ public class EmpresaHabilitacionController {
             // Definir el formato de fecha deseado
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-            //return ResponseEntity.ok(empresaHabilitacion);
+
+            /* Crear lista de mapas para la respuesta
+            1)--> Creo una lista llamada empresaHDTO que contendrá mapas (Map) con claves String y valores Object.
+            Cada mapa representará una empresa de habilitación con sus atributos correspondientes.
+            2)--> Inicio un bucle for-each que iterará sobre cada EmpresaHabilitacion en la lista empresasHabilitacion.
+            3)--> Creo un nuevo mapa llamado empresaHMap que almacenará los datos de una empresa de habilitación.*/
             List<Map<String, Object>> empresaHDTO = new ArrayList<>();
             for (EmpresaHabilitacion empresaHabilitacion : empresasHabilitacion) {
                 Map<String, Object> empresaHMap = new LinkedHashMap<>();
@@ -103,9 +112,12 @@ public class EmpresaHabilitacionController {
                 empresaHDTO.add(empresaHMap);
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("habilitacionEmpresas", empresaHDTO);
 
+            //Crear un nuevo mapa llamado response para estructurar la respuesta que se enviará como parte de la respuesta HTTP.
+            Map<String, Object> response = new HashMap<>();
+            response.put("habilitacionEmpresas", empresaHDTO); //Agregar la lista
+
+            //Crear y devolver una respuesta HTTP 200 OK con el contenido del mapa response.
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -117,7 +129,6 @@ public class EmpresaHabilitacionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
 
     //GET POR ID
     @GetMapping("/{id}")
@@ -144,25 +155,35 @@ public class EmpresaHabilitacionController {
         }
     }
 
-
-    //POST
     @PostMapping
     public RespuestaDTO<EmpresaHabilitacion> crearEmpresaHabilitacion(@RequestBody EmpresaHabilitacion empresaHabilitacion) {
         try {
             // Realizar validación de los datos
             if (empresaHabilitacion.getEha_fecha() == null
-            || empresaHabilitacion.getEha_expediente().isEmpty()
+                    || empresaHabilitacion.getEha_expediente().isEmpty()
                     || empresaHabilitacion.getEha_vto_hab() == null) {
 
                 throw new IllegalArgumentException("Todos los datos de Empresa de Habilitacion son obligatorios.");
 
-            }else if(empresaHabilitacion.getEmpresa().getEmp_id() == 0){
+            } else if (empresaHabilitacion.getEmpresa().getEmp_id() == 0) {
 
                 throw new IllegalArgumentException("La Empresa es obligatoria.");
 
-            }else if(empresaHabilitacion.getRevisor().getRev_id() == 0){
+            } else if (empresaHabilitacion.getRevisor().getRev_id() == 0) {
 
                 throw new IllegalArgumentException("El Revisor es obligatorio.");
+            }
+
+            // Verificar si la empresa existe
+            Empresa empresa = empresaService.buscarEmpresaPorId(empresaHabilitacion.getEmpresa().getEmp_id());
+            if (empresa == null) {
+                throw new IllegalArgumentException("La Empresa con ID " + empresaHabilitacion.getEmpresa().getEmp_id() + " no existe.");
+            }
+
+            // Verificar si el revisor existe
+            Revisor revisor = revisorService.buscarRevisorPorId(empresaHabilitacion.getRevisor().getRev_id());
+            if (revisor == null) {
+                throw new IllegalArgumentException("El Revisor con ID " + empresaHabilitacion.getRevisor().getRev_id() + " no existe.");
             }
 
             // Verificar si la empresa tiene al menos una persona asociada
@@ -177,14 +198,14 @@ public class EmpresaHabilitacionController {
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear una nueva Empresa de Habilitacion: " + e.getMessage());
+            throw new IllegalArgumentException("Error al crear una nueva Empresa de Habilitacion: " + e.getMessage());
 
         } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear una nueva Empresa de Habilitacion: "  + e.getMessage());
+            return new RespuestaDTO<>(null, "Error al crear una nueva Empresa de Habilitacion: " + e.getMessage());
         }
     }
 
-    
+
     /*PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP

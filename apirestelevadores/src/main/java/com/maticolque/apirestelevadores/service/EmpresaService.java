@@ -25,15 +25,34 @@ public class EmpresaService {
     @Autowired
     private MedioHabilitacionService medioHabilitacionService;
 
-    //Mostrar Empresa
+
+    //Listar todas las Empresas
     public List<Empresa> getAllEmpresa(){
         return empresaRepository.findAll();
     }
 
-    //Mostrar por ID
+    //Listar Empresa por ID
     public Empresa buscarEmpresaPorId(Integer id)
     {
         return empresaRepository.findById(id).orElse(null);
+    }
+
+    // Método para obtener una empresa por su ID
+    public Empresa obtenerEmpresaPorId(Integer empresaId) {
+
+        // Obtener todas las empresas del repositorio
+        List<Empresa> empresas = empresaRepository.findAll();
+
+        // Buscar la empresa con el ID proporcionado
+        for (Empresa empresa : empresas) {
+            if (empresa.getEmp_id() == empresaId) {
+                // Devolver la empresa si se encuentra
+                return empresa;
+            }
+        }
+
+        // Devolver null si no se encuentra ninguna empresa con el ID proporcionado
+        return null;
     }
 
     //Crear Empresa
@@ -74,31 +93,6 @@ public class EmpresaService {
     }
     /* ****************************************************************************** */
 
-
-
-
-    // Método para obtener una empresa por su ID
-    public Empresa obtenerEmpresaPorId(Integer empresaId) {
-
-        // Obtener todas las empresas del repositorio
-        List<Empresa> empresas = empresaRepository.findAll();
-
-        // Buscar la empresa con el ID proporcionado
-        for (Empresa empresa : empresas) {
-            if (empresa.getEmp_id() == empresaId) {
-                // Devolver la empresa si se encuentra
-                return empresa;
-            }
-        }
-
-        // Devolver null si no se encuentra ninguna empresa con el ID proporcionado
-        return null;
-    }
-
-    //LISTAR CON PARAMETROS
-    /*public List<Empresa> getEmpresasByActiva(Boolean activa) {
-        return empresaRepository.findByActiva(activa);
-    }*/
 
 
 }

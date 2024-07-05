@@ -37,8 +37,5 @@ public class Empresa {
     private String emp_correo;
 
     @Column(name = "emp_activa", columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean emp_activa;
-
-    //cambiar de emp_activa a activa para poder listar empresas con true o false
-
+    private boolean emp_activa; //cambiar de emp_activa a activa para poder listar empresas con true o false
 }

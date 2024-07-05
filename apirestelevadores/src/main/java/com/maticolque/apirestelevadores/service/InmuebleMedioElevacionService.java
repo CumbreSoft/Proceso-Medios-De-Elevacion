@@ -17,12 +17,12 @@ public class InmuebleMedioElevacionService {
     @Autowired
     private InmuebleMedioElevacionRepository inmuebleMedioElevacionRepository;
 
-    //Mostrar inmueble
+    //Listar todos los Inmuebles
     public List<InmuebleMedioElevacion> getAllInmueblesMDE(){
         return inmuebleMedioElevacionRepository.findAll();
     }
 
-    //Mostrar por ID
+    //Listar Inmuebles por ID
     public InmuebleMedioElevacion buscarInmuebleMDEPorId(Integer id)
     {
         return inmuebleMedioElevacionRepository.findById(id).orElse(null);
@@ -43,17 +43,24 @@ public class InmuebleMedioElevacionService {
         inmuebleMedioElevacionRepository.deleteById(id);
     }
 
+
     //Metodo para buscar si un Inmueble tiene una relacion con un MDE (InmuebleMDE)
-    public boolean verificarRelacionMDEEnIMDE(Integer inmuebleId) {
+    public boolean verificarRelacionInmuebleEnIMDE(Integer inmuebleId) {
         List<InmuebleMedioElevacion> relaciones = inmuebleMedioElevacionRepository.findAll();
         return relaciones.stream().anyMatch(i -> i.getInmueble().getInm_id() == inmuebleId);
+    }
+
+    //Metodo para buscar si un Inmueble tiene una relacion con un MDE (InmuebleMDE)
+    public boolean verificarRelacionMDEEnIMDE(Integer mdeId) {
+        List<InmuebleMedioElevacion> relaciones = inmuebleMedioElevacionRepository.findAll();
+        return relaciones.stream().anyMatch(i -> i.getMedioElevacion().getMde_id() == mdeId);
     }
 
     public List<InmuebleMedioElevacion> obtenerPrimeroLosDatosDeInmuebleMedioDeElevacion() {
         return inmuebleMedioElevacionRepository.findAll();
     }
 
-    // Nuevo método para filtrar los medios de elevación por ID de inmueble
+    //Metodo para filtrar los medios de elevación por ID de inmueble
     public List<InmuebleMedioElevacion> obtenerMediosDeElevacionPorInmuebleId(Integer inmuebleId) {
         List<InmuebleMedioElevacion> inmuebleMedioElevacionList = inmuebleMedioElevacionRepository.findAll();
         List<InmuebleMedioElevacion> mediosDeElevacionPorInmueble = new ArrayList<>();

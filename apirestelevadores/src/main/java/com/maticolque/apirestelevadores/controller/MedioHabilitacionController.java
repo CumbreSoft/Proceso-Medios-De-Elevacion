@@ -36,6 +36,9 @@ public class MedioHabilitacionController {
     private PersonaService personaService;
 
     @Autowired
+    private EmpresaPersonaService empresaPersonaService;
+
+    @Autowired
     private RevisorService revisorService;
 
 
@@ -194,13 +197,22 @@ public class MedioHabilitacionController {
             else if(medioHabilitacion.getRevisor().getRev_id() == 0){
                 throw new IllegalArgumentException("El Revisor es obligatorio.");
             }
+
+
+            // Verificar si la empresa tiene al menos una persona asociada
+            boolean tienePersonas = empresaPersonaService.verificarRelacionesConPersonas(medioHabilitacion.getEmpresa().getEmp_id());
+            if (!tienePersonas) {
+                throw new IllegalArgumentException("La Empresa debe tener al menos una persona asociada antes de ser habilitada.");
+            }
+
+
             // Llamar al servicio para crear el Medio de Habilitacion
             MedioHabilitacion nuevoMedioHabilitacion = medioHabilitacionService.createMedioHabilitacion(medioHabilitacion);
             return new RespuestaDTO<>(nuevoMedioHabilitacion, "Medio Habilitación creado con éxito.");
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Habilitación: " + e.getMessage());
+            throw new IllegalArgumentException("Error al crear un Medio de Habilitacion: " + e.getMessage());
 
         } catch (Exception e) {
             return new RespuestaDTO<>(null, "Error al crear un nuevo Medio de Habilitación. " + e.getMessage());
