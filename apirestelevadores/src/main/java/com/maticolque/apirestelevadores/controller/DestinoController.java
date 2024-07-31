@@ -1,9 +1,9 @@
 package com.maticolque.apirestelevadores.controller;
 
+import com.maticolque.apirestelevadores.dto.DestinoDTO;
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.Destino;
-import com.maticolque.apirestelevadores.model.Distrito;
 import com.maticolque.apirestelevadores.repository.DestinoRepository;
 import com.maticolque.apirestelevadores.service.DestinoService;
 import jakarta.annotation.PostConstruct;
@@ -31,8 +31,11 @@ public class DestinoController {
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
+
+            // Obtener la lista de Destinos
             List<Destino> destinos = destinoService.getAllDestino();
 
+            // Verificar la lista de Destinos
             if (destinos.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
@@ -42,34 +45,29 @@ public class DestinoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            List<Map<String, Object>> destinosDTO = new ArrayList<>();
+            // Convertir la entidad en un DTO
+            List<DestinoDTO> destinosDTO = new ArrayList<>();
             for (Destino destino : destinos) {
-                Map<String, Object> destinoMap = new LinkedHashMap<>();
-                destinoMap.put("dst_id", destino.getDst_id());
-                destinoMap.put("dst_codigo", destino.getDst_codigo());
-                destinoMap.put("dst_detalle", destino.getDst_detalle());
-                destinoMap.put("dst_activo", destino.isDst_activo());
-
-                destinosDTO.add(destinoMap);
+                DestinoDTO dto = DestinoDTO.fromEntity(destino);
+                destinosDTO.add(dto);
             }
 
+            // Crear mapa para estructurar la respuesta
             Map<String, Object> response = new HashMap<>();
             response.put("destinos", destinosDTO);
 
-            //return ResponseEntity.ok(destinos);
+            // Retornar la respuesta
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista de destinos: " + e.getMessage())
+                    .message("Error al obtener la lista de Destinos: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
-
 
     //GET POR ID
     @GetMapping("/{id}")
@@ -98,49 +96,71 @@ public class DestinoController {
 
     //POST
     @PostMapping
-    public RespuestaDTO<Destino> crearDestino(@RequestBody Destino destino) {
+    public ResponseEntity<?> crearDestino(@RequestBody DestinoDTO destinoDTO) {
         try {
-            // Realizar validación de los datos
-            if (destino.getDst_codigo().isEmpty() || destino.getDst_detalle().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de destino son obligatorio.");
+            // Validar datos
+            if (destinoDTO.getDst_codigo().isEmpty() || destinoDTO.getDst_detalle().isEmpty()) {
+                throw new IllegalArgumentException("Todos los datos de destino son obligatorios.");
             }
 
-            // Llamar al servicio para crear el destino
+            // Convertir DTO a entidad
+            Destino destino = DestinoDTO.toEntity(destinoDTO);
+
+            // Crear Destino
             Destino nuevoDestino = destinoService.createDestino(destino);
-            return new RespuestaDTO<>(nuevoDestino, "Destino creado con éxito.");
+
+            // Convertir entidad a DTO
+            DestinoDTO nuevoDestinoDTO = DestinoDTO.fromEntity(nuevoDestino);
+
+            // Mandar respuesta
+            RespuestaDTO<DestinoDTO> respuesta = new RespuestaDTO<>(nuevoDestinoDTO, "Destino", "Destino creado con éxito.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear un nuevo destino: " + e.getMessage());
+            ErrorDTO errorDTO = new ErrorDTO("400 BAD REQUEST", "Error al crear un nuevo Destino: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         } catch (Exception e) {
-            // Capturar otras excepciones
-            e.printStackTrace();
-            return new RespuestaDTO<>(null, "Error al crear un nuevo destino: " + e.getMessage());
+            // Capturar cualquier otra excepción
+            ErrorDTO errorDTO = new ErrorDTO("500 INTERNAL SERVER ERROR", "Error al crear un nuevo Destino: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
 
     //PUT
     @PutMapping("editar/{id}")
-    //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> actualizarDestino(@PathVariable Integer id, @RequestBody Destino destino) {
+    public ResponseEntity<?> actualizarDestino(@PathVariable Integer id, @RequestBody DestinoDTO destinoDTO) {
         try {
-            // Lógica para modificar el destino
+            // Buscar el Destino por ID
             Destino destinoExistente = destinoService.buscarDestinoPorId(id);
 
+            // Verificar si existe el ID del Destino
             if (destinoExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("El ID que intenta modificar no existe.")
+                        .message("No se encontró el Destino con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //Modificar valores
-            destinoExistente.setDst_codigo(destino.getDst_codigo());
-            destinoExistente.setDst_detalle(destino.getDst_detalle());
-            destinoExistente.setDst_activo(destino.isDst_activo());
+            // Validar datos
+            if (destinoDTO.getDst_codigo().isEmpty() || destinoDTO.getDst_detalle().isEmpty()) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("400 BAD REQUEST")
+                        .message("Todos los datos del Destino son obligatorios.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+            }
 
+            // Actualizar los campos del Destino
+            destinoExistente.setDst_codigo(destinoDTO.getDst_codigo());
+            destinoExistente.setDst_detalle(destinoDTO.getDst_detalle());
+            destinoExistente.setDst_activo(destinoDTO.isDst_activo());
+
+            // Actualizar Destino
             destinoService.updateDestino(destinoExistente);
 
+            // Mandar respuesta
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("200 OK")
                     .message("La modificación se ha realizado correctamente.")
@@ -148,20 +168,18 @@ public class DestinoController {
             return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
 
         } catch (Exception e) {
-            // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
+            // Manejar excepciones no específicas y devolver un código y mensaje genéricos
             ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("404 NOT FOUND")
-                    .message("Error al modificar el Destino."+ e.getMessage())
+                    .code("500 INTERNAL SERVER ERROR")
+                    .message("Error al modificar el Destino: " + e.getMessage())
                     .build();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
-
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
 
-
     //DELETE
     @DeleteMapping("eliminar/{id}")
-    public ResponseEntity<?> elimimarDestino(@PathVariable Integer id) {
+    public ResponseEntity<?> eliminarDestino(@PathVariable Integer id) {
         try {
             Destino destinoExistente = destinoService.buscarDestinoPorId(id);
 

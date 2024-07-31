@@ -1,13 +1,11 @@
 package com.maticolque.apirestelevadores.controller;
 
-import com.maticolque.apirestelevadores.dto.ErrorDTO;
-import com.maticolque.apirestelevadores.dto.RespuestaDTO;
+import com.maticolque.apirestelevadores.dto.*;
 import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.repository.PersonaRepository;
 import com.maticolque.apirestelevadores.service.InmueblePersonaService;
 import com.maticolque.apirestelevadores.service.InmuebleService;
 import com.maticolque.apirestelevadores.service.PersonaService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -28,7 +26,7 @@ public class InmueblePersonaController {
     private InmuebleService inmuebleService;
 
     @Autowired
-    PersonaService personaService;
+    private PersonaService personaService;
 
     @Autowired
     private PersonaRepository personaRepository;
@@ -38,64 +36,42 @@ public class InmueblePersonaController {
     @GetMapping
     public ResponseEntity<?> listarInmueblePersonas() {
         try {
+
+            // Obtener la lista de Inmueble-Persona
             List<InmueblePersona> inmueblePersonas = inmueblePersonaService.getAllInmueblePersona();
-            List<Map<String, Object>> inmueblePersonasDTO = new ArrayList<>();
 
-            for (InmueblePersona inmueblePersona : inmueblePersonas) {
-                Map<String, Object> inmueblePersonaMap = new LinkedHashMap<>();
-                inmueblePersonaMap.put("ipe_id", inmueblePersona.getIpe_id());
-                inmueblePersonaMap.put("ipe_es_admin_edif", inmueblePersona.isIpe_es_admin_edif());
-                inmueblePersonaMap.put("ipe_es_coprop_edif", inmueblePersona.isIpe_es_coprop_edif());
-
-                // Extraer los datos del inmueble asociado
-                Inmueble inmueble = inmueblePersona.getInmueble();
-                Map<String, Object> inmuebleMap = new LinkedHashMap<>();
-                inmuebleMap.put("inm_id", inmueble.getInm_id());
-                inmuebleMap.put("inm_padron", inmueble.getInm_padron());
-                inmuebleMap.put("destino", inmueble.getDestino());
-                inmuebleMap.put("inm_direccion", inmueble.getInm_direccion());
-                inmuebleMap.put("distrito", inmueble.getDistrito());
-                inmuebleMap.put("inm_cod_postal", inmueble.getInm_cod_postal());
-                inmuebleMap.put("inm_activo", inmueble.isInm_activo());
-                inmueblePersonaMap.put("inmueble", inmuebleMap);
-
-                // Extraer los datos de la persona asociada
-                Persona persona = inmueblePersona.getPersona();
-                Map<String, Object> personaMap = new LinkedHashMap<>();
-                personaMap.put("per_id", persona.getPer_id());
-                personaMap.put("per_nombre", persona.getPer_nombre());
-                personaMap.put("per_apellido", persona.getPer_apellido());
-                personaMap.put("per_cuit", persona.getPer_cuit());
-                personaMap.put("per_tipodoc", persona.getPer_tipodoc());
-                personaMap.put("per_numdoc", persona.getPer_numdoc());
-                personaMap.put("per_telefono", persona.getPer_telefono());
-                personaMap.put("per_correo", persona.getPer_correo());
-                personaMap.put("per_domic_legal", persona.getPer_domic_legal());
-                personaMap.put("per_es_dueno_emp", persona.isPer_es_dueno_emp());
-                personaMap.put("per_es_reptec_emp", persona.isPer_es_reptec_emp());
-                personaMap.put("per_es_admin_edif", persona.isPer_es_admin_edif());
-                personaMap.put("per_es_coprop_edif", persona.isPer_es_coprop_edif());
-                personaMap.put("per_activa", persona.isPer_activa());
-                inmueblePersonaMap.put("persona", personaMap);
-
-                inmueblePersonasDTO.add(inmueblePersonaMap);
+            // Verificar la lista de Inmueble-Persona
+            if (inmueblePersonas.isEmpty()) {
+                // Crear instancia de ErrorDTO con el código de error y el mensaje
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("La base de datos está vacía, no se encontraron Inmueble-Persona.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("inmueblePersonas", inmueblePersonasDTO);
+            // Convertir la entidad en un DTO
+            List<InmueblePersonaReadDTO> inmueblePersonasReadDTO = new ArrayList<>();
+            for (InmueblePersona inmueblePersona : inmueblePersonas) {
+                InmueblePersonaReadDTO readDTO = InmueblePersonaReadDTO.fromEntity(inmueblePersona);
+                inmueblePersonasReadDTO.add(readDTO);
+            }
 
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("inmueblePersonas", inmueblePersonasReadDTO);
+
+            // Retornar la respuesta
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista de Inmueble Persona: " + e.getMessage())
+                    .message("Error al obtener la lista de Inmueble-Persona: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
-
 
     //GET POR ID
     @GetMapping("/{id}")
@@ -122,171 +98,115 @@ public class InmueblePersonaController {
         }
     }
 
-
     //POST
     @PostMapping
-    public RespuestaDTO<InmueblePersona> crearInmueblePersona(@RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<?> crearInmueblePersona(@RequestBody InmueblePersonaCreateDTO createDto) {
         try {
-            Integer inmuebleId = (Integer) requestData.get("inmuebleId");
-            Integer personaId = (Integer) requestData.get("personaId");
-            Boolean ipeEsAdminEdif = (Boolean) requestData.get("ipe_es_admin_edif");
-            Boolean ipeEsCopropEdif = (Boolean) requestData.get("ipe_es_coprop_edif");
-
-            // Validaciones
-            if (inmuebleId == null) {
-                throw new IllegalArgumentException("El ID del inmueble es obligatorio.");
-            }
-            if (personaId == null) {
-                throw new IllegalArgumentException("El ID de la persona es obligatorio.");
+            // Validar datos
+            if (createDto.getIpe_inm_id() == 0) {
+                throw new IllegalArgumentException("El Inmueble es obligatorio.");
+            } else if (createDto.getIpe_per_id() == 0) {
+                throw new IllegalArgumentException("La Persona es obligatoria.");
             }
 
-            // Buscar el inmueble por su ID
-            Inmueble inmueble = inmuebleService.buscarInmueblePorId(inmuebleId);
-            if (inmueble == null) {
-                throw new IllegalArgumentException("No se encontró el inmueble con el ID especificado.");
+            // Buscar Inmueble y Persona por sus IDs
+            Inmueble inmueble = inmuebleService.buscarInmueblePorId(createDto.getIpe_inm_id());
+            Persona persona = personaService.buscarPersonaPorId(createDto.getIpe_per_id());
+
+            // Verificar si los IDs existen
+            if (inmueble == null || persona == null) {
+                throw new IllegalArgumentException("ID de Inmueble o Persona no encontrado.");
             }
 
-            // Buscar la persona por su ID
-            Persona persona = personaService.buscarPersonaPorId(personaId);
-            if (persona == null) {
-                throw new IllegalArgumentException("No se encontró la persona con el ID especificado.");
-            }
+            // Convertir DTO a entidad
+            InmueblePersona inmueblePersona = InmueblePersonaCreateDTO.toEntity(createDto, inmueble, persona);
 
-            // Crear la entidad de InmueblePersona y establecer las relaciones
-            InmueblePersona inmueblePersona = new InmueblePersona();
-            inmueblePersona.setInmueble(inmueble);
-            inmueblePersona.setPersona(persona);
-            inmueblePersona.setIpe_es_admin_edif(ipeEsAdminEdif != null ? ipeEsAdminEdif : false);
-            inmueblePersona.setIpe_es_coprop_edif(ipeEsCopropEdif != null ? ipeEsCopropEdif : false);
-
-            // Crear la relación Inmueble-Persona
+            // Crear la relación InmueblePersona
             InmueblePersona nuevoInmueblePersona = inmueblePersonaService.createInmueblePersona(inmueblePersona);
 
-            // Actualizar los valores de per_es_admin_edif y per_es_coprop_edif en la entidad Persona
-            persona.setPer_es_admin_edif(ipeEsAdminEdif != null ? ipeEsAdminEdif : false);
-            persona.setPer_es_coprop_edif(ipeEsCopropEdif != null ? ipeEsCopropEdif : false);
+            InmueblePersonaReadDTO nuevoInmueblePersonaReadDTO = InmueblePersonaReadDTO.fromEntity(nuevoInmueblePersona);
+
+            // Actualizar los valores de per_es_dueno_emp y per_es_reptec_emp en Persona
+            persona.setPer_es_admin_edif(createDto.isIpe_es_admin_edif());
+            persona.setPer_es_coprop_edif(createDto.isIpe_es_coprop_edif());
 
             // Guardar la persona actualizada en la base de datos
             personaRepository.save(persona);
 
-            return new RespuestaDTO<>(nuevoInmueblePersona, "Inmueble Persona creado con éxito.");
+            // Mandar respuesta
+            RespuestaDTO<InmueblePersonaReadDTO> respuesta = new RespuestaDTO<>(nuevoInmueblePersonaReadDTO, "Inmueble-Persona", "Inmueble-Persona creado con éxito.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Inmueble Persona: " + e.getMessage());
-        } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Inmueble Persona: " + e.getMessage());
-        }
-    }
-
-
-
-
-
-    //PUT
-    @PutMapping("editar/{id}")
-    //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> actualizarInmueblePersona(@PathVariable Integer id, @RequestBody InmueblePersona inmueblePersona) {
-        try {
-            // Lógica para modificar el Inmueble Persona
-            InmueblePersona inmueblePersonaExistente = inmueblePersonaService.buscarInmueblePersonaPorId(id);
-
-            if (inmueblePersonaExistente == null) {
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("El ID que intenta modificar no existe.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
-            }
-
-            //Modificar valores
-            inmueblePersonaExistente.setIpe_es_admin_edif(inmueblePersona.isIpe_es_admin_edif());
-            inmueblePersonaExistente.setIpe_es_coprop_edif(inmueblePersona.isIpe_es_coprop_edif());
-            inmueblePersonaExistente.setInmueble(inmueblePersona.getInmueble());
-            inmueblePersonaExistente.setPersona(inmueblePersona.getPersona());
-
-            inmueblePersonaService.updateInmueblePersona(inmueblePersonaExistente);
-
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("200 OK")
-                    .message("La modificación se ha realizado correctamente.")
-                    .build();
-            return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
-
-        } catch (Exception e) {
-            // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("404 NOT FOUND")
-                    .message("Error al modificar el Inmueble Persona."+ e.getMessage())
-                    .build();
+            ErrorDTO errorDTO = new ErrorDTO("400 BAD REQUEST", "Error al crear un nuevo Inmueble-Persona: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+        } catch (Exception e) {
+            // Capturar cualquier otra excepción
+            ErrorDTO errorDTO = new ErrorDTO("500 INTERNAL SERVER ERROR", "Error al crear un nuevo Inmueble-Persona: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
 
     //PUT SOLO PARA CAMBIAR EL INMUEBLE DE UNA PERSONA
     @PutMapping("/editarInmuebleDePersona/{id}")
-    public ResponseEntity<?> actualizarInmuebleDePersona(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<?> actualizarInmuebleDePersona(@PathVariable Integer id, @RequestBody InmueblePersonaUpdateDTO updateDTO) {
         try {
-            // Obtener el ID del nuevo Inmueble
-            Integer nuevoInmuebleId = (Integer) requestBody.get("inm_id");
 
-            // Obtener los valores de ipe_es_admin_edif y ipe_es_coprop_edif
-            boolean esAdmin = (boolean) requestBody.getOrDefault("ipe_es_admin_edif", false);
-            boolean esCopro = (boolean) requestBody.getOrDefault("ipe_es_coprop_edif", false);
-
-            // Verificar si la relación InmueblePersona existe para la persona específica
+            // Obtener ID de Inmueble-Persona
             InmueblePersona inmueblePersonaExistente = inmueblePersonaService.buscarInmueblePersonaPorId(id);
+
+            // Verificar si existe el ID de Inmueble-Persona
             if (inmueblePersonaExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("No se encontró una relación Inmueble-Persona para la persona con ID: " + id)
+                        .message("No se encontró el Inmueble-Persona con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            // Obtener el nuevo inmueble
-            Inmueble nuevoInmueble = inmuebleService.buscarInmueblePorId(nuevoInmuebleId);
+            // Obtener ID del nuevo Inmueble
+            Inmueble nuevoInmueble = inmuebleService.buscarInmueblePorId(updateDTO.getIpe_inm_id());
+
+            // Verificar si existe del nuevo Inmueble
             if (nuevoInmueble == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("No se encontró el inmueble con el ID proporcionado.")
+                        .message("No se encontró el Inmueble con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            // Actualizar el inmueble de la persona en la relación InmueblePersona
+            // Actualizar los campos de Inmueble-Persona
+            inmueblePersonaExistente.setIpe_es_admin_edif(updateDTO.isIpe_es_admin_edif());
+            inmueblePersonaExistente.setIpe_es_coprop_edif(updateDTO.isIpe_es_coprop_edif());
             inmueblePersonaExistente.setInmueble(nuevoInmueble);
-
-            // Actualizar los valores de ipe_es_admin_edif y ipe_es_coprop_edif en la relación InmueblePersona
-            inmueblePersonaExistente.setIpe_es_admin_edif(esAdmin);
-            inmueblePersonaExistente.setIpe_es_coprop_edif(esCopro);
 
             // Actualizar los valores de ipe_es_admin_edif y ipe_es_coprop_edif en la entidad Persona
             Persona personaExistente = inmueblePersonaExistente.getPersona();
-            personaExistente.setPer_es_admin_edif(esAdmin);
-            personaExistente.setPer_es_coprop_edif(esCopro);
+            personaExistente.setPer_es_admin_edif(updateDTO.isIpe_es_admin_edif());
+            personaExistente.setPer_es_coprop_edif(updateDTO.isIpe_es_coprop_edif());
 
-            // Actualizar la relación InmueblePersona y la entidad Persona en la base de datos
+            //Actualizar Inmueble-Persona
             inmueblePersonaService.updateInmueblePersona(inmueblePersonaExistente);
+
+            //Actualizar Persona
             personaService.updatePersona(personaExistente);
 
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("200 OK")
-                    .message("El inmueble y los roles de la persona se han actualizado correctamente.")
+                    .message("El Inmueble y los roles de la persona se han actualizado correctamente.")
                     .build();
             return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("500 INTERNAL SERVER ERROR")
-                    .message("Error al actualizar el inmueble y los roles de la persona: " + e.getMessage())
+                    .message("Error al actualizar el Inmueble y los roles de la Persona: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
-
 
     //DELETE
     @DeleteMapping("eliminar/{id}")

@@ -1,8 +1,13 @@
 package com.maticolque.apirestelevadores.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Data
@@ -13,6 +18,7 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "mde_medios_habilitacion")
+@EntityListeners(AuditingEntityListener.class)
 public class MedioHabilitacion {
 
     @Id
@@ -28,7 +34,7 @@ public class MedioHabilitacion {
     private MedioElevacion medioElevacion;
 
     @ManyToOne
-    @JoinColumn(name = "mha_emp_id", nullable = false)
+    @JoinColumn(name = "mha_emp_id", nullable = true)
     private Empresa empresa;
 
     @ManyToOne
@@ -36,23 +42,19 @@ public class MedioHabilitacion {
     private Persona persona;
 
     @Column(name = "mha_fecha", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date mha_fecha;
+    private LocalDate mha_fecha;
 
     @Column(name = "mha_expediente", nullable = false, length = 20)
     private String mha_expediente;
 
     @Column(name = "mha_fecha_vto", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date mha_fecha_vto;
+    private LocalDate mha_fecha_vto;
 
     @Column(name = "mha_fecha_pago", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date mha_fecha_pago;
+    private LocalDate mha_fecha_pago;
 
     @Column(name = "mha_fecha_inspec", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date mha_fecha_inspec;
+    private LocalDate mha_fecha_inspec;
 
     /*@Column(name = "mha_planos_aprob", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean mha_planos_aprob;*/
@@ -69,6 +71,17 @@ public class MedioHabilitacion {
     @ManyToOne
     @JoinColumn(name = "mha_rev_id", nullable = false)
     private Revisor revisor;
+
+
+
+    //Guardar fechas de creacion y modificacion
+    @CreatedDate
+    @Column(name = "mha_fecha_creacion", updatable = false)
+    private LocalDateTime fecha_creacion;
+
+    @LastModifiedDate
+    @Column(name = "mha_fecha_modificacion")
+    private LocalDateTime fecha_modificacion;
 
     /*@Column(name = "mha_vto_hab", nullable = false)
     @Temporal(TemporalType.DATE)

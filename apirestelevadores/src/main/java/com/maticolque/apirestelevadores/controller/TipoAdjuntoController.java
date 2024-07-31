@@ -2,6 +2,7 @@ package com.maticolque.apirestelevadores.controller;
 
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
+import com.maticolque.apirestelevadores.dto.TipoAdjuntoDTO;
 import com.maticolque.apirestelevadores.model.Destino;
 import com.maticolque.apirestelevadores.model.Empresa;
 import com.maticolque.apirestelevadores.model.TipoAdjunto;
@@ -39,21 +40,14 @@ public class TipoAdjuntoController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //return ResponseEntity.ok(tipoAdjuntos);
-            List<Map<String, Object>> tipoAdjuntoDTO = new ArrayList<>();
+            List<TipoAdjuntoDTO> tipoAdjuntosDTO = new ArrayList<>();
             for (TipoAdjunto tipoAdjunto : tipoAdjuntos) {
-                Map<String, Object> tipoAdjuntoMap = new LinkedHashMap<>();
-
-                tipoAdjuntoMap.put("tad_id", tipoAdjunto.getTad_id());
-                tipoAdjuntoMap.put("tad_nombre", tipoAdjunto.getTad_nombre());
-                tipoAdjuntoMap.put("tad_cod", tipoAdjunto.getTad_cod());
-                tipoAdjuntoMap.put("tad_activo", tipoAdjunto.isTad_activo());
-
-                tipoAdjuntoDTO.add(tipoAdjuntoMap);
+                TipoAdjuntoDTO dto = TipoAdjuntoDTO.fromEntity(tipoAdjunto);
+                tipoAdjuntosDTO.add(dto);
             }
 
             Map<String, Object> response = new HashMap<>();
-            response.put("tiposAdjuntos", tipoAdjuntoDTO);
+            response.put("tiposAdjuntos", tipoAdjuntosDTO);
 
             return ResponseEntity.ok(response);
 
@@ -97,17 +91,25 @@ public class TipoAdjuntoController {
 
 
     //POST
+    /*
     @PostMapping
-    public RespuestaDTO<TipoAdjunto> crearTipoAdjunto(@RequestBody TipoAdjunto tipoAdjunto){
+    public RespuestaDTO<TipoAdjuntoDTO> crearTipoAdjunto(@RequestBody TipoAdjuntoDTO tipoAdjuntoDTO){
         try {
             // Realizar validación de los datos
-            if (tipoAdjunto.getTad_nombre().isEmpty() || tipoAdjunto.getTad_cod() == 0) {
+            if (tipoAdjuntoDTO.getTad_nombre().isEmpty() || tipoAdjuntoDTO.getTad_cod() == 0) {
                 throw new IllegalArgumentException("Todos los datos de Tipo de Adjunto son obligatorios.");
             }
 
+            // Convertir DTO a entidad
+            TipoAdjunto tipoAdjunto = TipoAdjuntoDTO.toEntity(tipoAdjuntoDTO);
+
             // Llamar al servicio para crear el Tipo de Adjunto
             TipoAdjunto nuevoTipoAdjunto = tipoAdjuntoService.createTipoAdjunto(tipoAdjunto);
-            return new RespuestaDTO<>(nuevoTipoAdjunto, "Tipo de Adjunto creado con éxito.");
+
+            // Convertir entidad a DTO
+            TipoAdjuntoDTO nuevoTipoAdjuntoDTO = TipoAdjuntoDTO.fromEntity(nuevoTipoAdjunto);
+
+            return new RespuestaDTO<>(nuevoTipoAdjuntoDTO, "Tipo de Adjunto creado con éxito.");
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
@@ -117,13 +119,13 @@ public class TipoAdjuntoController {
             return new RespuestaDTO<>(null, "Error al crear un nuevo Tipo de Adjunto: " + e.getMessage());
         }
 
-    }
+    }*/
 
 
     //PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> actualizarTipoAdjunto(@PathVariable Integer id, @RequestBody TipoAdjunto tipoAdjunto) {
+    public ResponseEntity<?> actualizarTipoAdjunto(@PathVariable Integer id, @RequestBody TipoAdjuntoDTO tipoAdjuntoDTO) {
         try {
             // Lógica para modificar el Tipo de Adjunto
             TipoAdjunto tipoAdjuntoExistente = tipoAdjuntoService.buscarTipoAdjuntoPorId(id);
@@ -137,9 +139,9 @@ public class TipoAdjuntoController {
             }
 
             //Modificar valores
-            tipoAdjuntoExistente.setTad_nombre(tipoAdjunto.getTad_nombre());
-            tipoAdjuntoExistente.setTad_cod(tipoAdjunto.getTad_cod());
-            tipoAdjuntoExistente.setTad_activo(tipoAdjunto.isTad_activo());
+            tipoAdjuntoExistente.setTad_nombre(tipoAdjuntoDTO.getTad_nombre());
+            tipoAdjuntoExistente.setTad_cod(tipoAdjuntoDTO.getTad_cod());
+            tipoAdjuntoExistente.setTad_activo(tipoAdjuntoDTO.isTad_activo());
 
             tipoAdjuntoService.updateTipoAdjunto(tipoAdjuntoExistente);
 

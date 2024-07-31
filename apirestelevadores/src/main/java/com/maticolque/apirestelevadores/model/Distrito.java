@@ -2,6 +2,11 @@ package com.maticolque.apirestelevadores.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 
 @Data
@@ -12,6 +17,7 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "mde_distrito")
+@EntityListeners(AuditingEntityListener.class)
 public class Distrito {
 
     @Id
@@ -27,4 +33,16 @@ public class Distrito {
 
     @Column(name = "dis_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean dis_activo;
+
+
+
+    //Guardar fechas de creacion y modificacion
+    @CreatedDate
+    @Column(name = "dis_fecha_creacion", updatable = false)
+    private LocalDateTime fecha_creacion;
+
+    @LastModifiedDate
+    @Column(name = "dis_fecha_modificacion")
+    private LocalDateTime fecha_modificacion;
+
 }

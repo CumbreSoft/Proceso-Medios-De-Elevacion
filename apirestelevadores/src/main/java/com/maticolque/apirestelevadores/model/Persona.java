@@ -1,7 +1,11 @@
 package com.maticolque.apirestelevadores.model;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 
@@ -13,6 +17,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "mde_personas")
+@EntityListeners(AuditingEntityListener.class)
 public class Persona {
 
     @Id
@@ -58,6 +63,17 @@ public class Persona {
 
     @Column(name = "per_activa", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean per_activa;
+
+
+
+    //Guardar fechas de creacion y modificacion
+    @CreatedDate
+    @Column(name = "per_fecha_creacion", updatable = false)
+    private LocalDateTime fecha_creacion;
+
+    @LastModifiedDate
+    @Column(name = "per_fecha_modificacion")
+    private LocalDateTime fecha_modificacion;
 
     /*@OneToMany(mappedBy = "persona")
     private Set<EmpresaPersona> empresaPersonas;

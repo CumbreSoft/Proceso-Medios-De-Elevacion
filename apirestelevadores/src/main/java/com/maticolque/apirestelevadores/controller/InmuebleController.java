@@ -1,15 +1,11 @@
 package com.maticolque.apirestelevadores.controller;
 
-import com.maticolque.apirestelevadores.dto.ErrorDTO;
-import com.maticolque.apirestelevadores.dto.RespuestaDTO;
+import com.maticolque.apirestelevadores.dto.*;
 import com.maticolque.apirestelevadores.model.*;
-import com.maticolque.apirestelevadores.repository.InmuebleRepository;
 import com.maticolque.apirestelevadores.service.DestinoService;
 import com.maticolque.apirestelevadores.service.DistritoService;
 import com.maticolque.apirestelevadores.service.InmuebleService;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +31,11 @@ public class InmuebleController {
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
+
+            // Obtener la lista de Inmuebles
             List<Inmueble> inmuebles = inmuebleService.getAllInmuebles();
 
+            // Verificar la lista de Inmuebles
             if (inmuebles.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
@@ -46,29 +45,21 @@ public class InmuebleController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //return ResponseEntity.ok(inmuebles);
-            List<Map<String, Object>> inmueblesDTO = new ArrayList<>();
+            // Convertir la entidad en un DTO
+            List<InmuebleReadDTO> inmuebleReadDTO = new ArrayList<>();
             for (Inmueble inmueble : inmuebles) {
-                Map<String, Object> inmuebleMap = new LinkedHashMap<>();
-
-                inmuebleMap.put("inm_id", inmueble.getInm_id());
-                inmuebleMap.put("inm_padron",inmueble.getInm_padron());
-                inmuebleMap.put("inm_direccion",inmueble.getInm_direccion());
-                inmuebleMap.put("inm_cod_postal",inmueble.getInm_cod_postal());
-                inmuebleMap.put("distrito",inmueble.getDistrito());
-                inmuebleMap.put("destino", inmueble.getDestino());
-                inmuebleMap.put("inm_activo",inmueble.isInm_activo());
-
-                inmueblesDTO.add(inmuebleMap);
+                InmuebleReadDTO readDTO = InmuebleReadDTO.fromEntity(inmueble);
+                inmuebleReadDTO.add(readDTO);
             }
 
+            // Crear mapa para estructurar la respuesta
             Map<String, Object> response = new HashMap<>();
-            response.put("inmuebles", inmueblesDTO);
+            response.put("inmuebles", inmuebleReadDTO);
 
+            // Retornar la respuesta
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
                     .message("Error al obtener la lista de Inmuebles: " + e.getMessage())
@@ -76,7 +67,6 @@ public class InmuebleController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
 
     //GET POR ID
     @GetMapping("/{id}")
@@ -103,170 +93,114 @@ public class InmuebleController {
         }
     }
 
-
     //POST
     @PostMapping
-    public RespuestaDTO<Inmueble> crearInmuble(@RequestBody Inmueble inmueble) {
+    public ResponseEntity<?> crearInmuble(@RequestBody InmuebleCreateDTO createdto) {
         try {
-            // Realizar validación de los datos
-            if (inmueble.getInm_direccion().isEmpty() || inmueble.getInm_cod_postal() == null || inmueble.getInm_padron() == 0) {
+
+            // Validar datos
+            if (createdto.getInm_padron() == 0 || createdto.getInm_direccion().isEmpty() || createdto.getInm_cod_postal().isEmpty()) {
                 throw new IllegalArgumentException("Todos los datos del Inmueble son obligatorios.");
-
-            }else if(inmueble.getDestino().getDst_id() == 0){
-
-                throw new IllegalArgumentException("El Destino es obligatorio.");
-
-            }else if(inmueble.getDistrito().getDis_id() == 0){
-
+            }
+            if (createdto.getInm_dis_id() == 0) {
                 throw new IllegalArgumentException("El Distrito es obligatorio.");
+            } else if (createdto.getInm_dst_id() == 0) {
+                throw new IllegalArgumentException("El Destino es obligatorio.");
             }
 
-            // Llamar al servicio para crear el Inmueble
+            // Buscar Distrito y Destino por sus IDs
+            Distrito distrito = distritoService.buscarDistritoPorId(createdto.getInm_dis_id());
+            Destino destino = destinoService.buscarDestinoPorId(createdto.getInm_dst_id());
+
+            // Verificar si los IDs existen
+            if (distrito == null || destino == null) {
+                throw new IllegalArgumentException("ID de Distrito o Destino no encontrado.");
+            }
+
+            // Convertir DTO a entidad
+            Inmueble inmueble = InmuebleCreateDTO.toEntity(createdto, distrito, destino);
+
+            // Crear Inmueble
             Inmueble nuevoInmueble = inmuebleService.createInmueble(inmueble);
-            return new RespuestaDTO<>(nuevoInmueble, "Inmueble creado con éxito.");
+
+            // Convertir entidad a DTO
+            InmuebleReadDTO nuevoInmuebleReadDTO = InmuebleReadDTO.fromEntity(nuevoInmueble);
+
+            // Mandar respuesta
+            RespuestaDTO<InmuebleReadDTO> respuesta = new RespuestaDTO<>(nuevoInmuebleReadDTO, "Inmueble", "Inmueble creado con éxito.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Inmueble: " + e.getMessage());
-
+            ErrorDTO errorDTO = new ErrorDTO("400 BAD REQUEST", "Error al crear un nuevo Inmueble: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Inmueble: " + e.getMessage());
+            // Capturar cualquier otra excepción
+            ErrorDTO errorDTO = new ErrorDTO("500 INTERNAL SERVER ERROR", "Error al crear un nuevo Inmueble: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
 
     //PUT
     @PutMapping("/editar/{id}")
-    public ResponseEntity<?> modificarInmueble(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<?> modificarInmueble(@PathVariable Integer id, @RequestBody InmuebleUpdateDTO updateDTO) {
         try {
-            // Verificar si el inmueble existe
+            // Buscar el Inmueble por ID
             Inmueble inmuebleExistente = inmuebleService.buscarInmueblePorId(id);
+
+            // Verificar si existe el ID del Inmueble
             if (inmuebleExistente == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        ErrorDTO.builder()
-                                .code("404 NOT FOUND")
-                                .message("El Inmueble con el ID proporcionado no existe.")
-                                .build()
-                );
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el Inmueble con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            // Obtener el ID del distrito, destino, y padrón para actualizar
-            Integer nuevoDistritoId = (Integer) requestBody.get("dis_id");
-            Integer nuevoDestinoId = (Integer) requestBody.get("dst_id");
-            Integer nuevoPadron = (Integer) requestBody.get("inm_padron");
+            // Obtener ID del nuevo Distrito y Destino
+            Distrito nuevoDistrito = distritoService.buscarDistritoPorId(updateDTO.getInm_dis_id());
+            Destino nuevoDestino = destinoService.buscarDestinoPorId(updateDTO.getInm_dst_id());
 
-            // Obtener otros campos para actualizar
-            String nuevaDireccion = (String) requestBody.get("inm_direccion");
-            String nuevoCodPostal = (String) requestBody.get("inm_cod_postal");
-            Boolean nuevoInmActivo = (Boolean) requestBody.get("inm_activo");
-
-            // Verificar que al menos un campo se proporciona para actualizar
-            if (nuevoDistritoId == null && nuevoDestinoId == null && nuevoPadron == null
-                    && nuevaDireccion == null && nuevoCodPostal == null
-                    && nuevoInmActivo == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                        ErrorDTO.builder()
-                                .code("400 BAD REQUEST")
-                                .message("Debe proporcionar al menos un campo para actualizar.")
-                                .build()
-                );
+            // Verificar si existe el ID del nuevo Distrito y Destino
+            if (nuevoDistrito == null || nuevoDestino == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("ID de Distrito o Destino no encontrado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            StringBuilder mensajeExito = new StringBuilder("Actualización exitosa:");
+            // Actualizar los campos del Inmueble
+            inmuebleExistente.setInm_padron(updateDTO.getInm_padron());
+            inmuebleExistente.setInm_direccion(updateDTO.getInm_direccion());
+            inmuebleExistente.setInm_cod_postal(updateDTO.getInm_cod_postal());
+            inmuebleExistente.setDistrito(nuevoDistrito);
+            inmuebleExistente.setDestino(nuevoDestino);
+            inmuebleExistente.setInm_activo(updateDTO.isInm_activo());
 
-            // Verificar y actualizar el Distrito
-            if (nuevoDistritoId != null) {
-                Distrito nuevoDistrito = distritoService.buscarDistritoPorId(nuevoDistritoId);
-                if (nuevoDistrito == null) {
-                    mensajeExito.append(" (Error: No se encontró el Distrito con el ID proporcionado).");
-                } else {
-                    inmuebleExistente.setDistrito(nuevoDistrito);
-                    mensajeExito.append(" Distrito actualizado correctamente.");
-                }
-            }
-
-            // Verificar y actualizar el Destino
-            if (nuevoDestinoId != null) {
-                Destino nuevoDestino = destinoService.buscarDestinoPorId(nuevoDestinoId);
-                if (nuevoDestino == null) {
-                    mensajeExito.append(" (Error: No se encontró el Destino con el ID proporcionado).");
-                } else {
-                    inmuebleExistente.setDestino(nuevoDestino);
-                    mensajeExito.append(" Destino actualizado correctamente.");
-                }
-            }
-
-            // Verificar y actualizar el Padrón
-            if (nuevoPadron != null) {
-                inmuebleExistente.setInm_padron(nuevoPadron);
-                mensajeExito.append(" Padrón actualizado correctamente.");
-            }
-
-            // Actualizar otros campos
-            if (nuevaDireccion != null) {
-                inmuebleExistente.setInm_direccion(nuevaDireccion);
-                mensajeExito.append(" Dirección actualizada correctamente.");
-            }
-
-            if (nuevoCodPostal != null) {
-                inmuebleExistente.setInm_cod_postal(nuevoCodPostal);
-                mensajeExito.append(" Código postal actualizado correctamente.");
-            }
-
-            if (nuevoInmActivo != null) {
-                inmuebleExistente.setInm_activo(nuevoInmActivo);
-                mensajeExito.append(" Estado de actividad actualizado correctamente.");
-            }
-
-            // Guardar cambios
+            //Actualizar Inmueble
             inmuebleService.updateInmueble(inmuebleExistente);
 
-            // Mensaje de éxito
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    ErrorDTO.builder()
-                            .code("200 OK")
-                            .message(mensajeExito.toString())
-                            .build()
-            );
+            //Mandar respuesta
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("200 OK")
+                    .message("El Inmueble se actualizó correctamente.")
+                    .build();
+            return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
 
         } catch (Exception e) {
-            // Manejo de errores generales
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    ErrorDTO.builder()
-                            .code("500 INTERNAL SERVER ERROR")
-                            .message("Error al actualizar el Inmueble: " + e.getMessage())
-                            .build()
-            );
+            // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
+            ErrorDTO errorDTO = ErrorDTO.builder()
+                    .code("500 INTERNAL SERVER ERROR")
+                    .message("Error al modificar el Inmueble: " + e.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
     }
-
-
-
-
-
-
 
     //DELETE
     @DeleteMapping("eliminar/{id}")
-    public ResponseEntity<?> eliminarInmuble(@PathVariable Integer id) {
-        try {
-
-            String resultado = inmuebleService.eliminarInmuebleSiNoTieneRelaciones(id);
-
-            if (resultado.equals("Inmueble eliminado correctamente.")) {
-                return ResponseEntity.ok().body(ErrorDTO.builder().code("200 OK").message(resultado).build());
-            } else if (resultado.equals("El ID proporcionado del Inmueble no existe.")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorDTO.builder().code("404 NOT FOUND").message(resultado).build());
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorDTO.builder().code("400 BAD REQUEST").message(resultado).build());
-            }
-        } catch (DataAccessException e) { // Captura la excepción específica de acceso a datos
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al eliminar el Inmueble. " + e.getMessage())
-                    .build();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
-        }
+    public ResponseEntity<ErrorDTO> eliminarInmueble(@PathVariable int id) {
+        return inmuebleService.eliminarInmuebleSiNoTieneRelaciones(id);
     }
 }
-

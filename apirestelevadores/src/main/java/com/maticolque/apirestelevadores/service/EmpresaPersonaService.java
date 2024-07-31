@@ -47,31 +47,6 @@ public class EmpresaPersonaService {
         empresaPersonaRepository.deleteById(id);
     }
 
-
-
-    /*  Metodo para buscar si EmpresaPersona tiene una relacion con empresa
-        1)--> Llamo al método findAll() del repositorio empresaPersonaRepository.
-        Este método devuelve una lista de todas las entidades EmpresaPersona que están
-        almacenadas en la base de datos.
-        2)-->relaciones.stream(): Convierte la lista relaciones en un flujo para poder realizar operaciones sobre ella.
-        .anyMatch(ep -> ep.getEmpresa().getEmp_id() == empresaId): Itera sobre cada objeto EmpresaPersona (ep) en
-        el flujo y verifica si el emp_id de la empresa asociada (ep.getEmpresa().getEmp_id()) es igual al empresaId
-        que se pasa al método. */
-
-    //Metodo para buscar si una Empresa tiene una relacion con una Persona (EmpresaPersona)
-    public boolean verificarRelacionEmpresaEnEP(Integer empresaId) {
-        List<EmpresaPersona> relaciones = empresaPersonaRepository.findAll();
-        return relaciones.stream().anyMatch(ep -> ep.getEmpresa().getEmp_id() == empresaId);
-    }
-
-    //Metodo para buscar si una Persona tiene una relacion con una Empresa (EmpresaPersona)
-    public boolean verificarRelacionPersonaEnEP(Integer personaId) {
-        List<EmpresaPersona> relaciones = empresaPersonaRepository.findAll();
-        return relaciones.stream().anyMatch(p -> p.getPersona().getPer_id() == personaId);
-    }
-
-
-
     // Método para obtener todas las personas relacionadas con una empresa específica
     public List<Persona> obtenerPersonasPorEmpresa(Integer empresaId) {
         List<EmpresaPersona> empresaPersonaList = empresaPersonaRepository.findAll();

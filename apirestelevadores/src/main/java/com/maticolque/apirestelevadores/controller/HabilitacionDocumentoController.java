@@ -188,6 +188,7 @@ public class HabilitacionDocumentoController {
 
 
     //POST
+    /*
     @PostMapping
     public RespuestaDTO<HabilitacionDocumento> crearHabilitacionDocumento(@RequestBody Map<String, Object> requestData) {
         try {
@@ -265,7 +266,7 @@ public class HabilitacionDocumentoController {
         } catch (Exception e) {
             return new RespuestaDTO<>(null, "Error al crear una nueva Habilitación de Documentos: " + e.getMessage());
         }
-    }
+    }*/
 
 
     //PUT

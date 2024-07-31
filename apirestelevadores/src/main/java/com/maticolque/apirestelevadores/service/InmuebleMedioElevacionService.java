@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class InmuebleMedioElevacionService {
@@ -43,24 +45,11 @@ public class InmuebleMedioElevacionService {
         inmuebleMedioElevacionRepository.deleteById(id);
     }
 
-
-    //Metodo para buscar si un Inmueble tiene una relacion con un MDE (InmuebleMDE)
-    public boolean verificarRelacionInmuebleEnIMDE(Integer inmuebleId) {
-        List<InmuebleMedioElevacion> relaciones = inmuebleMedioElevacionRepository.findAll();
-        return relaciones.stream().anyMatch(i -> i.getInmueble().getInm_id() == inmuebleId);
-    }
-
-    //Metodo para buscar si un Inmueble tiene una relacion con un MDE (InmuebleMDE)
-    public boolean verificarRelacionMDEEnIMDE(Integer mdeId) {
-        List<InmuebleMedioElevacion> relaciones = inmuebleMedioElevacionRepository.findAll();
-        return relaciones.stream().anyMatch(i -> i.getMedioElevacion().getMde_id() == mdeId);
-    }
-
     public List<InmuebleMedioElevacion> obtenerPrimeroLosDatosDeInmuebleMedioDeElevacion() {
         return inmuebleMedioElevacionRepository.findAll();
     }
 
-    //Metodo para filtrar los medios de elevación por ID de inmueble
+    //Metodo para filtrar los medios de elevación por NUMERO DE PADRON de INMUEBLE
     public List<InmuebleMedioElevacion> obtenerMediosDeElevacionPorInmuebleId(Integer inmuebleId) {
         List<InmuebleMedioElevacion> inmuebleMedioElevacionList = inmuebleMedioElevacionRepository.findAll();
         List<InmuebleMedioElevacion> mediosDeElevacionPorInmueble = new ArrayList<>();
@@ -72,5 +61,12 @@ public class InmuebleMedioElevacionService {
         }
 
         return mediosDeElevacionPorInmueble;
+    }
+
+    // Obtener la primera relación de cada inmueble
+    public List<InmuebleMedioElevacion> obtenerPrimerInmuebleMedioElevacion() {
+        // Lógica para obtener el primer InmuebleMedioElevacion relacionado para cada Inmueble
+        // Esto podría involucrar una consulta SQL con una subconsulta o un DISTINCT ON (dependiendo de tu base de datos)
+        return inmuebleMedioElevacionRepository.obtenerPrimerInmuebleMedioElevacion();
     }
 }

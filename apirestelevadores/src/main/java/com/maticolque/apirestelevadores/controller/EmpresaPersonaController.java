@@ -1,15 +1,12 @@
 package com.maticolque.apirestelevadores.controller;
 
-import com.maticolque.apirestelevadores.dto.ErrorDTO;
-import com.maticolque.apirestelevadores.dto.RespuestaDTO;
-import com.maticolque.apirestelevadores.model.Empresa;
-import com.maticolque.apirestelevadores.model.EmpresaPersona;
-import com.maticolque.apirestelevadores.model.Persona;
+import com.maticolque.apirestelevadores.dto.*;
+import com.maticolque.apirestelevadores.dtosimple.EmpresaPersonaSimpleDTO;
+import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.repository.PersonaRepository;
 import com.maticolque.apirestelevadores.service.EmpresaPersonaService;
 import com.maticolque.apirestelevadores.service.EmpresaService;
 import com.maticolque.apirestelevadores.service.PersonaService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -30,53 +27,10 @@ public class EmpresaPersonaController {
     private EmpresaService empresaService;
 
     @Autowired
-    PersonaService personaService;
+    private PersonaService personaService;
 
     @Autowired
     private PersonaRepository personaRepository;
-
-
-
-    /* ******************** METODOS ********************
-     * Estos metodos sirven para traer solo los datos que
-     * necesito de cada Clase*/
-
-    //EMPRESA
-    private Map<String, Object> mapEmpresa(Empresa empresa, List<Persona> personas) {
-        if (empresa == null) {
-            return null;
-        }
-
-        Map<String, Object> empresaDTO = new LinkedHashMap<>();
-        empresaDTO.put("emp_id", empresa.getEmp_id());
-        empresaDTO.put("emp_razon", empresa.getEmp_razon());
-
-        // Mapear los datos de las personas a un DTO
-        List<Map<String, Object>> personasDTOList = new ArrayList<>();
-        for (Persona persona : personas) {
-            Map<String, Object> personaDTO = mapPersona(persona);
-            personasDTOList.add(personaDTO);
-        }
-        empresaDTO.put("personas", personasDTOList);
-
-        return empresaDTO;
-
-    }
-
-    //PERSONA
-    private Map<String, Object> mapPersona(Persona persona) {
-        if (persona == null) {
-            return null;
-        }
-
-        Map<String, Object> personaDTO = new LinkedHashMap<>();
-        personaDTO.put("per_id", persona.getPer_id());
-        personaDTO.put("per_nombre", persona.getPer_nombre());
-        // Añadir más campos según tus necesidades
-
-        return personaDTO;
-    }
-    /* ******************** METODOS ******************** */
 
 
     //GET
@@ -84,74 +38,41 @@ public class EmpresaPersonaController {
     public ResponseEntity<?> listarEmpresaPersonas() {
         try {
 
+            // Obtener la lista de Empresa-Persona
             List<EmpresaPersona> empresaPersonas = empresaPersonaService.getAllEmpresaPersona();
 
-            /* Crear lista de mapas para la respuesta
-            1)--> Creo una lista llamada empresaPersonasDTO que contendrá mapas (Map) con claves String y valores Object.
-            Cada mapa representará una Empresa Persona con sus atributos correspondientes.
-            2)--> Inicio un bucle for-each que iterará sobre cada Empresa Persona en la lista empresaPersonas.
-            3)--> Creo un nuevo mapa llamado empresaPersonaMap que almacenará los datos que quiero de Empresa Persona.
-            Creo un nuevo mapa llamado empresaMap que almacenará los datos que quiero de Empresa.
-            Creo un nuevo mapa llamado personaMap que almacenará los datos que quiero de Persona.*/
-
-            List<Map<String, Object>> empresaPersonasDTO = new ArrayList<>();
-
-            for (EmpresaPersona empresaPersona : empresaPersonas) {
-                Map<String, Object> empresaPersonaMap = new LinkedHashMap<>();
-                empresaPersonaMap.put("epe_id", empresaPersona.getEpe_id());
-                empresaPersonaMap.put("epe_es_dueno_emp", empresaPersona.isEpe_es_dueno_emp());
-                empresaPersonaMap.put("epe_es_reptec_emp", empresaPersona.isEpe_es_reptec_emp());
-
-                // Extraer los datos de la empresa asociada
-                Empresa empresa = empresaPersona.getEmpresa();
-                Map<String, Object> empresaMap = new LinkedHashMap<>();
-                empresaMap.put("emp_id", empresa.getEmp_id());
-                empresaMap.put("emp_razon", empresa.getEmp_razon());
-                empresaMap.put("emp_cuit", empresa.getEmp_cuit());
-                empresaMap.put("emp_domic_legal", empresa.getEmp_domic_legal());
-                empresaMap.put("emp_telefono", empresa.getEmp_telefono());
-                empresaMap.put("emp_correo", empresa.getEmp_correo());
-                empresaMap.put("emp_activa", empresa.isEmp_activa());
-                empresaPersonaMap.put("empresa", empresaMap);
-
-                // Extraer los datos de la persona asociada
-                Persona persona = empresaPersona.getPersona();
-                Map<String, Object> personaMap = new LinkedHashMap<>();
-                personaMap.put("per_id", persona.getPer_id());
-                personaMap.put("per_nombre", persona.getPer_nombre());
-                personaMap.put("per_apellido", persona.getPer_apellido());
-                personaMap.put("per_cuit", persona.getPer_cuit());
-                personaMap.put("per_tipodoc", persona.getPer_tipodoc());
-                personaMap.put("per_numdoc", persona.getPer_numdoc());
-                personaMap.put("per_telefono", persona.getPer_telefono());
-                personaMap.put("per_correo", persona.getPer_correo());
-                personaMap.put("per_domic_legal", persona.getPer_domic_legal());
-                personaMap.put("per_es_dueno_emp", persona.isPer_es_dueno_emp());
-                personaMap.put("per_es_reptec_emp", persona.isPer_es_reptec_emp());
-                personaMap.put("per_es_admin_edif", persona.isPer_es_admin_edif());
-                personaMap.put("per_es_coprop_edif", persona.isPer_es_coprop_edif());
-                personaMap.put("per_activa", persona.isPer_activa());
-                empresaPersonaMap.put("persona", personaMap);
-
-                empresaPersonasDTO.add(empresaPersonaMap);
+            // Verificar la lista de Empresa-Persona
+            if (empresaPersonas.isEmpty()) {
+                // Crear instancia de ErrorDTO con el código de error y el mensaje
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("La base de datos está vacía, no se encontraron Empresa-Persona.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //Crear un nuevo mapa llamado response para estructurar la respuesta que se enviará como parte de la respuesta HTTP.
-            Map<String, Object> response = new HashMap<>();
-            response.put("empresaPersonas", empresaPersonasDTO);
+            // Convertir la entidad en un DTO
+            List<EmpresaPersonaReadDTO> empresaPersonasReadDTO = new ArrayList<>();
+            for (EmpresaPersona empresaPersona : empresaPersonas) {
+                EmpresaPersonaReadDTO readDTO = EmpresaPersonaReadDTO.fromEntity(empresaPersona);
+                empresaPersonasReadDTO.add(readDTO);
+            }
 
-            //Crear y devolver una respuesta HTTP 200 OK con el contenido del mapa response.
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("empresaPersonas", empresaPersonasReadDTO);
+
+            // Retornar la respuesta
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista de Empresa Persona: " + e.getMessage())
+                    .message("Error al obtener la lista de Empresa-Persona: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
-
 
     //GET POR ID
     @GetMapping("/{id}")
@@ -172,144 +93,108 @@ public class EmpresaPersonaController {
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al buscar la Empresa Persona." + e.getMessage())
+                    .message("Error al buscar la Empresa-Persona." + e.getMessage())
                     .build();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }
     }
 
-
     //POST
     @PostMapping
-    public RespuestaDTO<EmpresaPersona> crearEmpresaPersona(@RequestBody EmpresaPersona empresaPersona) {
+    public ResponseEntity<?> crearEmpresaPersona(@RequestBody EmpresaPersonaCreateDTO createDto) {
         try {
-            // Realizar validación de los datos
-            if (empresaPersona.getEmpresa().getEmp_id() == 0) {
+            // Validar datos
+            if (createDto.getEpe_emp_id() == 0) {
                 throw new IllegalArgumentException("La Empresa es obligatoria.");
-            } else if (empresaPersona.getPersona().getPer_id() == 0) {
+            } else if (createDto.getEpe_per_id() == 0) {
                 throw new IllegalArgumentException("La Persona es obligatoria.");
             }
 
-            // Llamo al servicio para crear la Empresa Persona
-            EmpresaPersona nuevoEmpresaPersona = empresaPersonaService.createEmpresaPersona(empresaPersona);
+            // Buscar Empresa y Persona por sus IDs
+            Empresa empresa = empresaService.buscarEmpresaPorId(createDto.getEpe_emp_id());
+            Persona persona = personaService.buscarPersonaPorId(createDto.getEpe_per_id());
 
-            // Obtengo la persona relacionada
-            Persona persona = nuevoEmpresaPersona.getPersona();
-
-            // Cargo la persona desde la base de datos para asegurarnos de tener la versión más reciente
-            persona = personaRepository.findById(persona.getPer_id()).orElse(null);
-            if (persona == null) {
-                throw new EntityNotFoundException("No se encontró la persona con ID: " + nuevoEmpresaPersona.getPersona().getPer_id());
+            // Verificar si los IDs existen
+            if (empresa == null || persona == null) {
+                throw new IllegalArgumentException("ID de la Empresa o Persona no encontrado.");
             }
 
-            // Actualizar los valores de per_es_dueno_emp y per_es_reptec_emp
-            persona.setPer_es_dueno_emp(empresaPersona.isEpe_es_dueno_emp());
-            persona.setPer_es_reptec_emp(empresaPersona.isEpe_es_reptec_emp());
+            // Convertir DTO a entidad
+            EmpresaPersona empresaPersona = EmpresaPersonaCreateDTO.toEntity(createDto, empresa, persona);
+
+            // Crear la relacion EmpresaPersona
+            EmpresaPersona nuevaEmpresaPersona = empresaPersonaService.createEmpresaPersona(empresaPersona);
+
+            // Convertir entidad a DTO
+            EmpresaPersonaReadDTO nuevaEmpresaPersonaReadDTO = EmpresaPersonaReadDTO.fromEntity(nuevaEmpresaPersona);
+
+            // Actualizar los valores de per_es_dueno_emp y per_es_reptec_emp en Persona
+            persona.setPer_es_dueno_emp(createDto.isEpe_es_dueno_emp());
+            persona.setPer_es_reptec_emp(createDto.isEpe_es_reptec_emp());
 
             // Guardar la persona actualizada en la base de datos
             personaRepository.save(persona);
 
-            return new RespuestaDTO<>(nuevoEmpresaPersona, "Empresa Persona creada con éxito.");
+            // Mandar respuesta
+            RespuestaDTO<EmpresaPersonaReadDTO> respuesta = new RespuestaDTO<>(nuevaEmpresaPersonaReadDTO, "Empresa-Persona", "Empresa-Persona creada con éxito.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear una nueva Empresa Persona: " + e.getMessage());
-
-        } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear una nueva Empresa Persona:  " + e.getMessage());
-        }
-    }
-
-
-    //PUT
-    @PutMapping("editar/{id}")
-    //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> actualizarEmpresaPersona(@PathVariable Integer id, @RequestBody EmpresaPersona empresaPersona) {
-        try {
-
-            EmpresaPersona empresaPersonaExistente = empresaPersonaService.buscarEmpresaPersonaPorId(id);
-
-            if (empresaPersonaExistente == null) {
-                ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("404 NOT FOUND")
-                        .message("El ID que intenta modificar no existe.")
-                        .build();
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
-            }
-
-            //Modificar valores
-            empresaPersonaExistente.setEpe_es_dueno_emp(empresaPersona.isEpe_es_dueno_emp());
-            empresaPersonaExistente.setEpe_es_reptec_emp(empresaPersona.isEpe_es_reptec_emp());
-            empresaPersonaExistente.setEmpresa(empresaPersona.getEmpresa());
-            empresaPersonaExistente.setPersona(empresaPersona.getPersona());
-
-            empresaPersonaService.updateEmpresaPersona(empresaPersonaExistente);
-
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("200 OK")
-                    .message("La modificación se ha realizado correctamente.")
-                    .build();
-            return ResponseEntity.status(HttpStatus.OK).body(errorDTO);
-
-
-        } catch (Exception e) {
-            ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("404 NOT FOUND")
-                    .message("Error al modificar la Empresa Persona."+ e.getMessage())
-                    .build();
+            ErrorDTO errorDTO = new ErrorDTO("400 BAD REQUEST", "Error al crear una nueva Empresa-Persona: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+        } catch (Exception e) {
+            // Capturar cualquier otra excepción
+            ErrorDTO errorDTO = new ErrorDTO("500 INTERNAL SERVER ERROR", "Error al crear una nueva Empresa-Persona: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
 
-
-    //PUT SOLO PARA CAMBIAR LA EMPRESA DE UNA PERSONA
+    //PUT SOLO PARA CAMBIAR LA EMPRESA DE UNA PERSONA Y SUS ROLES
     @PutMapping("/editarEmpresaDePersona/{id}")
-    public ResponseEntity<?> actualizarEmpresaDePersona(@PathVariable Integer id, @RequestBody Map<String, Object> requestBody) {
+    public ResponseEntity<?> actualizarEmpresaPersona(@PathVariable Integer id, @RequestBody EmpresaPersonaUpdateDTO updateDTO) {
         try {
-
-            // Obtener el ID de la nueva empresa
-            Integer nuevaEmpresaId = (Integer) requestBody.get("emp_id");
-
-            // Obtener los valores de epe_es_dueno_emp y epe_es_reptec_emp
-            boolean esDueno = (boolean) requestBody.getOrDefault("epe_es_dueno_emp", false);
-            boolean esReptec = (boolean) requestBody.getOrDefault("epe_es_reptec_emp", false);
-
-            // Verificar si la relación EmpresaPersona existe para la persona específica
+            // Obtener ID de Empresa-Persona
             EmpresaPersona empresaPersonaExistente = empresaPersonaService.buscarEmpresaPersonaPorId(id);
+
+            // Verificar si existe el ID de Empresa-Persona
             if (empresaPersonaExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("No se encontró una relación Empresa-Persona para la persona con ID: " + id)
+                        .message("No se encontró la Empresa-Persona con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            // Obtener la nueva empresa
-            Empresa nuevaEmpresa = empresaService.buscarEmpresaPorId(nuevaEmpresaId);
+            // Obtener ID de la nueva Empresa
+            Empresa nuevaEmpresa = empresaService.buscarEmpresaPorId(updateDTO.getEpe_emp_id());
+
+            // Verificar si existe el ID de la nueva Empresa
             if (nuevaEmpresa == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("No se encontró la empresa con el ID proporcionado.")
+                        .message("No se encontró la Empresa con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            // Actualizar la empresa de la persona en la relación EmpresaPersona
+            // Actualizar los campos de Empresa-Persona
+            empresaPersonaExistente.setEpe_es_dueno_emp(updateDTO.isEpe_es_dueno_emp());
+            empresaPersonaExistente.setEpe_es_reptec_emp(updateDTO.isEpe_es_reptec_emp());
             empresaPersonaExistente.setEmpresa(nuevaEmpresa);
-
-            // Actualizar los valores de epe_es_dueno_emp y epe_es_reptec_emp en la relación EmpresaPersona
-            empresaPersonaExistente.setEpe_es_dueno_emp(esDueno);
-            empresaPersonaExistente.setEpe_es_reptec_emp(esReptec);
 
             // Actualizar los valores de epe_es_dueno_emp y epe_es_reptec_emp en la entidad Persona
             Persona personaExistente = empresaPersonaExistente.getPersona();
-            personaExistente.setPer_es_dueno_emp(esDueno);
-            personaExistente.setPer_es_reptec_emp(esReptec);
+            personaExistente.setPer_es_dueno_emp(updateDTO.isEpe_es_dueno_emp());
+            personaExistente.setPer_es_reptec_emp(updateDTO.isEpe_es_reptec_emp());
 
-            // Actualizar la relación EmpresaPersona y la entidad Persona en la base de datos
+            // Actualizar Empresa-Persona
             empresaPersonaService.updateEmpresaPersona(empresaPersonaExistente);
+
+            //Actualizar Persona
             personaService.updatePersona(personaExistente);
 
+            //Mandar respuesta
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("200 OK")
                     .message("La empresa y los roles de la persona se han actualizado correctamente.")
@@ -319,7 +204,7 @@ public class EmpresaPersonaController {
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("500 INTERNAL SERVER ERROR")
-                    .message("Error al actualizar la empresa y los roles de la persona: " + e.getMessage())
+                    .message("Error al actualizar la Empresa-Persona y los roles de la Persona: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
@@ -329,8 +214,10 @@ public class EmpresaPersonaController {
     @DeleteMapping("eliminar/{id}")
     public ResponseEntity<?> eliminarEmpresaPersona(@PathVariable Integer id) {
         try {
+            // Obtener ID de Empresa-Persona
             EmpresaPersona empresaPersonaExistente = empresaPersonaService.buscarEmpresaPersonaPorId(id);
 
+            //Verificar si existe
             if (empresaPersonaExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -356,17 +243,17 @@ public class EmpresaPersonaController {
         }
     }
 
-    //Metodo para obtener todas las Personas que pertenecen a una Empresa
+    //METODO PARA OBTENER TODAS LAS PERSONAS QUE PERTENECEN A UNA EMPRESA
     @GetMapping("personasPorEmpresa/{empresaId}")
     public ResponseEntity<?> obtenerEmpresaConPersonas(@PathVariable("empresaId") Integer empresaId) {
         try {
-            // Obtener la empresa por su ID
+            // Obtener ID de la Empresa
             Empresa empresa = empresaService.obtenerEmpresaPorId(empresaId);
 
-            // Verificar si la empresa existe
+            // Verificar si existe el ID de la Empresa
             if (empresa == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("ERR_EMPRESA_NOT_FOUND")
+                        .code("404 NOT FOUND")
                         .message("Empresa con ID " + empresaId + " no encontrada.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
@@ -376,12 +263,10 @@ public class EmpresaPersonaController {
             List<Persona> personas = empresaPersonaService.obtenerPersonasPorEmpresa(empresaId);
 
             // Mapear los datos de la empresa y las personas a un DTO
-            Map<String, Object> empresaDTO = mapEmpresa(empresa, personas);
+            EmpresaPersonaSimpleDTO empresaDTO = EmpresaPersonaSimpleDTO.fromEntity(empresa, personas);
 
-            // Crear la respuesta
-            Map<String, Object> response = new HashMap<>();
-            response.put("personasEmpresa", empresaDTO);
-            return ResponseEntity.ok(response);
+            // Retornar la respuesta
+            return ResponseEntity.ok(Collections.singletonMap("personasEmpresa", empresaDTO));
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()

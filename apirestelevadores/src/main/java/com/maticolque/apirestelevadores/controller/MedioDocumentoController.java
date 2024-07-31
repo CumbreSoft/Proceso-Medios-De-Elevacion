@@ -219,6 +219,7 @@ public class MedioDocumentoController {
 
 
     //POST
+    /*
     @PostMapping
     public RespuestaDTO<MedioDocumento> crearMedioDocumento(@RequestBody Map<String, Object> requestData) {
         try {
@@ -300,7 +301,7 @@ public class MedioDocumentoController {
             e.printStackTrace();
             return new RespuestaDTO<>(null, "Error al crear un nuevo MDE: " + e.getMessage());
         }
-    }
+    }*/
 
 
     //PUT

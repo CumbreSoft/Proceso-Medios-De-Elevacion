@@ -1,8 +1,13 @@
 package com.maticolque.apirestelevadores.model;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Data
@@ -13,6 +18,7 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "mde_medios_docs")
+@EntityListeners(AuditingEntityListener.class)
 public class MedioDocumento {
 
     @Id
@@ -38,5 +44,16 @@ public class MedioDocumento {
     @ManyToOne
     @JoinColumn(name = "mdo_rev_id", nullable = false)
     private Revisor revisor;
+
+
+
+    //Guardar fechas de creacion y modificacion
+    @CreatedDate
+    @Column(name = "mdo_fecha_creacion", updatable = false)
+    private LocalDateTime fecha_creacion;
+
+    @LastModifiedDate
+    @Column(name = "mdo_fecha_modificacion")
+    private LocalDateTime fecha_modificacion;
 
 }

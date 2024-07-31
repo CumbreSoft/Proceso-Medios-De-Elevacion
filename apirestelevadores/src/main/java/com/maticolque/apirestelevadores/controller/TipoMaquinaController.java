@@ -1,7 +1,9 @@
 package com.maticolque.apirestelevadores.controller;
 
 import com.maticolque.apirestelevadores.dto.ErrorDTO;
+import com.maticolque.apirestelevadores.dto.MedioElevacionReadDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
+import com.maticolque.apirestelevadores.dto.TipoMaquinaDTO;
 import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.repository.TipoMaquinaRepository;
 import com.maticolque.apirestelevadores.service.InmuebleService;
@@ -31,9 +33,9 @@ public class TipoMaquinaController {
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
-            List<TipoMaquina> tipoMaquina = tipoMaquinaService.getAllTipoMaquina();
+            List<TipoMaquina> tipoMaquinas = tipoMaquinaService.getAllTipoMaquina();
 
-            if (tipoMaquina.isEmpty()) {
+            if (tipoMaquinas.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -42,22 +44,14 @@ public class TipoMaquinaController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //return ResponseEntity.ok(tipoMaquina);
-
-            List<Map<String, Object>> tipoMaquinaDTO = new ArrayList<>();
-            for (TipoMaquina tipoMaquina1 : tipoMaquina) {
-                Map<String, Object> tipoMaquinaMap = new LinkedHashMap<>();
-
-                tipoMaquinaMap.put("tma_id", tipoMaquina1.getTma_id());
-                tipoMaquinaMap.put("tma_cod", tipoMaquina1.getTma_cod());
-                tipoMaquinaMap.put("tma_detalle", tipoMaquina1.getTma_detalle());
-                tipoMaquinaMap.put("tma_activa", tipoMaquina1.isTma_activa());
-
-                tipoMaquinaDTO.add(tipoMaquinaMap);
+            List<TipoMaquinaDTO> tipoMaquinasDTO = new ArrayList<>();
+            for (TipoMaquina tipoMaquina : tipoMaquinas) {
+                TipoMaquinaDTO dto = TipoMaquinaDTO.fromEntity(tipoMaquina);
+                tipoMaquinasDTO.add(dto);
             }
 
             Map<String, Object> response = new HashMap<>();
-            response.put("tipoMaquinas", tipoMaquinaDTO);
+            response.put("tipoMaquinas", tipoMaquinasDTO);
 
             return ResponseEntity.ok(response);
 
@@ -126,32 +120,43 @@ public class TipoMaquinaController {
     }
 
     //POST
-    /*@PostMapping
-    public RespuestaDTO<TipoMaquina> crearTipoMaquina(@RequestBody TipoMaquina tipoMaquina) {
+    @PostMapping
+    public ResponseEntity<?> crearTipoMaquina(@RequestBody TipoMaquinaDTO tipoMaquinaDTO) {
         try {
             // Realizar validación de los datos
-            if (tipoMaquina.getTma_detalle().isEmpty()) {
+            if (tipoMaquinaDTO.getTma_detalle().isEmpty()) {
                 throw new IllegalArgumentException("Todos los datos de Tipo de Máquina son obligatorios.");
             }
 
+            // Convertir DTO a entidad
+            TipoMaquina tipoMaquina = TipoMaquinaDTO.toEntity(tipoMaquinaDTO);
+
             // Llamar al servicio para crear el Tipo de Máquina
             TipoMaquina nuevoTipoMaquina= tipoMaquinaService.createTipoMaquina(tipoMaquina);
-            return new RespuestaDTO<>(nuevoTipoMaquina, "Tipo de Máquina creado con éxito.");
+
+            // Convertir entidad a DTO
+            TipoMaquinaDTO nuevoTipoMaquinaDTO = TipoMaquinaDTO.fromEntity(nuevoTipoMaquina);
+
+            // Mandar respuesta
+            RespuestaDTO<TipoMaquinaDTO> respuesta = new RespuestaDTO<>(nuevoTipoMaquinaDTO, "TipoMaquina", "TipoMaquina creado con éxito.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Tipo de Máquina: " + e.getMessage());
-
+            ErrorDTO errorDTO = new ErrorDTO("400 BAD REQUEST", "Error al crear un nuevo TipoMaquina: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear un nuevo Tipo de Máquina: " + e.getMessage());
+            // Capturar cualquier otra excepción
+            ErrorDTO errorDTO = new ErrorDTO("500 INTERNAL SERVER ERROR", "Error al crear TipoMaquina: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
-    }*/
+    }
 
 
     //PUT
     @PutMapping("editar/{id}")
     //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> actualizarTipoMaquina(@PathVariable Integer id, @RequestBody TipoMaquina tipoMaquina) {
+    public ResponseEntity<?> actualizarTipoMaquina(@PathVariable Integer id, @RequestBody TipoMaquinaDTO tipoMaquinaDTO) {
         try {
             // Lógica para modificar el Tipo de Máquina
             TipoMaquina tipoMaquinaExistente = tipoMaquinaService.buscartipoMaquinaPorId(id);
@@ -165,9 +170,9 @@ public class TipoMaquinaController {
             }
 
             //Modificar valores
-            tipoMaquinaExistente.setTma_cod(tipoMaquina.getTma_cod());
-            tipoMaquinaExistente.setTma_detalle(tipoMaquina.getTma_detalle());
-            tipoMaquinaExistente.setTma_activa(tipoMaquina.isTma_activa());
+            tipoMaquinaExistente.setTma_cod(tipoMaquinaDTO.getTma_cod());
+            tipoMaquinaExistente.setTma_detalle(tipoMaquinaDTO.getTma_detalle());
+            tipoMaquinaExistente.setTma_activa(tipoMaquinaDTO.isTma_activa());
 
             tipoMaquinaService.updateTipoMaquina(tipoMaquinaExistente);
 

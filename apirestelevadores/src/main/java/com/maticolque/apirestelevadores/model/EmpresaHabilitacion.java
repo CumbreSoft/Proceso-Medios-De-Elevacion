@@ -1,8 +1,14 @@
 package com.maticolque.apirestelevadores.model;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Data
@@ -13,6 +19,7 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "mde_empresas_habilitacion")
+@EntityListeners(AuditingEntityListener.class)
 public class EmpresaHabilitacion {
 
     @Id
@@ -21,8 +28,7 @@ public class EmpresaHabilitacion {
     private int eha_id;
 
     @Column(name = "eha_fecha", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date eha_fecha;
+    private LocalDate eha_fecha;
 
     @OneToOne
     @JoinColumn(name = "eha_emp_id", nullable = false)
@@ -35,8 +41,7 @@ public class EmpresaHabilitacion {
     private boolean eha_habilitada;
 
     @Column(name = "eha_vto_hab", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date eha_vto_hab;
+    private LocalDate eha_vto_hab;
 
     @ManyToOne
     @JoinColumn(name = "eha_rev_id", nullable = false)
@@ -44,5 +49,16 @@ public class EmpresaHabilitacion {
 
     @Column(name = "eha_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean eha_activo;
+
+
+
+    //Guardar fechas de creacion y modificacion
+    @CreatedDate
+    @Column(name = "eha_fecha_creacion", updatable = false)
+    private LocalDateTime fecha_creacion;
+
+    @LastModifiedDate
+    @Column(name = "eha_fecha_modificacion")
+    private LocalDateTime fecha_modificacion;
 
 }

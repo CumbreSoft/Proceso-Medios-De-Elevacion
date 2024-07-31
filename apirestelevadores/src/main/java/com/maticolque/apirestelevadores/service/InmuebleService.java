@@ -1,13 +1,17 @@
 package com.maticolque.apirestelevadores.service;
 
-import com.maticolque.apirestelevadores.model.Destino;
-import com.maticolque.apirestelevadores.model.Inmueble;
-import com.maticolque.apirestelevadores.model.Persona;
+import com.maticolque.apirestelevadores.dto.ErrorDTO;
+import com.maticolque.apirestelevadores.model.*;
+import com.maticolque.apirestelevadores.repository.InmuebleMedioElevacionRepository;
+import com.maticolque.apirestelevadores.repository.InmueblePersonaRepository;
 import com.maticolque.apirestelevadores.repository.InmuebleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InmuebleService {
@@ -16,10 +20,13 @@ public class InmuebleService {
     private InmuebleRepository inmuebleRepository;
 
     @Autowired
-    private InmueblePersonaService inmueblePersonaService;
+    private InmueblePersonaRepository inmueblePersonaRepository;
 
     @Autowired
-    private InmuebleMedioElevacionService inmuebleMedioElevacionService;
+    private InmuebleMedioElevacionRepository inmuebleMedioElevacionRepository;
+
+
+
 
     //Mostrar inmueble
     public List<Inmueble> getAllInmuebles(){
@@ -56,31 +63,32 @@ public class InmuebleService {
     // *************** LOGICA PARA ELIMINAR UN INMUEBLE ***************
 
     //Verificar si hay relacion de un Inmueble en InmueblePersona
-    public boolean verificarRelacionInmuebleEnIP(Integer inmuebleId) {
-        return inmueblePersonaService.verificarRelacionInmuebleEnIP(inmuebleId);
-    }
-
-    // Verificar si hay relacion de un Inmueble en MedioElevacion
-    public boolean verificarRelacionInmuebleEnME(Integer inmuebleId) {
-        return inmuebleMedioElevacionService.verificarRelacionInmuebleEnIMDE(inmuebleId);
-    }
-
-    public String eliminarInmuebleSiNoTieneRelaciones(Integer inmuebleId) {
-        Inmueble inmuebleExistente = buscarInmueblePorId(inmuebleId);
-        if (inmuebleExistente == null) {
-            return "El ID proporcionado del Inmueble no existe.";
+    public ResponseEntity<ErrorDTO> eliminarInmuebleSiNoTieneRelaciones(int inmuebleId) {
+        // Buscar inmueble
+        Optional<Inmueble> inmueble = inmuebleRepository.findById(inmuebleId);
+        if (!inmueble.isPresent()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El ID proporcionado del Inmueble no existe.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        if (verificarRelacionInmuebleEnIP(inmuebleId)) {
-            return "El Inmueble tiene una relación con una Persona (Inmueble-Persona) y no puede ser eliminado.";
+        // Verificar relaciones con Personas
+        List<InmueblePersona> relacionesPersona = inmueblePersonaRepository.findByInmueble(inmueble.get());
+        if (!relacionesPersona.isEmpty()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El inmueble tiene una relación con Persona/s (Inmueble-Persona) y no puede ser eliminado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        if (verificarRelacionInmuebleEnME(inmuebleId)) {
-            return "El Inmueble tiene una relación con un Medio de Elevación y no puede ser eliminado.";
+        // Verificar relaciones con Medio Elevación
+        List<InmuebleMedioElevacion> relacionesMedioElevacion = inmuebleMedioElevacionRepository.findByInmueble(inmueble.get());
+        if (!relacionesMedioElevacion.isEmpty()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El inmueble tiene una relación con Medio Elevación (Inmueble-MDE) y no puede ser eliminado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        deleteInmuebleById(inmuebleId);
-        return "Inmueble eliminado correctamente.";
+        // Eliminar inmueble
+        inmuebleRepository.deleteById(inmuebleId);
+        ErrorDTO successDTO = new ErrorDTO("200 OK", "Inmueble eliminado correctamente.");
+        return ResponseEntity.ok(successDTO);
     }
     // *************** LOGICA PARA ELIMINAR UNA INMUEBLE ***************
 

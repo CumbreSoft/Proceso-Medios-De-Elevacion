@@ -41,9 +41,9 @@ public class EmpresaHabilitacionService {
     }
 
 
-    //Metodo para buscar si un Revisor tiene una relacion con una Empresa (EmpresaHabilitacion)
-    public boolean verificarRelacionRevisorEnEH(Integer revisorId) {
-        List<EmpresaHabilitacion> relaciones = empresaHabilitacionRepository.findAll();
-        return relaciones.stream().anyMatch(eh -> eh.getRevisor().getRev_id() == revisorId);
+    // Método para verificar si una empresa ya tiene un revisor asignado
+    public boolean empresaTieneRevisorAsignado(Integer empresaId) {
+        List<EmpresaHabilitacion> habilitaciones = empresaHabilitacionRepository.findAll();
+        return habilitaciones.stream().anyMatch(hab -> hab.getEmpresa().getEmp_id() == empresaId && hab.getRevisor() != null);
     }
 }

@@ -2,6 +2,11 @@ package com.maticolque.apirestelevadores.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 
 @Data
@@ -12,6 +17,7 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "mde_tipos_maquinas")
+@EntityListeners(AuditingEntityListener.class)
 public class TipoMaquina {
 
     @Id
@@ -27,5 +33,16 @@ public class TipoMaquina {
 
     @Column(name = "tma_activa", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean tma_activa;
+
+
+
+    //Guardar fechas de creacion y modificacion
+    @CreatedDate
+    @Column(name = "tma_fecha_creacion", updatable = false)
+    private LocalDateTime fecha_creacion;
+
+    @LastModifiedDate
+    @Column(name = "tma_fecha_modificacion")
+    private LocalDateTime fecha_modificacion;
 
 }

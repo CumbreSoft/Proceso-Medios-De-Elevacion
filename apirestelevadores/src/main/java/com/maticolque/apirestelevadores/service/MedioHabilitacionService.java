@@ -39,11 +39,4 @@ public class MedioHabilitacionService {
     public void deleteMedioHabilitacionById(Integer id){
         medioHabilitacionRepository.deleteById(id);
     }
-
-
-    //Metodo para buscar si un Revisor tiene una relacion con una Medio de Elevacion (MedioHabilitacion)
-    public boolean verificarRelacionRevisorEnMH(Integer revisorId) {
-        List<MedioHabilitacion> relaciones = medioHabilitacionRepository.findAll();
-        return relaciones.stream().anyMatch(eh -> eh.getRevisor().getRev_id() == revisorId);
-    }
 }

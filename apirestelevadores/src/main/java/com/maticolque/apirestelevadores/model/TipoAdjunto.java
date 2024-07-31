@@ -2,6 +2,11 @@ package com.maticolque.apirestelevadores.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 
 @Data
@@ -12,6 +17,7 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "mde_tipos_adjuntos")
+@EntityListeners(AuditingEntityListener.class)
 public class TipoAdjunto {
 
     @Id
@@ -27,5 +33,16 @@ public class TipoAdjunto {
 
     @Column(name = "tad_activo", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean tad_activo;
+
+
+
+    //Guardar fechas de creacion y modificacion
+    @CreatedDate
+    @Column(name = "tad_fecha_creacion", updatable = false)
+    private LocalDateTime fecha_creacion;
+
+    @LastModifiedDate
+    @Column(name = "tad_fecha_modificacion")
+    private LocalDateTime fecha_modificacion;
 
 }

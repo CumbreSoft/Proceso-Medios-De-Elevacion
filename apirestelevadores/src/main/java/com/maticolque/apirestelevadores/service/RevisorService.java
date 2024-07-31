@@ -1,12 +1,18 @@
 package com.maticolque.apirestelevadores.service;
 
-import com.maticolque.apirestelevadores.model.Persona;
+import com.maticolque.apirestelevadores.dto.ErrorDTO;
+import com.maticolque.apirestelevadores.model.EmpresaHabilitacion;
+import com.maticolque.apirestelevadores.model.MedioHabilitacion;
 import com.maticolque.apirestelevadores.model.Revisor;
+import com.maticolque.apirestelevadores.repository.EmpresaHabilitacionRepository;
+import com.maticolque.apirestelevadores.repository.MedioHabilitacionRepository;
 import com.maticolque.apirestelevadores.repository.RevisorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,10 +22,10 @@ public class RevisorService {
     private RevisorRepository revisorRepository;
 
     @Autowired
-    private EmpresaHabilitacionService empresaHabilitacionService;
+    private EmpresaHabilitacionRepository empresaHabilitacionRepository;
 
-    @Autowired
-    private MedioHabilitacionService medioHabilitacionService;
+    private MedioHabilitacionRepository medioHabilitacionRepository;
+
 
     //Mostrar Revisor
     public List<Revisor> getAllRevisor(){
@@ -50,35 +56,32 @@ public class RevisorService {
 
 
     // *************** LOGICA PARA ELIMINAR UNA REVISOR ***************
-
-    //Verificar si hay relacion de un Revisor en EmpresaHabilitacion
-    public boolean verificarRelacionRevisorEnEH(Integer revisorId) {
-        return empresaHabilitacionService.verificarRelacionRevisorEnEH(revisorId);
-    }
-
-    //Verificar si hay relacion de un Revisor en EmpresaHabilitacion
-    public boolean verificarRelacionRevisorEnMH(Integer revisorId) {
-        return medioHabilitacionService.verificarRelacionRevisorEnMH(revisorId);
-    }
-
-
-
-    public String eliminarRevisorSiNoTieneRelaciones(Integer revisorId) {
-        Revisor revisorExistente = buscarRevisorPorId(revisorId);
-        if (revisorExistente == null) {
-            return "El ID proporcionado del Revisor no existe.";
+    public ResponseEntity<ErrorDTO> eliminarRevisorSiNoTieneRelaciones(int revisorId) {
+        // Buscar Revisor
+        Optional<Revisor> revisor = revisorRepository.findById(revisorId);
+        if (!revisor.isPresent()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El ID proporcionado del Revisor no existe.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        if (verificarRelacionRevisorEnEH(revisorId)) {
-            return "El Revisor tiene una relación con una Empresa (Empresa-Habilitacion) y no puede ser eliminado.";
+        // Verificar relaciones con EmpresaHabilitacion
+        List<EmpresaHabilitacion> relacionesEmpresaHabilitacion = empresaHabilitacionRepository.findByRevisor(revisor.get());
+        if (!relacionesEmpresaHabilitacion.isEmpty()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El Revisor tiene una relación con una Empresa (EmpresaHabilitacion) y no puede ser eliminado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        if (verificarRelacionRevisorEnMH(revisorId)) {
-            return "El Revisor tiene una relación con un Medio de Elevacion (Medio-Habilitacion) y no puede ser eliminado.";
+        // Verificar relaciones con MedioHabilitacion
+        List<MedioHabilitacion> relacionesMedioHabilitacion = medioHabilitacionRepository.findByRevisor(revisor.get());
+        if (!relacionesMedioHabilitacion.isEmpty()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El Revisor tiene una relación con un Medio de Elevacion (MedioHabilitacion) y no puede ser eliminado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        deleteRevisorById(revisorId);
-        return "Revisor eliminado correctamente.";
+        // Eliminar Revisor
+        revisorRepository.deleteById(revisorId);
+        ErrorDTO successDTO = new ErrorDTO("200 OK", "Revisor eliminado correctamente.");
+        return ResponseEntity.ok(successDTO);
     }
     // *************** LOGICA PARA ELIMINAR UNA REVISOR ***************
 

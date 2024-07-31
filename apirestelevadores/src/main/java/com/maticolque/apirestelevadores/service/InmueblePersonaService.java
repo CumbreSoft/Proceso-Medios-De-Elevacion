@@ -39,19 +39,4 @@ public class InmueblePersonaService {
     public void deleteInmueblePersonaById(Integer id){
         inmueblePersonaRepository.deleteById(id);
     }
-
-
-    //Metodo para buscar si una Persona tiene una relacion con un Inmueble (InmueblePersona)
-    public boolean verificarRelacionPersonaEnIP(Integer personaId) {
-        List<InmueblePersona> relaciones = inmueblePersonaRepository.findAll();
-        return relaciones.stream().anyMatch(p -> p.getPersona().getPer_id() == personaId);
-    }
-
-    //Metodo para buscar si un Inmueble tiene una relacion con una Persona (InmueblePersona)
-    public boolean verificarRelacionInmuebleEnIP(Integer inmuebleId) {
-        List<InmueblePersona> relaciones = inmueblePersonaRepository.findAll();
-        return relaciones.stream().anyMatch(i -> i.getInmueble().getInm_id() == inmuebleId);
-    }
-
-
 }

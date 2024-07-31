@@ -1,11 +1,17 @@
 package com.maticolque.apirestelevadores.service;
 
+import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.model.Empresa;
+import com.maticolque.apirestelevadores.model.EmpresaPersona;
+import com.maticolque.apirestelevadores.repository.EmpresaPersonaRepository;
 import com.maticolque.apirestelevadores.repository.EmpresaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmpresaService {
@@ -14,16 +20,7 @@ public class EmpresaService {
     private EmpresaRepository empresaRepository;
 
     @Autowired
-    private EmpresaPersonaService empresaPersonaService;
-
-    @Autowired
-    private MedioElevacionService medioElevacionService;
-
-    @Autowired
-    private EmpresaHabilitacionService empresaHabilitacionService;
-
-    @Autowired
-    private MedioHabilitacionService medioHabilitacionService;
+    private EmpresaPersonaRepository empresaPersonaRepository;
 
 
     //Listar todas las Empresas
@@ -74,22 +71,25 @@ public class EmpresaService {
     /* ******************************************************************************
     Este codigo llama a los metodos de las clases que tienen una relación con empresa,
     verifica que no exista una relación antes de eliminar de eliminar una empresa. */
-    public boolean verificarRelacionEmpresaEnEP(Integer empresaId) {
-        return empresaPersonaService.verificarRelacionEmpresaEnEP(empresaId);
-    }
-
-    public String eliminarEmpresaSiNoTieneRelaciones(Integer empresaId) {
-        Empresa empresaExistente = buscarEmpresaPorId(empresaId);
-        if (empresaExistente == null) {
-            return "El ID proporcionado de la Empresa no existe.";
+    public ResponseEntity<ErrorDTO> eliminarEmpresaSiNoTieneRelaciones(int empresaId) {
+        // Buscar empresa
+        Optional<Empresa> empresa = empresaRepository.findById(empresaId);
+        if (!empresa.isPresent()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El ID proporcionado de la Empresa no existe.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        if (verificarRelacionEmpresaEnEP(empresaId)) {
-            return "La empresa tiene una relación con Persona/s (Empresas-Persona) y no puede ser eliminada.";
+        // Verificar relaciones
+        List<EmpresaPersona> relaciones = empresaPersonaRepository.findByEmpresa(empresa.get());
+        if (!relaciones.isEmpty()) {
+            ErrorDTO errorDTO = new ErrorDTO("400 BAD REQUEST", "La empresa tiene una relación con Persona/s (Empresa-Persona) y no puede ser eliminada.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
 
-        deleteEmpresaById(empresaId);
-        return "Empresa eliminada correctamente.";
+        // Eliminar empresa
+        empresaRepository.deleteById(empresaId);
+        ErrorDTO successDTO = new ErrorDTO("200 OK", "Empresa eliminada correctamente.");
+        return ResponseEntity.ok(successDTO);
     }
     /* ****************************************************************************** */
 

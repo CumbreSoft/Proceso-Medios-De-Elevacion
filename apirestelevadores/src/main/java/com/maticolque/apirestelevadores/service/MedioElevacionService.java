@@ -1,5 +1,6 @@
 package com.maticolque.apirestelevadores.service;
 
+import com.maticolque.apirestelevadores.dto.ErrorDTO;
 import com.maticolque.apirestelevadores.dto.RespuestaDTO;
 import com.maticolque.apirestelevadores.model.EmpresaPersona;
 import com.maticolque.apirestelevadores.model.InmuebleMedioElevacion;
@@ -9,9 +10,12 @@ import com.maticolque.apirestelevadores.repository.EmpresaPersonaRepository;
 import com.maticolque.apirestelevadores.repository.InmuebleMedioElevacionRepository;
 import com.maticolque.apirestelevadores.repository.MedioElevacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MedioElevacionService {
@@ -22,8 +26,6 @@ public class MedioElevacionService {
     @Autowired
     private InmuebleMedioElevacionRepository inmuebleMedioElevacionRepository;
 
-    @Autowired
-    private InmuebleMedioElevacionService inmuebleMedioElevacionService;
 
 
     //Mostrar Medio Elevacion
@@ -54,30 +56,26 @@ public class MedioElevacionService {
 
 
     // *************** LOGICA PARA ELIMINAR UN MDE ***************
-
-    //Verificar si hay relacion de un MDE en InmuebleMDE
-    public boolean verificarRelacionMDEEnIMDE(Integer mdeId) {
-        return inmuebleMedioElevacionService.verificarRelacionMDEEnIMDE(mdeId);
-    }
-    public String eliminarMDESiNoTieneRelaciones(Integer mdeId) {
-        MedioElevacion mdeExistente = buscarMedioElevacionPorId(mdeId);
-        if (mdeExistente == null) {
-            return "El ID proporcionado del Medio de Elevación no existe.";
+    public ResponseEntity<ErrorDTO> eliminarMedioElevacionSiNoTieneRelaciones(int medioElevacionId) {
+        // Buscar MedioElevacion
+        Optional<MedioElevacion> medioElevacion = medioElevacionRepository.findById(medioElevacionId);
+        if (!medioElevacion.isPresent()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El ID proporcionado del Medio de Elevación no existe.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        if (verificarRelacionMDEEnIMDE(mdeId)) {
-            return "El Medio de Elevación tiene una relación con un Inmueble (Inmueble-MDE) y no puede ser eliminado.";
+        // Verificar relaciones con Inmuebles
+        List<InmuebleMedioElevacion> relacionesInmueble = inmuebleMedioElevacionRepository.findByMedioElevacion(medioElevacion.get());
+        if (!relacionesInmueble.isEmpty()) {
+            ErrorDTO errorDTO = new ErrorDTO("404 NOT FOUND", "El Medio de Elevación tiene una relación con un Inmueble (Inmueble-MDE) y no puede ser eliminado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
         }
 
-        deleteMedioElevacionById(mdeId);
-        return "Medio de Elevación eliminado correctamente.";
+        // Eliminar MedioElevacion
+        medioElevacionRepository.deleteById(medioElevacionId);
+        ErrorDTO successDTO = new ErrorDTO("200 OK", "Medio de Elevación eliminado correctamente.");
+        return ResponseEntity.ok(successDTO);
     }
     // *************** LOGICA PARA ELIMINAR UNA MDE ***************
 
-
-
-
-    public List<InmuebleMedioElevacion> obtenerTodosLosInmueblesMedioElevacion() {
-        return inmuebleMedioElevacionRepository.findAll();
-    }
 }

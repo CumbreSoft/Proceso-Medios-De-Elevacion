@@ -1,18 +1,20 @@
 package com.maticolque.apirestelevadores.dto;
 
-import com.maticolque.apirestelevadores.model.Destino;
-import com.maticolque.apirestelevadores.model.MedioElevacion;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @Setter
 public class RespuestaDTO<T> {
-    private T entidad;
+    private Map<String, T> entidad;
     private String message;
 
-    public RespuestaDTO(T entidad, String message) {
-        this.entidad = entidad;
+    public RespuestaDTO(T entidad, String nombreEntidad, String message) {
+        this.entidad = new HashMap<>();
+        this.entidad.put(nombreEntidad, entidad);
         this.message = message;
     }
 }
