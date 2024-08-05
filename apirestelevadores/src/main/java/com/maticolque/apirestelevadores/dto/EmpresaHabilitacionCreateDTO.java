@@ -13,7 +13,7 @@ public class EmpresaHabilitacionCreateDTO {
 
     private int eha_id;
     private String eha_fecha;
-    private int eha_emp_id; // ID DE EMPRESA
+    private int eha_emp_id; // ID EMPRESA
     private String eha_expediente;
     private boolean eha_habilitada;
     private String eha_vto_hab;

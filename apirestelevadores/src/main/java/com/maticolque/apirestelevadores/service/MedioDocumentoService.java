@@ -13,28 +13,21 @@ public class MedioDocumentoService {
     @Autowired
     private MedioDocumetoRepository medioDocumetoRepository;
 
-    //Mostrar Medio Documento
+    //LISTAR
     public List<MedioDocumento> getAllMedioDocumento(){
         return medioDocumetoRepository.findAll();
     }
 
-    //Mostrar por ID
-    public MedioDocumento buscarMedioDocumentoPorId(Integer id)
-    {
-        return medioDocumetoRepository.findById(id).orElse(null);
-    }
+    //BUSCAR POR ID
+    public MedioDocumento buscarMedioDocumentoPorId(Integer id) {return medioDocumetoRepository.findById(id).orElse(null);}
 
-    //Crear Medio Documento
-    public MedioDocumento createMedioDocumento(MedioDocumento medioDocumento){
-        return medioDocumetoRepository.save(medioDocumento);
-    }
+    //CREAR
+    public MedioDocumento createMedioDocumento(MedioDocumento medioDocumento){return medioDocumetoRepository.save(medioDocumento);}
 
-    //Editar Medio Documento
-    public MedioDocumento updateMedioDocumento(MedioDocumento medioDocumento){
-        return medioDocumetoRepository.save(medioDocumento);
-    }
+    //EDITAR
+    public MedioDocumento updateMedioDocumento(MedioDocumento medioDocumento){return medioDocumetoRepository.save(medioDocumento);}
 
-    //ELiminar Medio Documento
+    //ELIMINAR
     public void deleteMedioDocumentoById(Integer id){
         medioDocumetoRepository.deleteById(id);
     }

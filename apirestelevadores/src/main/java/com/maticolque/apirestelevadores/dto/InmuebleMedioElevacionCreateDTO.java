@@ -12,8 +12,8 @@ import lombok.*;
 public class InmuebleMedioElevacionCreateDTO {
 
     private int ime_id;
-    private int ime_inm_id; // ID de Inmueble
-    private int ime_mde_id; // ID de MDE
+    private int ime_inm_id; // ID INMUEBLE
+    private int ime_mde_id; // ID MDE
 
     public static InmuebleMedioElevacion toEntity(InmuebleMedioElevacionCreateDTO dto, Inmueble inmueble, MedioElevacion medioElevacion) {
 

@@ -14,8 +14,8 @@ public class EmpresaPersonaCreateDTO {
     private int epe_id;
     private boolean epe_es_dueno_emp;
     private boolean epe_es_reptec_emp;
-    private int epe_emp_id; // ID de Empresa
-    private int epe_per_id; // ID de Persona
+    private int epe_emp_id; // ID EMPRESA
+    private int epe_per_id; // ID PERSONA
 
     public static EmpresaPersona toEntity(EmpresaPersonaCreateDTO dto, Empresa empresa, Persona persona) {
 

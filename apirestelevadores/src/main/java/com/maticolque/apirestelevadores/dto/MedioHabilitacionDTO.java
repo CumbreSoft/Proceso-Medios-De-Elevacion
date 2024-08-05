@@ -1,10 +1,7 @@
 package com.maticolque.apirestelevadores.dto;
 
+import com.maticolque.apirestelevadores.model.*;
 
-import com.maticolque.apirestelevadores.model.Empresa;
-import com.maticolque.apirestelevadores.model.EmpresaHabilitacion;
-import com.maticolque.apirestelevadores.model.MedioHabilitacion;
-import com.maticolque.apirestelevadores.model.Persona;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -13,7 +10,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MedioHabilitacionReadDTO {
+public class MedioHabilitacionDTO {
 
     private int mha_id;
     private int mha_inm_padron_guardado;
@@ -30,8 +27,9 @@ public class MedioHabilitacionReadDTO {
     private boolean mha_activo;
     private RevisorDTO revisor; // DETALLES DEL REVISOR
 
-    public static MedioHabilitacionReadDTO fromEntity(MedioHabilitacion medioHabilitacion) {
-        MedioHabilitacionReadDTO dto = new MedioHabilitacionReadDTO();
+
+    public static MedioHabilitacionDTO fromEntity(MedioHabilitacion medioHabilitacion) {
+        MedioHabilitacionDTO dto = new MedioHabilitacionDTO();
         dto.setMha_id(medioHabilitacion.getMha_id());
         dto.setMha_inm_padron_guardado(medioHabilitacion.getMha_inm_padron_guardado());
         dto.setMedioElevacion(MedioElevacionDTO.fromEntity(medioHabilitacion.getMedioElevacion())); //MDE
@@ -48,5 +46,31 @@ public class MedioHabilitacionReadDTO {
         dto.setMha_activo(medioHabilitacion.isMha_activo());
         dto.setRevisor(RevisorDTO.fromEntity(medioHabilitacion.getRevisor())); //REVISOR
         return dto;
+    }
+
+    public static MedioHabilitacion toEntity(MedioHabilitacionDTO dto, MedioElevacion medioElevacion, Empresa empresa, Persona persona, Revisor revisor) {
+        MedioHabilitacion medioHabilitacion = new MedioHabilitacion();
+        medioHabilitacion.setMha_id(dto.getMha_id());
+        medioHabilitacion.setMha_inm_padron_guardado(dto.getMha_inm_padron_guardado());
+        medioHabilitacion.setMedioElevacion(medioElevacion); // MDE
+
+        // Solo asignar la empresa si no es null
+        if (dto.getNuevaEmpresa().getEmp_id() != 0) {
+            medioHabilitacion.setEmpresa(empresa); // Asignar empresa si ID es distinto de 0
+        } else {
+            medioHabilitacion.setEmpresa(null); // Si el ID es 0, establecer como null
+        }
+
+        medioHabilitacion.setPersona(persona); // PERSONA
+        medioHabilitacion.setMha_fecha(LocalDate.parse(dto.getMha_fecha()));
+        medioHabilitacion.setMha_expediente(dto.getMha_expediente());
+        medioHabilitacion.setMha_fecha_vto(LocalDate.parse(dto.getMha_fecha_vto()));
+        medioHabilitacion.setMha_fecha_pago(LocalDate.parse(dto.getMha_fecha_pago()));
+        medioHabilitacion.setMha_fecha_inspec(LocalDate.parse(dto.getMha_fecha_inspec()));
+        medioHabilitacion.setMha_habilitado(dto.isMha_habilitado());
+        medioHabilitacion.setMha_oblea_entregada(dto.isMha_oblea_entregada());
+        medioHabilitacion.setMha_activo(dto.isMha_activo());
+        medioHabilitacion.setRevisor(revisor); // REVISOR
+        return medioHabilitacion;
     }
 }

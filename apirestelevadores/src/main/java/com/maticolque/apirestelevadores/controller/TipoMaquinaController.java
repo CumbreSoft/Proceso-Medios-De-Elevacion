@@ -33,26 +33,32 @@ public class TipoMaquinaController {
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
+
+            // Obtener la lista de TipoMaquina
             List<TipoMaquina> tipoMaquinas = tipoMaquinaService.getAllTipoMaquina();
 
+            // Verificar la lista de TipoMaquina
             if (tipoMaquinas.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("La base de datos está vacía, no se encontraron Tipos de Máquinas.")
+                        .message("La base de datos está vacía, no se encontraron TipoMaquina.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
+            // Convertir la entidad en un DTO
             List<TipoMaquinaDTO> tipoMaquinasDTO = new ArrayList<>();
             for (TipoMaquina tipoMaquina : tipoMaquinas) {
                 TipoMaquinaDTO dto = TipoMaquinaDTO.fromEntity(tipoMaquina);
                 tipoMaquinasDTO.add(dto);
             }
 
+            // Crear mapa para estructurar la respuesta
             Map<String, Object> response = new HashMap<>();
             response.put("tipoMaquinas", tipoMaquinasDTO);
 
+            // Retornar la respuesta
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -70,6 +76,8 @@ public class TipoMaquinaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarTipoMaquinaPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar TipoMaquina por ID
             TipoMaquina tipoMaquinaExistente = tipoMaquinaService.buscartipoMaquinaPorId(id);
 
             if (tipoMaquinaExistente == null) {
@@ -79,9 +87,18 @@ public class TipoMaquinaController {
                         .message("El ID que intenta buscar no existe.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
-            } else {
-                return ResponseEntity.ok(tipoMaquinaExistente);
             }
+
+            // Convertir la entidad en un DTO
+            TipoMaquinaDTO tipoMaquinaDTO = TipoMaquinaDTO.fromEntity(tipoMaquinaExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("tipoMaquina", tipoMaquinaDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -123,9 +140,10 @@ public class TipoMaquinaController {
     @PostMapping
     public ResponseEntity<?> crearTipoMaquina(@RequestBody TipoMaquinaDTO tipoMaquinaDTO) {
         try {
-            // Realizar validación de los datos
-            if (tipoMaquinaDTO.getTma_detalle().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de Tipo de Máquina son obligatorios.");
+
+            // Validar datos
+            if (tipoMaquinaDTO.getTma_cod() == 0 || tipoMaquinaDTO.getTma_detalle().isEmpty()) {
+                throw new IllegalArgumentException("No se permite datos vacíos.");
             }
 
             // Convertir DTO a entidad
@@ -155,27 +173,39 @@ public class TipoMaquinaController {
 
     //PUT
     @PutMapping("editar/{id}")
-    //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
     public ResponseEntity<?> actualizarTipoMaquina(@PathVariable Integer id, @RequestBody TipoMaquinaDTO tipoMaquinaDTO) {
         try {
-            // Lógica para modificar el Tipo de Máquina
+
+            // Buscar el TipoMaquina por ID
             TipoMaquina tipoMaquinaExistente = tipoMaquinaService.buscartipoMaquinaPorId(id);
 
+            // Verificar si existe el ID del TipoMaquina
             if (tipoMaquinaExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("No se encontró el Tipo de Máquina con el ID proporcionado")
+                        .message("No se encontró el TipoMaquina con el ID proporcionado")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //Modificar valores
+            // Validar datos
+            if (tipoMaquinaDTO.getTma_cod() == 0 || tipoMaquinaDTO.getTma_detalle().isEmpty()) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("400 BAD REQUEST")
+                        .message("No se permiten datos vacíos.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+            }
+
+            // Actualizar los campos del TipoMaquina
             tipoMaquinaExistente.setTma_cod(tipoMaquinaDTO.getTma_cod());
             tipoMaquinaExistente.setTma_detalle(tipoMaquinaDTO.getTma_detalle());
             tipoMaquinaExistente.setTma_activa(tipoMaquinaDTO.isTma_activa());
 
+            // Actualizar TipoMaquina
             tipoMaquinaService.updateTipoMaquina(tipoMaquinaExistente);
 
+            // Mandar respuesta
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("200 OK")
                     .message("La modificación se ha realizado correctamente.")

@@ -14,34 +14,27 @@ public class EmpresaHabilitacionService {
     @Autowired
     private EmpresaHabilitacionRepository empresaHabilitacionRepository;
 
-    //Listar todas las Empresas Habilitacion
+    //LISTAR
     public List<EmpresaHabilitacion> getAllEmpresaHabilitacion(){
         return empresaHabilitacionRepository.findAll();
     }
 
-    //Listar Empresa Habilitacion por ID
-    public EmpresaHabilitacion buscarEmpresaHabilitacionPorId(Integer id)
-    {
-        return empresaHabilitacionRepository.findById(id).orElse(null);
-    }
+    //BUSCAR POR ID
+    public EmpresaHabilitacion buscarEmpresaHabilitacionPorId(Integer id) {return empresaHabilitacionRepository.findById(id).orElse(null);}
 
-    //Crear Empresa Habilitacion
-    public EmpresaHabilitacion createEmpresaHabilitacion(EmpresaHabilitacion empresaHabilitacion){
-        return empresaHabilitacionRepository.save(empresaHabilitacion);
-    }
+    //CREAR
+    public EmpresaHabilitacion createEmpresaHabilitacion(EmpresaHabilitacion empresaHabilitacion){return empresaHabilitacionRepository.save(empresaHabilitacion);}
 
-    //Editar Empresa Habilitacion
-    public EmpresaHabilitacion updateEmpresaHabilitacion(EmpresaHabilitacion empresaHabilitacion){
-        return empresaHabilitacionRepository.save(empresaHabilitacion);
-    }
+    //EDITAR
+    public EmpresaHabilitacion updateEmpresaHabilitacion(EmpresaHabilitacion empresaHabilitacion){return empresaHabilitacionRepository.save(empresaHabilitacion);}
 
-    //Eliminar Empresa Habilitacion
+    //ELIMINAR
     public void deleteEmpresaHabilitacionById(Integer id){
         empresaHabilitacionRepository.deleteById(id);
     }
 
 
-    // Método para verificar si una empresa ya tiene un revisor asignado
+    //METODO PARA VERIFICAR SI UNA EMPRESA YA TIENE UN REVISOR ASIGNADO
     public boolean empresaTieneRevisorAsignado(Integer empresaId) {
         List<EmpresaHabilitacion> habilitaciones = empresaHabilitacionRepository.findAll();
         return habilitaciones.stream().anyMatch(hab -> hab.getEmpresa().getEmp_id() == empresaId && hab.getRevisor() != null);

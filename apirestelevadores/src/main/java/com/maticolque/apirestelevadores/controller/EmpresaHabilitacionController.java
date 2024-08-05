@@ -77,8 +77,11 @@ public class EmpresaHabilitacionController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarEmpresaHabilitacionPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar EmpresaHabilitacion por ID
             EmpresaHabilitacion empresaHabilitacionExistente = empresaHabilitacionService.buscarEmpresaHabilitacionPorId(id);
 
+            // Verificar si existe el ID
             if (empresaHabilitacionExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -86,9 +89,18 @@ public class EmpresaHabilitacionController {
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(empresaHabilitacionExistente);
             }
+
+            // Convertir la entidad en un DTO
+            EmpresaHabilitacionReadDTO empresaHabilitacionReadDTO = EmpresaHabilitacionReadDTO.fromEntity(empresaHabilitacionExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("empresaHabilitacion", empresaHabilitacionExistente);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -102,17 +114,10 @@ public class EmpresaHabilitacionController {
     @PostMapping
     public ResponseEntity<?> crearEmpresaHabilitacion(@RequestBody EmpresaHabilitacionCreateDTO createDTO) {
         try {
+
             // Validar datos
-            if (createDTO.getEha_fecha() == null
-                    || createDTO.getEha_expediente().isEmpty()
-                    || createDTO.getEha_vto_hab() == null) {
-                throw new IllegalArgumentException("Todos los datos de Empresa de Habilitacion son obligatorios.");
-            }
-            if (createDTO.getEha_emp_id() == 0) {
-                throw new IllegalArgumentException("La Empresa es obligatoria.");
-            }
-            if (createDTO.getEha_rev_id() == 0) {
-                throw new IllegalArgumentException("El Revisor es obligatorio.");
+            if (createDTO.getEha_fecha().isEmpty() || createDTO.getEha_expediente().isEmpty() ||createDTO.getEha_vto_hab() == null) {
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
             // Buscar Empresa y Revisor por sus IDs
@@ -120,8 +125,16 @@ public class EmpresaHabilitacionController {
             Revisor revisor = revisorService.buscarRevisorPorId(createDTO.getEha_rev_id());
 
             // Verificar si los IDs existen
-            if (empresa == null || revisor == null) {
-                throw new IllegalArgumentException("ID de Empresa o Revisor no encontrado.");
+            if (empresa == null) {
+                throw new IllegalArgumentException("ID de Empresa no encontrado.");
+            }
+            if(revisor == null){
+                throw new IllegalArgumentException("ID de Revisor no encontrado.");
+            }
+
+            // Validar permiso del Revisor isRev_aprob_emp
+            if (!revisor.isRev_aprob_emp()) {
+                throw new IllegalArgumentException("El revisor debe tener el campo isRev_aprob_emp en true.");
             }
 
             // Verificar si la empresa tiene al menos una persona asociada
@@ -160,24 +173,29 @@ public class EmpresaHabilitacionController {
         }
     }
 
-    //PUT EDITAR CON ID
+    //PUT
     @PutMapping("editar/{id}")
     public ResponseEntity<?> editarDatosEmpresaHabilitacion(@PathVariable Integer id, @RequestBody EmpresaHabilitacionUpdateDTO updateDTO) {
         try {
+
             // Obtener ID de Empresa-Habilitacion
             EmpresaHabilitacion empresaHabilitacionExistente = empresaHabilitacionService.buscarEmpresaHabilitacionPorId(id);
 
             // Verificar si existe el ID de Empresa-Habilitacion
             if (empresaHabilitacionExistente == null) {
                 // Manejar caso de entidad no encontrada
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró la Empresa-Habilitación con el ID proporcionado.");
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró la Empresa-Habilitacion con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
             // Validar los datos del DTO
             if (updateDTO.getEha_fecha().isEmpty() || updateDTO.getEha_expediente().isEmpty() || updateDTO.getEha_vto_hab().isEmpty()){
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("400 BAD REQUEST")
-                        .message("Todos los datos de la Empresa-Habilitación son obligatorios..")
+                        .message("No se permiten datos vacíos.")
                         .build();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
             }
@@ -192,6 +210,11 @@ public class EmpresaHabilitacionController {
                         .message("No se encontró el Revisor con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Validar permiso del Revisor isRev_aprob_emp
+            if (!nuevoRevisor.isRev_aprob_emp()) {
+                throw new IllegalArgumentException("El revisor debe tener el campo isRev_aprob_emp en true.");
             }
 
             // Convertir String a LocalDate para fechas en DTO

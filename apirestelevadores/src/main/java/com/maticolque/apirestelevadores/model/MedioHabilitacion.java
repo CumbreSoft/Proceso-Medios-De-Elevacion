@@ -56,9 +56,6 @@ public class MedioHabilitacion {
     @Column(name = "mha_fecha_inspec", nullable = false)
     private LocalDate mha_fecha_inspec;
 
-    /*@Column(name = "mha_planos_aprob", columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean mha_planos_aprob;*/
-
     @Column(name = "mha_habilitado", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean mha_habilitado;
 
@@ -82,8 +79,4 @@ public class MedioHabilitacion {
     @LastModifiedDate
     @Column(name = "mha_fecha_modificacion")
     private LocalDateTime fecha_modificacion;
-
-    /*@Column(name = "mha_vto_hab", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date mha_vto_hab;*/
 }

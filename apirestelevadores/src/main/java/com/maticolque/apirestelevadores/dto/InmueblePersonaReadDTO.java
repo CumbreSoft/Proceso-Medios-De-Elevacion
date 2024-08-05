@@ -13,8 +13,8 @@ public class InmueblePersonaReadDTO {
     private int ipe_id;
     private boolean ipe_es_admin_edif;
     private boolean ipe_es_coprop_edif;
-    private InmuebleDTO inmueble; // Detalles de Inmueble
-    private PersonaDTO persona; // Detalles de Persona
+    private InmuebleDTO inmueble; // DETALLES DEL INMUEBLE
+    private PersonaDTO persona; // DETALLES DE LA PERSONA
 
     public static InmueblePersonaReadDTO fromEntity(InmueblePersona inmueblePersona) {
 

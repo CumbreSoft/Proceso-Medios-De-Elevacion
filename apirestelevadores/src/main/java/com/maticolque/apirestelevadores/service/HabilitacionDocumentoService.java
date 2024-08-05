@@ -14,28 +14,20 @@ public class HabilitacionDocumentoService {
     @Autowired
     private HabilitacionDocumentoRepository habilitacionDocumentoRepository;
 
-    //Mostrar Habilitación Documento
-    public List<HabilitacionDocumento> getAllHabilitacionDocumento(){
-        return habilitacionDocumentoRepository.findAll();
+    //LISTAR
+    public List<HabilitacionDocumento> getAllHabilitacionDocumento(){return habilitacionDocumentoRepository.findAll();}
+
+    //BUSCAR POR ID
+    public HabilitacionDocumento buscarHabilitacionDocumentoPorId(Integer id) {return habilitacionDocumentoRepository.findById(id).orElse(null);}
+
+    //CREAR
+    public HabilitacionDocumento createHabilitacionDocumento(HabilitacionDocumento habilitacionDocumento){return habilitacionDocumentoRepository.save(habilitacionDocumento);}
+
+    //EDITAR
+    public HabilitacionDocumento updateHabilitacionDocumento(HabilitacionDocumento habilitacionDocumento){return habilitacionDocumentoRepository.save(habilitacionDocumento);
     }
 
-    //Mostrar por ID
-    public HabilitacionDocumento buscarHabilitacionDocumentoPorId(Integer id)
-    {
-        return habilitacionDocumentoRepository.findById(id).orElse(null);
-    }
-
-    //Crear Habilitación Documento
-    public HabilitacionDocumento createHabilitacionDocumento(HabilitacionDocumento habilitacionDocumento){
-        return habilitacionDocumentoRepository.save(habilitacionDocumento);
-    }
-
-    //Editar Habilitación Documento
-    public HabilitacionDocumento updateHabilitacionDocumento(HabilitacionDocumento habilitacionDocumento){
-        return habilitacionDocumentoRepository.save(habilitacionDocumento);
-    }
-
-    //ELiminar Habilitación Documento
+    //ELIMINAR
     public void deleteHabilitacionDocumentoById(Integer id){
         habilitacionDocumentoRepository.deleteById(id);
     }

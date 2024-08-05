@@ -27,9 +27,6 @@ public class MedioElevacion {
     @Column(name = "mde_id")
     private int mde_id;
 
-    /*@OneToOne
-    @JoinColumn(name = "mde_tma_id", nullable = false)
-    private TipoMaquina tiposMaquinas;*/
     @ManyToOne
     @JoinColumn(name = "mde_tma_id", nullable = false)
     private TipoMaquina tiposMaquinas;
@@ -37,7 +34,7 @@ public class MedioElevacion {
     @Column(name = "mde_ubicacion", nullable = false, length = 200)
     private String mde_ubicacion;
 
-    @Column(name = "mde_tipo", nullable = false, length = 25) //NO SE SABA PARA QUE SIRVE AUN
+    @Column(name = "mde_tipo", nullable = false, length = 25)
     private String mde_tipo;
 
     @Column(name = "mde_niveles", nullable = false)
@@ -65,11 +62,4 @@ public class MedioElevacion {
     @LastModifiedDate
     @Column(name = "mde_fecha_modificacion")
     private LocalDateTime fecha_modificacion;
-
-
-    /*@OneToMany(mappedBy = "medioElevacion")
-    private Set<InmuebleMedioElevacion> asociaciones;*/
-
-
-
 }

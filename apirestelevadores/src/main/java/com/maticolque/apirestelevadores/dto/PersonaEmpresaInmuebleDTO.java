@@ -34,8 +34,8 @@ public class PersonaEmpresaInmuebleDTO {
         dto.setPer_id(inmueblePersona.getPersona().getPer_id());
         dto.setIpe_id(inmueblePersona.getIpe_id());
         dto.setPersona(PersonaDTO.fromEntity(inmueblePersona.getPersona()));
-        dto.setEmpresa(null); // No hay empresa en este caso
         dto.setInmueble(InmuebleDTO.fromEntity(inmueblePersona.getInmueble()));
+        dto.setEmpresa(null); // No hay empresa en este caso
         return dto;
     }
 }

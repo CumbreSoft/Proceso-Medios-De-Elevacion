@@ -19,37 +19,27 @@ public class InmuebleMedioElevacionService {
     @Autowired
     private InmuebleMedioElevacionRepository inmuebleMedioElevacionRepository;
 
-    //Listar todos los Inmuebles
+    //LISTAR
     public List<InmuebleMedioElevacion> getAllInmueblesMDE(){
         return inmuebleMedioElevacionRepository.findAll();
     }
 
-    //Listar Inmuebles por ID
-    public InmuebleMedioElevacion buscarInmuebleMDEPorId(Integer id)
-    {
-        return inmuebleMedioElevacionRepository.findById(id).orElse(null);
-    }
+    //BUSCAR POR ID
+    public InmuebleMedioElevacion buscarInmuebleMDEPorId(Integer id) {return inmuebleMedioElevacionRepository.findById(id).orElse(null);}
 
-    //Crear inmueble
-    public InmuebleMedioElevacion createInmuebleMDE(InmuebleMedioElevacion inmuebleMedioElevacion){
-        return inmuebleMedioElevacionRepository.save(inmuebleMedioElevacion);
-    }
+    //CREAR
+    public InmuebleMedioElevacion createInmuebleMDE(InmuebleMedioElevacion inmuebleMedioElevacion){return inmuebleMedioElevacionRepository.save(inmuebleMedioElevacion);}
 
-    //Editar inmueble
-    public InmuebleMedioElevacion updateInmuebleMDE(InmuebleMedioElevacion inmuebleMedioElevacion){
-        return inmuebleMedioElevacionRepository.save(inmuebleMedioElevacion);
-    }
+    //EDITAR
+    public InmuebleMedioElevacion updateInmuebleMDE(InmuebleMedioElevacion inmuebleMedioElevacion){return inmuebleMedioElevacionRepository.save(inmuebleMedioElevacion);}
 
-    //Eliminar inmueble
+    //ELIMINAR
     public void deleteInmuebleMDEById(Integer id){
         inmuebleMedioElevacionRepository.deleteById(id);
     }
 
-    public List<InmuebleMedioElevacion> obtenerPrimeroLosDatosDeInmuebleMedioDeElevacion() {
-        return inmuebleMedioElevacionRepository.findAll();
-    }
 
-    //Metodo para filtrar los medios de elevación por NUMERO DE PADRON de INMUEBLE
+    //METODO PARA FILTRAR LOS MEDIOS DE ELEVACION POR NUMERO DE PADRON (INMUEBLE)
     public List<InmuebleMedioElevacion> obtenerMediosDeElevacionPorInmuebleId(Integer inmuebleId) {
         List<InmuebleMedioElevacion> inmuebleMedioElevacionList = inmuebleMedioElevacionRepository.findAll();
         List<InmuebleMedioElevacion> mediosDeElevacionPorInmueble = new ArrayList<>();
@@ -63,10 +53,10 @@ public class InmuebleMedioElevacionService {
         return mediosDeElevacionPorInmueble;
     }
 
-    // Obtener la primera relación de cada inmueble
+    //OBTENER LA PRIMERA RELACION DE CADA INMUEBLE
     public List<InmuebleMedioElevacion> obtenerPrimerInmuebleMedioElevacion() {
         // Lógica para obtener el primer InmuebleMedioElevacion relacionado para cada Inmueble
-        // Esto podría involucrar una consulta SQL con una subconsulta o un DISTINCT ON (dependiendo de tu base de datos)
+        // Esto podría involucrar una consulta SQL con una subconsulta o un DISTINCT ON.
         return inmuebleMedioElevacionRepository.obtenerPrimerInmuebleMedioElevacion();
     }
 }

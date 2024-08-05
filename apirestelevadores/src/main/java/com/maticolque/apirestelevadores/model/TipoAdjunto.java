@@ -44,5 +44,4 @@ public class TipoAdjunto {
     @LastModifiedDate
     @Column(name = "tad_fecha_modificacion")
     private LocalDateTime fecha_modificacion;
-
 }

@@ -73,18 +73,28 @@ public class DestinoController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarDestinoPorId(@PathVariable Integer id) {
         try {
+            // Buscar Destino por ID
             Destino destinoExistente = destinoService.buscarDestinoPorId(id);
 
+            // Verificar si existe el ID
             if (destinoExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
                         .message("El ID que intenta buscar no existe.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
-
-            } else {
-                return ResponseEntity.ok(destinoExistente);
             }
+
+            // Convertir la entidad en un DTO
+            DestinoDTO destinoDTO = DestinoDTO.fromEntity(destinoExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("destino", destinoDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -100,7 +110,7 @@ public class DestinoController {
         try {
             // Validar datos
             if (destinoDTO.getDst_codigo().isEmpty() || destinoDTO.getDst_detalle().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de destino son obligatorios.");
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
             // Convertir DTO a entidad
@@ -131,6 +141,7 @@ public class DestinoController {
     @PutMapping("editar/{id}")
     public ResponseEntity<?> actualizarDestino(@PathVariable Integer id, @RequestBody DestinoDTO destinoDTO) {
         try {
+
             // Buscar el Destino por ID
             Destino destinoExistente = destinoService.buscarDestinoPorId(id);
 
@@ -147,7 +158,7 @@ public class DestinoController {
             if (destinoDTO.getDst_codigo().isEmpty() || destinoDTO.getDst_detalle().isEmpty()) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("400 BAD REQUEST")
-                        .message("Todos los datos del Destino son obligatorios.")
+                        .message("No se permiten datos vacíos.")
                         .build();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
             }
@@ -205,7 +216,6 @@ public class DestinoController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorDTO.toString(), e);
         }
     }
-
 
     //POST DATOS PRECARGADOS
     @PostConstruct

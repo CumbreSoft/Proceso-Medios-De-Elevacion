@@ -11,13 +11,13 @@ import lombok.*;
 public class MedioElevacionReadDTO {
 
     private int mde_id;
-    private TipoMaquinaDTO tiposMaquina; // Detalles del Tipo Maquina
+    private TipoMaquinaDTO tiposMaquina; // DETALLES DEL TIPOMAQUINA
     private String mde_ubicacion;
     private String mde_tipo;
     private int mde_niveles;
     private boolean mde_planos_aprob;
     private String mde_expte_planos;
-    private EmpresaDTO empresa; // Detalles de la Empresa
+    private EmpresaDTO empresa; // DETALLES DE LA EMPRESA
     private boolean mde_activo;
 
     public static MedioElevacionReadDTO fromEntity(MedioElevacion medioElevacion) {

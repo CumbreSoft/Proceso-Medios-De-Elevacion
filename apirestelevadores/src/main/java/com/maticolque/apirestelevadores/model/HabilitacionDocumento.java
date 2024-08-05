@@ -2,6 +2,7 @@ package com.maticolque.apirestelevadores.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.*;
@@ -38,8 +39,7 @@ public class HabilitacionDocumento {
     private int hdo_adjunto_orden;
 
     @Column(name = "hdo_adjunto_fecha", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date hdo_adjunto_fecha;
+    private LocalDate hdo_adjunto_fecha;
 
     @ManyToOne
     @JoinColumn(name = "hdo_rev_id", nullable = false)

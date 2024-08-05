@@ -72,8 +72,11 @@ public class InmuebleController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarInmueblePorId(@PathVariable Integer id) {
         try {
+
+            //Buscar Inmueble por ID
             Inmueble inmuebleExistente = inmuebleService.buscarInmueblePorId(id);
 
+            // Verificar si existe el ID
             if (inmuebleExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -81,9 +84,18 @@ public class InmuebleController {
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(inmuebleExistente);
             }
+
+            // Convertir la entidad en un DTO
+            InmuebleReadDTO inmuebleReadDTO = InmuebleReadDTO.fromEntity(inmuebleExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("inmueble", inmuebleReadDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -100,12 +112,7 @@ public class InmuebleController {
 
             // Validar datos
             if (createdto.getInm_padron() == 0 || createdto.getInm_direccion().isEmpty() || createdto.getInm_cod_postal().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos del Inmueble son obligatorios.");
-            }
-            if (createdto.getInm_dis_id() == 0) {
-                throw new IllegalArgumentException("El Distrito es obligatorio.");
-            } else if (createdto.getInm_dst_id() == 0) {
-                throw new IllegalArgumentException("El Destino es obligatorio.");
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
             // Buscar Distrito y Destino por sus IDs
@@ -113,8 +120,11 @@ public class InmuebleController {
             Destino destino = destinoService.buscarDestinoPorId(createdto.getInm_dst_id());
 
             // Verificar si los IDs existen
-            if (distrito == null || destino == null) {
-                throw new IllegalArgumentException("ID de Distrito o Destino no encontrado.");
+            if (distrito == null) {
+                throw new IllegalArgumentException("ID de Distrito no encontrado.");
+            }
+            if(destino == null){
+                throw new IllegalArgumentException("ID de Distrito no encontrado.");
             }
 
             // Convertir DTO a entidad
@@ -145,6 +155,7 @@ public class InmuebleController {
     @PutMapping("/editar/{id}")
     public ResponseEntity<?> modificarInmueble(@PathVariable Integer id, @RequestBody InmuebleUpdateDTO updateDTO) {
         try {
+
             // Buscar el Inmueble por ID
             Inmueble inmuebleExistente = inmuebleService.buscarInmueblePorId(id);
 
@@ -157,15 +168,31 @@ public class InmuebleController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
+            // Validar datos
+            if (updateDTO.getInm_padron() == 0 || updateDTO.getInm_direccion().isEmpty() || updateDTO.getInm_cod_postal().isEmpty()) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("400 BAD REQUEST")
+                        .message("No se permiten datos vacíos.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+            }
+
             // Obtener ID del nuevo Distrito y Destino
             Distrito nuevoDistrito = distritoService.buscarDistritoPorId(updateDTO.getInm_dis_id());
             Destino nuevoDestino = destinoService.buscarDestinoPorId(updateDTO.getInm_dst_id());
 
             // Verificar si existe el ID del nuevo Distrito y Destino
-            if (nuevoDistrito == null || nuevoDestino == null) {
+            if (nuevoDistrito == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("ID de Distrito o Destino no encontrado.")
+                        .message("No se encontró el Distrito con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+            if(nuevoDestino == null){
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el Destino con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }

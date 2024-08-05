@@ -72,8 +72,11 @@ public class MedioElevacionController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarMedioElevacionPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar MedioElevacion por ID
             MedioElevacion medioElevacionExistente = medioElevacionService.buscarMedioElevacionPorId(id);
 
+            // Verificar si existe el ID
             if (medioElevacionExistente == null) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
@@ -81,10 +84,17 @@ public class MedioElevacionController {
                         .message("El ID que intenta buscar no existe.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
-            } else {
-
-                return ResponseEntity.ok(medioElevacionExistente);
             }
+
+            // Convertir la entidad en un DTO
+            MedioElevacionReadDTO medioElevacionReadDTO = MedioElevacionReadDTO.fromEntity(medioElevacionExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("medioElevacion", medioElevacionReadDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
@@ -99,16 +109,21 @@ public class MedioElevacionController {
     @PostMapping
     public ResponseEntity<?>  crearMedioElevacion(@RequestBody MedioElevacionCreateDTO dto) {
         try {
+
             // Validar datos
             if (dto.getMde_ubicacion().isEmpty() || dto.getMde_tipo().isEmpty() || dto.getMde_niveles() == 0) {
-                throw new IllegalArgumentException("Todos los datos de MDE son obligatorios.");
-            }
-            if (dto.getMde_tma_id() == 0) {
-                throw new IllegalArgumentException("La Máquina es obligatoria.");
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
             // Buscar TipoMaquina y Empresa por sus IDs
             TipoMaquina tipoMaquina = tipoMaquinaService.buscartipoMaquinaPorId(dto.getMde_tma_id());
+
+            // Verificar si el ID de TipoMaquina existe
+            if (tipoMaquina == null) {
+                throw new IllegalArgumentException("ID de TipoMaquina no encontrado.");
+            }
+
+            //Buscar empresa, puede tener o no Empresa el MDE
             Empresa empresa = null;
             if (dto.getMde_emp_id() != 0) {
                 empresa = empresaService.buscarEmpresaPorId(dto.getMde_emp_id());
@@ -142,6 +157,7 @@ public class MedioElevacionController {
     @PutMapping("/editar/{id}")
     public ResponseEntity<?> actualizarMedioElevacionCompleto(@PathVariable Integer id, @RequestBody MedioElevacionUpdateDTO dto) {
         try {
+
             // Buscar el MDE por ID
             MedioElevacion mdeExistente = medioElevacionService.buscarMedioElevacionPorId(id);
 
@@ -152,6 +168,15 @@ public class MedioElevacionController {
                         .message("No se encontró el MDE con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Validar datos
+            if (dto.getMde_ubicacion().isEmpty() || dto.getMde_tipo().isEmpty() || dto.getMde_niveles() == 0) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("400 BAD REQUEST")
+                        .message("No se permiten datos vacíos.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
             }
 
             // Actualizar propiedades básicas si están presentes

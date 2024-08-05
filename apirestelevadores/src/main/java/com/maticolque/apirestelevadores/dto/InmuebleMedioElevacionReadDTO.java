@@ -11,8 +11,8 @@ import lombok.*;
 public class InmuebleMedioElevacionReadDTO {
 
     private int ime_id;
-    private InmuebleDTO inmueble; // Detalles del Inmueble
-    private MedioElevacionDTO medioElevacion; // Detalles del Medio de Elevacion
+    private InmuebleDTO inmueble; // DETALLES DEL INMUEBLE
+    private MedioElevacionDTO medioElevacion; // DETALLES DEL MDE
 
     public static InmuebleMedioElevacionReadDTO fromEntity(InmuebleMedioElevacion inmuebleMedioElevacion) {
 

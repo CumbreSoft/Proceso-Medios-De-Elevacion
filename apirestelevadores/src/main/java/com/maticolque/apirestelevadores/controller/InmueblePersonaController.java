@@ -77,8 +77,11 @@ public class InmueblePersonaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarInmueblePersona(@PathVariable Integer id) {
         try {
+
+            // Buscar InmueblePersona por ID
             InmueblePersona inmueblePersonaExistente = inmueblePersonaService.buscarInmueblePersonaPorId(id);
 
+            // Verificar si existe el ID
             if (inmueblePersonaExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -86,9 +89,18 @@ public class InmueblePersonaController {
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(inmueblePersonaExistente);
             }
+
+            // Convertir la entidad en un DTO
+            InmueblePersonaReadDTO inmueblePersonaReadDTO = InmueblePersonaReadDTO.fromEntity(inmueblePersonaExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put(" inmueblePersona", inmueblePersonaReadDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -102,20 +114,17 @@ public class InmueblePersonaController {
     @PostMapping
     public ResponseEntity<?> crearInmueblePersona(@RequestBody InmueblePersonaCreateDTO createDto) {
         try {
-            // Validar datos
-            if (createDto.getIpe_inm_id() == 0) {
-                throw new IllegalArgumentException("El Inmueble es obligatorio.");
-            } else if (createDto.getIpe_per_id() == 0) {
-                throw new IllegalArgumentException("La Persona es obligatoria.");
-            }
 
             // Buscar Inmueble y Persona por sus IDs
             Inmueble inmueble = inmuebleService.buscarInmueblePorId(createDto.getIpe_inm_id());
             Persona persona = personaService.buscarPersonaPorId(createDto.getIpe_per_id());
 
             // Verificar si los IDs existen
-            if (inmueble == null || persona == null) {
-                throw new IllegalArgumentException("ID de Inmueble o Persona no encontrado.");
+            if (inmueble == null) {
+                throw new IllegalArgumentException("ID de Inmueble no encontrado.");
+            }
+            if(persona == null){
+                throw new IllegalArgumentException("ID de Persona no encontrado.");
             }
 
             // Convertir DTO a entidad

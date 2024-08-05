@@ -15,8 +15,8 @@ public class InmuebleCreateDTO {
     private int inm_padron;
     private String inm_direccion;
     private String inm_cod_postal;
-    private int inm_dis_id; //ID de Distrito;
-    private int inm_dst_id; //ID de Destino;
+    private int inm_dis_id; // ID DISTRITO
+    private int inm_dst_id; // ID DESTINO
     private boolean inm_activo;
 
     public static Inmueble toEntity(InmuebleCreateDTO dto, Distrito distrito, Destino destino) {

@@ -13,28 +13,29 @@ public class TipoAdjuntoService {
     @Autowired
     private TipoAdjuntoRepository tipoAdjuntoRepository;
 
-    //Mostrar Tipo Adjunto
+
+    //CREAR
     public List<TipoAdjunto> getAllTipoAdjunto(){
         return tipoAdjuntoRepository.findAll();
     }
 
-    //Mostrar por ID
+    //BUSCAR POR ID
     public TipoAdjunto buscarTipoAdjuntoPorId(Integer id)
     {
         return tipoAdjuntoRepository.findById(id).orElse(null);
     }
 
-    //Crear Tipo Adjunto
+    //CREAR
     public TipoAdjunto createTipoAdjunto(TipoAdjunto tipoAdjunto){
         return tipoAdjuntoRepository.save(tipoAdjunto);
     }
 
-    //Editar Tipo Adjunto
+    //EDITAR
     public TipoAdjunto updateTipoAdjunto(TipoAdjunto tipoAdjunto){
         return tipoAdjuntoRepository.save(tipoAdjunto);
     }
 
-    //ELiminar Tipo Adjunto
+    //ELIMINAR
     public void deleteTipoAdjuntoById(Integer id){
         tipoAdjuntoRepository.deleteById(id);
     }

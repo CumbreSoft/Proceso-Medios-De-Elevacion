@@ -14,28 +14,21 @@ public class InmueblePersonaService {
     @Autowired
     private InmueblePersonaRepository inmueblePersonaRepository;
 
-    //Mostrar Inmueble Persona
+    //LISTAR
     public List<InmueblePersona> getAllInmueblePersona(){
         return inmueblePersonaRepository.findAll();
     }
 
-    //Mostrar por ID
-    public InmueblePersona buscarInmueblePersonaPorId(Integer id)
-    {
-        return inmueblePersonaRepository.findById(id).orElse(null);
-    }
+    //BUSCAR POR ID
+    public InmueblePersona buscarInmueblePersonaPorId(Integer id) {return inmueblePersonaRepository.findById(id).orElse(null);}
 
-    //Crear Inmueble Persona
-    public InmueblePersona createInmueblePersona(InmueblePersona inmueblePersona){
-        return inmueblePersonaRepository.save(inmueblePersona);
-    }
+    //CREAR
+    public InmueblePersona createInmueblePersona(InmueblePersona inmueblePersona){return inmueblePersonaRepository.save(inmueblePersona);}
 
-    //Editar Inmueble Persona
-    public InmueblePersona updateInmueblePersona(InmueblePersona inmueblePersona){
-        return inmueblePersonaRepository.save(inmueblePersona);
-    }
+    //EDITAR
+    public InmueblePersona updateInmueblePersona(InmueblePersona inmueblePersona){return inmueblePersonaRepository.save(inmueblePersona);}
 
-    //Eliminar Inmueble Persona
+    //ELIMINAR
     public void deleteInmueblePersonaById(Integer id){
         inmueblePersonaRepository.deleteById(id);
     }

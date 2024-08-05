@@ -73,8 +73,11 @@ public class PersonaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPersonaPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar Persona por ID
             Persona personaExistente = personaService.buscarPersonaPorId(id);
 
+            // Verificar si existe el ID
             if (personaExistente == null) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
@@ -83,9 +86,17 @@ public class PersonaController {
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(personaExistente);
             }
+
+            // Convertir la entidad en un DTO
+            PersonaDTO personaDTO = PersonaDTO.fromEntity(personaExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("persona", personaDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
@@ -100,6 +111,7 @@ public class PersonaController {
     @PostMapping
     public ResponseEntity<?> crearPersona(@RequestBody PersonaDTO personaDTO) {
         try {
+
             // Validar datos
             if (personaDTO.getPer_nombre().isEmpty() || personaDTO.getPer_apellido().isEmpty() || personaDTO.getPer_cuit().isEmpty()
                     || personaDTO.getPer_tipodoc() == 0
@@ -107,7 +119,7 @@ public class PersonaController {
                     || personaDTO.getPer_telefono().isEmpty()
                     || personaDTO.getPer_correo().isEmpty()
                     || personaDTO.getPer_domic_legal().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de la Persona son obligatorios.");
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
             // Convertir DTO a entidad
@@ -138,6 +150,7 @@ public class PersonaController {
     @PutMapping("editar/{id}")
     public ResponseEntity<?> actualizarPersona(@PathVariable Integer id, @RequestBody PersonaDTO personaDTO) {
         try {
+
             // Buscar Persona por ID
             Persona personaExistente = personaService.buscarPersonaPorId(id);
 
@@ -159,7 +172,7 @@ public class PersonaController {
                     || personaDTO.getPer_domic_legal().isEmpty()) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("400 BAD REQUEST")
-                        .message("Todos los datos de la Persona son obligatorios.")
+                        .message("No se permiten datos vacíos.")
                         .build();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
             }

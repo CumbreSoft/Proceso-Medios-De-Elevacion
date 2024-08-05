@@ -67,8 +67,11 @@ public class EmpresaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarEmpresaPorId(@PathVariable Integer id) {
         try {
+
+            //Buscar Empresa por ID
             Empresa empresaExistente = empresaService.buscarEmpresaPorId(id);
 
+            // Verificar si existe el ID
             if (empresaExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -76,9 +79,17 @@ public class EmpresaController {
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(empresaExistente);
             }
+
+            // Convertir la entidad en un DTO
+            EmpresaDTO empresaDTO = EmpresaDTO.fromEntity(empresaExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("empresa", empresaDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -92,10 +103,11 @@ public class EmpresaController {
     @PostMapping
     public ResponseEntity<?> crearEmpresa(@RequestBody EmpresaDTO empresaDTO) {
         try {
+
             // Validar datos
             if (empresaDTO.getEmp_cuit().isEmpty() || empresaDTO.getEmp_telefono().isEmpty() || empresaDTO.getEmp_razon().isEmpty() ||
                     empresaDTO.getEmp_domic_legal().isEmpty() || empresaDTO.getEmp_correo().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de la Empresa son obligatorios.");
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
             // Convertir DTO a entidad
@@ -126,6 +138,7 @@ public class EmpresaController {
     @PutMapping("editar/{id}")
     public ResponseEntity<?> actualizarEmpresa(@PathVariable Integer id, @RequestBody EmpresaDTO empresaDTO) {
         try {
+
             // Buscar el Empresa por ID
             Empresa empresaExistente = empresaService.buscarEmpresaPorId(id);
 
@@ -143,7 +156,7 @@ public class EmpresaController {
                 empresaDTO.getEmp_telefono().isEmpty() || empresaDTO.getEmp_correo().isEmpty()) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("400 BAD REQUEST")
-                        .message("Todos los datos de la Empresa son obligatorios.")
+                        .message("No se permiten datos vacíos.")
                         .build();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
             }

@@ -14,8 +14,8 @@ public class InmueblePersonaCreateDTO {
     private int ipe_id;
     private boolean ipe_es_admin_edif;
     private boolean ipe_es_coprop_edif;
-    private int ipe_inm_id; //ID de Inmueble
-    private int ipe_per_id; //ID de Persona
+    private int ipe_inm_id; //ID INMUEBLE
+    private int ipe_per_id; //ID PERSONA
 
     public static InmueblePersona toEntity(InmueblePersonaCreateDTO dto, Inmueble inmueble, Persona persona) {
 

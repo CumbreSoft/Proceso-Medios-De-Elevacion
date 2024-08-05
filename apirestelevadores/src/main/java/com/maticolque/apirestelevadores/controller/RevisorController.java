@@ -72,11 +72,12 @@ public class RevisorController {
     @PostMapping
     public ResponseEntity<?> crearRevisoor(@RequestBody RevisorDTO revisorDTO){
         try {
+
             // Validar datos
             if (revisorDTO.getRev_apellido().isEmpty() || revisorDTO.getRev_nombre().isEmpty() || revisorDTO.getRev_cuit().isEmpty() ||
                     revisorDTO.getRev_numdoc().isEmpty() || revisorDTO.getRev_correo().isEmpty() || revisorDTO.getRev_telefono().isEmpty() ||
                 revisorDTO.getRev_usuario_sayges().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos del Revisor son obligatorios.");
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
             // Validar que al menos una de las variables sea true
@@ -112,6 +113,7 @@ public class RevisorController {
     @PutMapping("editar/{id}")
     public ResponseEntity<?> actualizarRevisor(@PathVariable Integer id, @RequestBody RevisorDTO revisorDTO) {
         try {
+
             // Buscar el Revisor por ID
             Revisor revisorExistente = revisorService.buscarRevisorPorId(id);
 
@@ -128,10 +130,9 @@ public class RevisorController {
             if (revisorDTO.getRev_apellido().isEmpty() || revisorDTO.getRev_nombre().isEmpty() || revisorDTO.getRev_cuit().isEmpty() ||
                     revisorDTO.getRev_numdoc().isEmpty() || revisorDTO.getRev_correo().isEmpty() || revisorDTO.getRev_telefono().isEmpty() ||
                     revisorDTO.getRev_usuario_sayges().isEmpty()) {
-
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("400 BAD REQUEST")
-                        .message("Todos los datos del Revisor son obligatorios.")
+                        .message("No se permiten datos vacíos.")
                         .build();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
             }

@@ -74,10 +74,4 @@ public class Persona {
     @LastModifiedDate
     @Column(name = "per_fecha_modificacion")
     private LocalDateTime fecha_modificacion;
-
-    /*@OneToMany(mappedBy = "persona")
-    private Set<EmpresaPersona> empresaPersonas;
-
-    @OneToMany(mappedBy = "persona")
-    private Set<InmueblePersona> inmueblePersonas;*/
 }

@@ -28,28 +28,21 @@ public class MedioElevacionService {
 
 
 
-    //Mostrar Medio Elevacion
+    //LISTAR
     public List<MedioElevacion> getAllMedioElevacion(){
         return medioElevacionRepository.findAll();
     }
 
-    //Mostrar por ID
-    public MedioElevacion buscarMedioElevacionPorId(Integer id)
-    {
-        return medioElevacionRepository.findById(id).orElse(null);
-    }
+    //BUSCAR POR ID
+    public MedioElevacion buscarMedioElevacionPorId(Integer id) {return medioElevacionRepository.findById(id).orElse(null);}
 
-    //Crear Medio Elevacion
-    public MedioElevacion createMedioElevacion(MedioElevacion medioElevacion){
-        return medioElevacionRepository.save(medioElevacion);
-    }
+    //CREAR
+    public MedioElevacion createMedioElevacion(MedioElevacion medioElevacion){return medioElevacionRepository.save(medioElevacion);}
 
-    //Editar Medio Elevacion
-    public MedioElevacion updateMedioElevacion(MedioElevacion medioElevacion){
-        return medioElevacionRepository.save(medioElevacion);
-    }
+    //EDITAR
+    public MedioElevacion updateMedioElevacion(MedioElevacion medioElevacion){return medioElevacionRepository.save(medioElevacion);}
 
-    //Eliminar Medio Elevacion
+    //ELIMINAR COMUN
     public void deleteMedioElevacionById(Integer id){
         medioElevacionRepository.deleteById(id);
     }
@@ -77,5 +70,4 @@ public class MedioElevacionService {
         return ResponseEntity.ok(successDTO);
     }
     // *************** LOGICA PARA ELIMINAR UNA MDE ***************
-
 }

@@ -16,38 +16,34 @@ public class EmpresaPersonaService {
     @Autowired
     private EmpresaPersonaRepository empresaPersonaRepository;
 
-    //Listar todas las Empresas Personas
+    //LISTAR
     public List<EmpresaPersona> getAllEmpresaPersona(){
         return empresaPersonaRepository.findAll();
     }
 
-    //Listar Empresa Persona por ID
-    public EmpresaPersona buscarEmpresaPersonaPorId(Integer id)
-    {
-        return empresaPersonaRepository.findById(id).orElse(null);
+    //BUSCAR POR ID
+    public EmpresaPersona buscarEmpresaPersonaPorId(Integer id) {return empresaPersonaRepository.findById(id).orElse(null);}
+
+    //CREAR
+    public EmpresaPersona createEmpresaPersona(EmpresaPersona empresaPersona){return empresaPersonaRepository.save(empresaPersona);}
+
+    //EDITAR
+    public EmpresaPersona updateEmpresaPersona(EmpresaPersona empresaPersona){return empresaPersonaRepository.save(empresaPersona);}
+
+    //ELIMINAR
+    public void deleteEmpresaPersonaById(Integer id){
+        empresaPersonaRepository.deleteById(id);
     }
 
-    //Crear Empresa Persona
-    public EmpresaPersona createEmpresaPersona(EmpresaPersona empresaPersona){
-        return empresaPersonaRepository.save(empresaPersona);
-    }
 
-    //Editar Empresa Persona
-    public EmpresaPersona updateEmpresaPersona(EmpresaPersona empresaPersona){
-        return empresaPersonaRepository.save(empresaPersona);
-    }
-
+    //METODO PARA VERIFICAR SI UNA EMPRESA TIENE RELACION CON PERSONAS
     public boolean verificarRelacionesConPersonas(Integer empresaId) {
         List<EmpresaPersona> relaciones = empresaPersonaRepository.findAll();
         return relaciones.stream().anyMatch(ep -> ep.getEmpresa().getEmp_id() == empresaId);
     }
 
-    //Eliminar Empresa Persona
-    public void deleteEmpresaPersonaById(Integer id){
-        empresaPersonaRepository.deleteById(id);
-    }
 
-    // Método para obtener todas las personas relacionadas con una empresa específica
+    //METODO PARA OBTENER TODAS LAS PERSONAS RELACIONADAS CON UNA EMPRESA ESPECIFICA
     public List<Persona> obtenerPersonasPorEmpresa(Integer empresaId) {
         List<EmpresaPersona> empresaPersonaList = empresaPersonaRepository.findAll();
         List<Persona> personasRelacionadas = new ArrayList<>();
@@ -57,7 +53,6 @@ public class EmpresaPersonaService {
                 personasRelacionadas.add(empresaPersona.getPersona());
             }
         }
-
         return personasRelacionadas;
     }
 }

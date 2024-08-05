@@ -13,28 +13,28 @@ public class DestinoService {
     @Autowired
     private DestinoRepository destinoRepository;
 
-    //Mostrar Destino
+    //LISTAR
     public List<Destino> getAllDestino(){
         return destinoRepository.findAll();
     }
 
-    //Mostrar por ID
+    //BUSCAR POR ID
     public Destino buscarDestinoPorId(Integer id)
     {
         return destinoRepository.findById(id).orElse(null);
     }
 
-    //Crear Destino
+    //CREAR
     public Destino createDestino(Destino destino){
         return destinoRepository.save(destino);
     }
 
-    //Editar Destino
+    //EDITAR
     public Destino updateDestino(Destino destino){
         return destinoRepository.save(destino);
     }
 
-    //ELiminar Destino
+    //ELIMINAR
     public void deleteDestinoById(Integer id){
         destinoRepository.deleteById(id);
     }

@@ -14,8 +14,8 @@ public class InmuebleReadDTO {
     private int inm_padron;
     private String inm_direccion;
     private String inm_cod_postal;
-    private DistritoDTO distrito; // DTO de Distrito para incluir detalles en la respuesta
-    private DestinoDTO destino; // DTO de Destino para incluir detalles en la respuesta
+    private DistritoDTO distrito; // DETALLES DEL DISTRITO
+    private DestinoDTO destino; // DETALLES DEL DESTINO
     private boolean inm_activo;
 
     public static InmuebleReadDTO fromEntity(Inmueble inmueble) {

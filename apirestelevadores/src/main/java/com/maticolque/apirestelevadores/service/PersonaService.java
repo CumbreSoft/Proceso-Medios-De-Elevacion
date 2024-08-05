@@ -26,28 +26,28 @@ public class PersonaService {
     private InmueblePersonaRepository inmueblePersonaRepository;
 
 
-    //Mostrar Persona
+    //LISTAR
     public List<Persona> getAllPersona(){
         return personaRepository.findAll();
     }
 
-    //Mostrar por ID
+    //BUSCAR POR ID
     public Persona buscarPersonaPorId(Integer id)
     {
         return personaRepository.findById(id).orElse(null);
     }
 
-    //Crear Persona
+    //CREAR
     public Persona createPersona(Persona persona){
         return personaRepository.save(persona);
     }
 
-    //Editar Persona
+    //EDITAR
     public Persona updatePersona(Persona persona){
         return personaRepository.save(persona);
     }
 
-    //Eliminar Persona
+    //ELIMINAR COMUN
     public void deletePersonaById(Integer id){
         personaRepository.deleteById(id);
     }
@@ -82,53 +82,6 @@ public class PersonaService {
         return ResponseEntity.ok(successDTO);
     }
     // *************** LOGICA PARA ELIMINAR UNA PERSONA ***************
-
-
-
-
-    public List<EmpresaPersona> obtenerTodosLosDatosDeEmpresaPersona() {
-        return empresaPersonaRepository.findAll();
-    }
-
-    public List<InmueblePersona> obtenerTodosLosDatosDeInmueblePersona() {
-        return inmueblePersonaRepository.findAll();
-    }
-
-
-    public List<EmpresaPersona> obtenerPrimeroLosDatosDeEmpresaPersona() {
-        return empresaPersonaRepository.findAll();
-    }
-
-    public List<InmueblePersona> obtenerPrimeroLosDatosDeInmueblePersona() {
-        return inmueblePersonaRepository.findAll();
-    }
-    //LISTAR EMPRESAS E INMUBLES DE LA PERSONA
-    /*public List<Map<String, Object>> listarPersonasConEmpresasEInmuebles() {
-        List<Persona> personas = personaRepository.findAll();
-        List<Map<String, Object>> personasConEmpresasEInmuebles = new ArrayList<>();
-
-        for (Persona persona : personas) {
-            Map<String, Object> personaMap = new LinkedHashMap<>();
-            personaMap.put("persona", persona);
-            List<Empresa> empresas = new ArrayList<>();
-            List<Inmueble> inmuebles = new ArrayList<>();
-
-            for (EmpresaPersona empresaPersona : persona.getEmpresaPersonas()) {
-                empresas.add(empresaPersona.getEmpresa());
-            }
-
-            for (InmueblePersona inmueblePersona : persona.getInmueblePersonas()) {
-                inmuebles.add(inmueblePersona.getInmueble());
-            }
-
-            personaMap.put("empresas", empresas);
-            personaMap.put("inmuebles", inmuebles);
-            personasConEmpresasEInmuebles.add(personaMap);
-        }
-
-        return personasConEmpresasEInmuebles;
-    }*/
-
 }
 
 

@@ -24,35 +24,35 @@ public class RevisorService {
     @Autowired
     private EmpresaHabilitacionRepository empresaHabilitacionRepository;
 
+    @Autowired
     private MedioHabilitacionRepository medioHabilitacionRepository;
 
 
-    //Mostrar Revisor
+    //LISTAR
     public List<Revisor> getAllRevisor(){
         return revisorRepository.findAll();
     }
 
-    //Mostrar por ID
+    //BUSCAR POR ID
     public Revisor buscarRevisorPorId(Integer id)
     {
         return revisorRepository.findById(id).orElse(null);
     }
 
-    //Crear Revisor
+    //CREAR
     public Revisor createRevisor(Revisor revisor){
         return revisorRepository.save(revisor);
     }
 
-    //Editar Revisor
+    //EDITAR
     public Revisor updateRevisor(Revisor revisor){
         return revisorRepository.save(revisor);
     }
 
-    //Eliminar Revisor
+    //ELIMINAR COMUN
     public void deleteRevisorById(Integer id){
         revisorRepository.deleteById(id);
     }
-
 
 
     // *************** LOGICA PARA ELIMINAR UNA REVISOR ***************
@@ -86,10 +86,7 @@ public class RevisorService {
     // *************** LOGICA PARA ELIMINAR UNA REVISOR ***************
 
 
-
-
-
-    // Método para filtrar revisores basado en el parámetro
+    //METODO PARA FILTRAR REVISORES BASADO EN EL PARÁMETRO
     public List<Revisor> getRevisoresByParameter(int valor) {
         List<Revisor> revisores = revisorRepository.findAll();
         switch (valor) {

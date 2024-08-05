@@ -78,8 +78,11 @@ public class EmpresaPersonaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarEmpresaPersonaPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar EmpresaPersona por ID
             EmpresaPersona empresaPersonaExistente = empresaPersonaService.buscarEmpresaPersonaPorId(id);
 
+            // Verificar si existe el ID
             if (empresaPersonaExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -87,9 +90,18 @@ public class EmpresaPersonaController {
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(empresaPersonaExistente);
             }
+
+            // Convertir la entidad en un DTO
+            EmpresaPersonaReadDTO empresaPersonaReadDTO = EmpresaPersonaReadDTO.fromEntity(empresaPersonaExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("empresaPersona", empresaPersonaReadDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -103,20 +115,17 @@ public class EmpresaPersonaController {
     @PostMapping
     public ResponseEntity<?> crearEmpresaPersona(@RequestBody EmpresaPersonaCreateDTO createDto) {
         try {
-            // Validar datos
-            if (createDto.getEpe_emp_id() == 0) {
-                throw new IllegalArgumentException("La Empresa es obligatoria.");
-            } else if (createDto.getEpe_per_id() == 0) {
-                throw new IllegalArgumentException("La Persona es obligatoria.");
-            }
 
             // Buscar Empresa y Persona por sus IDs
             Empresa empresa = empresaService.buscarEmpresaPorId(createDto.getEpe_emp_id());
             Persona persona = personaService.buscarPersonaPorId(createDto.getEpe_per_id());
 
             // Verificar si los IDs existen
-            if (empresa == null || persona == null) {
-                throw new IllegalArgumentException("ID de la Empresa o Persona no encontrado.");
+            if (empresa == null) {
+                throw new IllegalArgumentException("ID de Empresa no encontrado.");
+            }
+            if(persona == null){
+                throw new IllegalArgumentException("ID de Persona no encontrado.");
             }
 
             // Convertir DTO a entidad
@@ -154,6 +163,7 @@ public class EmpresaPersonaController {
     @PutMapping("/editarEmpresaDePersona/{id}")
     public ResponseEntity<?> actualizarEmpresaPersona(@PathVariable Integer id, @RequestBody EmpresaPersonaUpdateDTO updateDTO) {
         try {
+
             // Obtener ID de Empresa-Persona
             EmpresaPersona empresaPersonaExistente = empresaPersonaService.buscarEmpresaPersonaPorId(id);
 
@@ -247,6 +257,7 @@ public class EmpresaPersonaController {
     @GetMapping("personasPorEmpresa/{empresaId}")
     public ResponseEntity<?> obtenerEmpresaConPersonas(@PathVariable("empresaId") Integer empresaId) {
         try {
+
             // Obtener ID de la Empresa
             Empresa empresa = empresaService.obtenerEmpresaPorId(empresaId);
 

@@ -26,42 +26,34 @@ public class InmuebleService {
     private InmuebleMedioElevacionRepository inmuebleMedioElevacionRepository;
 
 
-
-
-    //Mostrar inmueble
+    //LISTAR
     public List<Inmueble> getAllInmuebles(){
         return inmuebleRepository.findAll();
     }
 
-    //Mostrar por ID
+    //BUSCAR POR ID
     public Inmueble buscarInmueblePorId(Integer id)
     {
         return inmuebleRepository.findById(id).orElse(null);
     }
 
-    // Mostrar por ID
-    public Inmueble buscarInmueblePorIds(Integer id) {
-        return inmuebleRepository.findById(id).orElse(null);
-    }
-
-    //Crear inmueble
+    //CREAR
     public Inmueble createInmueble(Inmueble inmuble){
         return inmuebleRepository.save(inmuble);
     }
 
-    //Editar inmueble
+    //EDITAR
     public Inmueble updateInmueble(Inmueble inmueble){
         return inmuebleRepository.save(inmueble);
     }
 
-    //Eliminar inmueble
+    //ELIMINAR COMUN
     public void deleteInmuebleById(Integer id){
         inmuebleRepository.deleteById(id);
     }
 
 
     // *************** LOGICA PARA ELIMINAR UN INMUEBLE ***************
-
     //Verificar si hay relacion de un Inmueble en InmueblePersona
     public ResponseEntity<ErrorDTO> eliminarInmuebleSiNoTieneRelaciones(int inmuebleId) {
         // Buscar inmueble
@@ -92,10 +84,7 @@ public class InmuebleService {
     }
     // *************** LOGICA PARA ELIMINAR UNA INMUEBLE ***************
 
-
-
-
-    // Buscar inmueble por padron
+    // BUSCAR INMUEBLE POR PADRON
     public Inmueble buscarInmueblePorPadron(Integer inmPadron) {
         List<Inmueble> inmuebles = inmuebleRepository.findAll();
         for (Inmueble inmueble : inmuebles) {

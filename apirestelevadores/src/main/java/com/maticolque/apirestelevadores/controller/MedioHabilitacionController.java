@@ -27,25 +27,23 @@ public class MedioHabilitacionController {
     private MedioElevacionService medioElevacionService;
 
     @Autowired
-    private TipoMaquinaService tipoMaquinaService;
-
-    @Autowired
     private EmpresaService empresaService;
 
     @Autowired
     private PersonaService personaService;
 
     @Autowired
-    private EmpresaPersonaService empresaPersonaService;
+    private RevisorService revisorService;
 
     @Autowired
-    private RevisorService revisorService;
+    private InmuebleService inmuebleService;
 
 
     //GET
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
+
             // Obtener la lista de Medio-Habilitacion
             List<MedioHabilitacion> medioHabilitaciones = medioHabilitacionService.getAllMedioHabilitacion();
 
@@ -87,8 +85,11 @@ public class MedioHabilitacionController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarMedioHabilitacionPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar MedioHabilitacion por ID
             MedioHabilitacion medioHabilitacionExistente = medioHabilitacionService.buscarmedioHabilitacionPorId(id);
 
+            // Verificar si existe el ID
             if (medioHabilitacionExistente == null) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
@@ -96,9 +97,18 @@ public class MedioHabilitacionController {
                         .message("El ID que intenta buscar no existe.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
-            } else {
-                return ResponseEntity.ok(medioHabilitacionExistente);
             }
+
+            // Convertir la entidad en un DTO
+            MedioHabilitacionReadDTO medioHabilitacionReadDTO = MedioHabilitacionReadDTO.fromEntity(medioHabilitacionExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("medioHabilitacion", medioHabilitacionReadDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -110,15 +120,23 @@ public class MedioHabilitacionController {
 
     //POST
     @PostMapping
-    public ResponseEntity<?> crearMedioHabilitacion(@RequestBody MedioHabilitacionCreateDTO dto) {
+    public ResponseEntity<?> crearMedioHabilitacion(@RequestBody MedioHabilitacionCreateDTO createDTO) {
         try {
+
             // Validar datos
-            if (dto.getMha_mde_id() == 0) {
-                throw new IllegalArgumentException("El Medio de Elevación es obligatorio.");
+            if (createDTO.getMha_fecha().isEmpty() || createDTO.getMha_expediente().isEmpty() || createDTO.getMha_fecha_vto().isEmpty()
+                || createDTO.getMha_fecha_pago().isEmpty() || createDTO.getMha_fecha_inspec().isEmpty() ) {
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
+            }
+
+            // Validar `mha_inm_padron_guardado` contra `inm_padron`
+            Inmueble inmueble = inmuebleService.buscarInmueblePorPadron(createDTO.getMha_inm_padron_guardado());
+            if (inmueble == null) {
+                throw new IllegalArgumentException("El padron proporcionado no existe.");
             }
 
             // Buscar ID del Medio de Elevación
-            MedioElevacion medioElevacion = medioElevacionService.buscarMedioElevacionPorId(dto.getMha_mde_id());
+            MedioElevacion medioElevacion = medioElevacionService.buscarMedioElevacionPorId(createDTO.getMha_mde_id());
             // Verificar si el ID existe
             if (medioElevacion == null) {
                 throw new IllegalArgumentException("El Medio de Elevación con el ID proporcionado no existe.");
@@ -128,18 +146,18 @@ public class MedioHabilitacionController {
             Empresa empresa = null;
             if (medioElevacion.getEmpresa() == null) {
                 // Si el Medio de Elevación no tiene una empresa asociada, validar el ID de la empresa en el DTO
-                if (dto.getMha_emp_id() == 0) {
+                if (createDTO.getMha_emp_id() == 0) {
                     throw new IllegalArgumentException("La Empresa es obligatoria cuando el Medio de Elevación no tiene una empresa asociada.");
                 }
 
                 // Buscar la Empresa
-                empresa = empresaService.buscarEmpresaPorId(dto.getMha_emp_id());
+                empresa = empresaService.buscarEmpresaPorId(createDTO.getMha_emp_id());
                 if (empresa == null) {
                     throw new IllegalArgumentException("La Empresa con el ID proporcionado no existe.");
                 }
-            } else if (dto.getMha_emp_id() != 0) {
+            } else if (createDTO.getMha_emp_id() != 0) {
                 // Si el Medio de Elevación ya tiene una empresa asociada, validar que el ID de empresa en el DTO sea 0
-                if (dto.getMha_emp_id() != 0) {
+                if (createDTO.getMha_emp_id() != 0) {
                     throw new IllegalArgumentException("Este Medio de Elevación ya tiene una empresa asociada. Envíe el ID de la Empresa como 0.");
                 }
                 // Usar la empresa asociada al Medio de Elevación
@@ -150,21 +168,26 @@ public class MedioHabilitacionController {
             }
 
             // Buscar ID de la Persona
-            Persona persona = personaService.buscarPersonaPorId(dto.getMha_per_id());
+            Persona persona = personaService.buscarPersonaPorId(createDTO.getMha_per_id());
             // Verificar si el ID existe
             if (persona == null) {
                 throw new IllegalArgumentException("La Persona con el ID proporcionado no existe.");
             }
 
             // Buscar ID del Revisor
-            Revisor revisor = revisorService.buscarRevisorPorId(dto.getMha_rev_id());
+            Revisor revisor = revisorService.buscarRevisorPorId(createDTO.getMha_rev_id());
             // Verificar si el ID existe
             if (revisor == null) {
                 throw new IllegalArgumentException("El Revisor con el ID proporcionado no existe.");
             }
 
+            // Validar permisos rev_aprob_mde y rev_renov_mde
+            if (!revisor.isRev_aprob_mde() && !revisor.isRev_renov_mde()) {
+                throw new IllegalArgumentException("El revisor debe tener al menos uno de los campos rev_aprob_mde o rev_renov_mde en true.");
+            }
+
             // Convertir DTO a entidad
-            MedioHabilitacion medioHabilitacion = MedioHabilitacionCreateDTO.toEntity(dto, medioElevacion, empresa, persona, revisor);
+            MedioHabilitacion medioHabilitacion = MedioHabilitacionCreateDTO.toEntity(createDTO, medioElevacion, empresa, persona, revisor);
 
             // Crear Medio-Habilitacion
             MedioHabilitacion nuevoMedioHabilitacion = medioHabilitacionService.createMedioHabilitacion(medioHabilitacion);
@@ -192,12 +215,27 @@ public class MedioHabilitacionController {
     @PutMapping("editar/{id}")
     public ResponseEntity<?> editarMedioHabilitacion(@PathVariable Integer id, @RequestBody MedioHabilitacionUpdateDTO updateDTO) {
         try {
+
             // Obtener ID de Medio-Habilitacion
             MedioHabilitacion medioHabilitacionExistente = medioHabilitacionService.buscarmedioHabilitacionPorId(id);
 
             // Verificar si existe el ID de Medio-Habilitacion
             if (medioHabilitacionExistente == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró el Medio-Habilitacion con el ID proporcionado.");
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el Medio-Habilitacion con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Validar datos
+            if (updateDTO.getMha_fecha().isEmpty() || updateDTO.getMha_expediente().isEmpty() || updateDTO.getMha_fecha_vto().isEmpty()
+                    || updateDTO.getMha_fecha_pago().isEmpty() || updateDTO.getMha_fecha_inspec().isEmpty() ) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("400 BAD REQUEST")
+                        .message("No se permiten datos vacíos.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
             }
 
             /*
@@ -233,20 +271,21 @@ public class MedioHabilitacionController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La Persona con el ID proporcionado no existe.");
             }*/
 
-            // Validar los datos del DTO
-            if (updateDTO.getMha_inm_padron_guardado() == 0 || updateDTO.getMha_fecha().isEmpty() || updateDTO.getMha_expediente().isEmpty() ||
-                updateDTO.getMha_fecha_vto().isEmpty() || updateDTO.getMha_fecha_pago().isEmpty() || updateDTO.getMha_fecha_inspec().isEmpty()){
+            // Obtener y verificar el ID del Revisor
+            Revisor nuevoRevisor = revisorService.buscarRevisorPorId(updateDTO.getMha_rev_id());
+
+            // Verificar si existe el ID del nuevo Revisor
+            if (nuevoRevisor == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
-                        .code("400 BAD REQUEST")
-                        .message("Todos los datos del Medio-Habilitación son obligatorios..")
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el Revisor con el ID proporcionado.")
                         .build();
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            // Obtener y verificar el ID del Revisor
-            Revisor revisor = revisorService.buscarRevisorPorId(updateDTO.getMha_rev_id());
-            if (revisor == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El Revisor con el ID proporcionado no existe.");
+            // Validar permisos rev_aprob_mde y rev_renov_mde
+            if (!nuevoRevisor.isRev_aprob_mde() && !nuevoRevisor.isRev_renov_mde()) {
+                throw new IllegalArgumentException("El revisor debe tener al menos uno de los campos rev_aprob_mde o rev_renov_mde en true.");
             }
 
             // Convertir Strings a LocalDate para las fechas en el DTO
@@ -256,7 +295,7 @@ public class MedioHabilitacionController {
             LocalDate fechaInspec = LocalDate.parse(updateDTO.getMha_fecha_inspec());
 
             // Actualizar los campos del Medio-Habilitación
-            medioHabilitacionExistente.setMha_inm_padron_guardado(updateDTO.getMha_inm_padron_guardado());
+            //medioHabilitacionExistente.setMha_inm_padron_guardado(updateDTO.getMha_inm_padron_guardado());
             //medioHabilitacionExistente.setMedioElevacion(medioElevacion);
             //medioHabilitacionExistente.setEmpresa(empresa);
             //medioHabilitacionExistente.setPersona(persona);
@@ -268,7 +307,7 @@ public class MedioHabilitacionController {
             medioHabilitacionExistente.setMha_habilitado(updateDTO.isMha_habilitado());
             medioHabilitacionExistente.setMha_oblea_entregada(updateDTO.isMha_oblea_entregada());
             medioHabilitacionExistente.setMha_activo(updateDTO.isMha_activo());
-            medioHabilitacionExistente.setRevisor(revisor);
+            medioHabilitacionExistente.setRevisor(nuevoRevisor);
 
             //Actualizar Medio-Habilitación
             medioHabilitacionService.updateMedioHabilitacion(medioHabilitacionExistente);

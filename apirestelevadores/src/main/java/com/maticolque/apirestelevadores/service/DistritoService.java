@@ -12,28 +12,28 @@ public class DistritoService {
     @Autowired
     private DistritoRepository distritoRepository;
 
-    //Mostrar
+    //LISTAR
     public List<Distrito> getAllDistrito(){
         return distritoRepository.findAll();
     }
 
-    //Mostrar por ID
+    //BUSCAR POR ID
     public Distrito buscarDistritoPorId(Integer id)
     {
         return distritoRepository.findById(id).orElse(null);
     }
 
-    //Crear
+    //CREAR
     public Distrito createDistrito(Distrito distrito){
         return distritoRepository.save(distrito);
     }
 
-    //Editar
+    //EDITAR
     public Distrito updateDistrito(Distrito distrito){
         return distritoRepository.save(distrito);
     }
 
-    //ELiminar
+    //ELIMINAR
     public void deleteDistritoById(Integer id){
         distritoRepository.deleteById(id);
     }

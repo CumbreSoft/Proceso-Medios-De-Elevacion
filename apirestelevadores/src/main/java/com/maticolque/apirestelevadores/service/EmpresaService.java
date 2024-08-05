@@ -23,18 +23,18 @@ public class EmpresaService {
     private EmpresaPersonaRepository empresaPersonaRepository;
 
 
-    //Listar todas las Empresas
+    //LISTAR
     public List<Empresa> getAllEmpresa(){
         return empresaRepository.findAll();
     }
 
-    //Listar Empresa por ID
+    //BUSCAR POR ID
     public Empresa buscarEmpresaPorId(Integer id)
     {
         return empresaRepository.findById(id).orElse(null);
     }
 
-    // Método para obtener una empresa por su ID
+    //BUSCAR POR ID V2
     public Empresa obtenerEmpresaPorId(Integer empresaId) {
 
         // Obtener todas las empresas del repositorio
@@ -47,22 +47,21 @@ public class EmpresaService {
                 return empresa;
             }
         }
-
         // Devolver null si no se encuentra ninguna empresa con el ID proporcionado
         return null;
     }
 
-    //Crear Empresa
+    //CREAR
     public Empresa createEmpresa(Empresa empresa){
         return empresaRepository.save(empresa);
     }
 
-    //Editar Empresa
+    //EDITAR
     public Empresa updateEmpresa(Empresa empresa){
         return empresaRepository.save(empresa);
     }
 
-    //Eliminar Empresa
+    //ELIMINAR
     public void deleteEmpresaById(Integer id){
         empresaRepository.deleteById(id);
     }
@@ -92,7 +91,4 @@ public class EmpresaService {
         return ResponseEntity.ok(successDTO);
     }
     /* ****************************************************************************** */
-
-
-
 }

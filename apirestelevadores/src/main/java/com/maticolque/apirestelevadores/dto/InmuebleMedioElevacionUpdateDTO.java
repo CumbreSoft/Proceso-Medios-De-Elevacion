@@ -8,5 +8,5 @@ import lombok.*;
 @NoArgsConstructor
 public class InmuebleMedioElevacionUpdateDTO {
 
-    private int ime_inm_id; // ID de MDE
+    private int ime_inm_id; // ID DE MDE
 }

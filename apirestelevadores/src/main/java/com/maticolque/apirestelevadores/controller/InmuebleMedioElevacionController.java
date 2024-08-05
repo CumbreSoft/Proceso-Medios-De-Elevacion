@@ -80,18 +80,29 @@ public class InmuebleMedioElevacionController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarInmuebleMDEPorId(@PathVariable Integer id) {
         try {
-            InmuebleMedioElevacion medioElevacion = inmuebleMedioElevacionService.buscarInmuebleMDEPorId(id);
 
-            if (medioElevacion == null) {
+            // Buscar InmuebleMDE por ID
+            InmuebleMedioElevacion inmuebleMedioElevacionExistente = inmuebleMedioElevacionService.buscarInmuebleMDEPorId(id);
+
+            // Verificar si existe el ID
+            if (inmuebleMedioElevacionExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
                         .message("El ID que intenta buscar no existe.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(medioElevacion);
             }
+
+            // Convertir la entidad en un DTO
+            InmuebleMedioElevacionReadDTO inmuebleMedioElevacionReadDTO = InmuebleMedioElevacionReadDTO.fromEntity(inmuebleMedioElevacionExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("inmuebleMedioElevacion", inmuebleMedioElevacionReadDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
@@ -105,20 +116,17 @@ public class InmuebleMedioElevacionController {
     @PostMapping
     public ResponseEntity<?> crearInmuebleMDE(@RequestBody InmuebleMedioElevacionCreateDTO createDTO) {
         try {
-            // Validar datos
-            if (createDTO.getIme_inm_id() == 0) {
-                throw new IllegalArgumentException("El Inmueble es obligatorio.");
-            } else if (createDTO.getIme_mde_id() == 0) {
-                throw new IllegalArgumentException("El Medio de Elevación es obligatorio.");
-            }
 
             // Buscar Inmueble y MDE por sus IDs
             Inmueble inmueble = inmuebleService.buscarInmueblePorId(createDTO.getIme_inm_id());
             MedioElevacion medioElevacion = medioElevacionService.buscarMedioElevacionPorId(createDTO.getIme_mde_id());
 
             // Verificar si los IDs existen
-            if (inmueble == null || medioElevacion == null) {
-                throw new IllegalArgumentException("ID de Inmueble o MDE no encontrado.");
+            if (inmueble == null) {
+                throw new IllegalArgumentException("ID de Inmueble no encontrado.");
+            }
+            if(medioElevacion == null){
+                throw new IllegalArgumentException("ID de MDE no encontrado.");
             }
 
             // Convertir DTO a entidad
@@ -149,6 +157,7 @@ public class InmuebleMedioElevacionController {
     @PutMapping("/editarInmuebleDeMedioElevacion/{id}")
     public ResponseEntity<?> actualizarInmuebleDeMedioElevacion(@PathVariable Integer id, @RequestBody InmuebleMedioElevacionUpdateDTO updateDTO) {
         try {
+
             // Obtener ID de Inmueble-MDE
             InmuebleMedioElevacion inmuebleMedioElevacionExistente = inmuebleMedioElevacionService.buscarInmuebleMDEPorId(id);
 

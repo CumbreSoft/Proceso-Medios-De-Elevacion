@@ -1,7 +1,6 @@
 package com.maticolque.apirestelevadores.controller;
 
-import com.maticolque.apirestelevadores.dto.ErrorDTO;
-import com.maticolque.apirestelevadores.dto.RespuestaDTO;
+import com.maticolque.apirestelevadores.dto.*;
 import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.service.EmpresaHabilitacionService;
 import com.maticolque.apirestelevadores.service.HabilitacionDocumentoService;
@@ -17,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -37,135 +37,57 @@ public class HabilitacionDocumentoController {
     private RevisorService revisorService;
 
 
-
-    //METODOS
-    private Map<String, Object> mapHabilitacionDocumento(HabilitacionDocumento habilitacionDocumento) {
-        if (habilitacionDocumento == null) {
-            return null;
-        }
-
-        Map<String, Object> habilitacionDocumentoMap = new LinkedHashMap<>();
-        habilitacionDocumentoMap.put("hdo_id", habilitacionDocumento.getHdo_id());
-        habilitacionDocumentoMap.put("empresaHabilitacion", mapEmpresaHabilitacion(habilitacionDocumento.getEmpresaHabilitacion()));
-        habilitacionDocumentoMap.put("tipoAdjunto", mapTipoAdjunto(habilitacionDocumento.getTipoAdjunto()));
-        habilitacionDocumentoMap.put("hdo_adjunto_orden", habilitacionDocumento.getHdo_adjunto_orden());
-        habilitacionDocumentoMap.put("hdo_adjunto_fecha", habilitacionDocumento.getHdo_adjunto_fecha());
-        habilitacionDocumentoMap.put("revisorInterno", mapRevisorInterno(habilitacionDocumento.getRevisor()));
-        return habilitacionDocumentoMap;
-    }
-
-    private Map<String, Object> mapEmpresaHabilitacion(EmpresaHabilitacion empresaHabilitacion) {
-        if (empresaHabilitacion == null) {
-            return null;
-        }
-
-        Map<String, Object> empresaHabilitacionMap = new LinkedHashMap<>();
-        empresaHabilitacionMap.put("eha_id", empresaHabilitacion.getEha_id());
-        empresaHabilitacionMap.put("eha_fecha", empresaHabilitacion.getEha_fecha());
-        empresaHabilitacionMap.put("empresa", mapEmpresa(empresaHabilitacion.getEmpresa()));
-        empresaHabilitacionMap.put("eha_expediente", empresaHabilitacion.getEha_expediente());
-        empresaHabilitacionMap.put("eha_habilitada", empresaHabilitacion.isEha_habilitada());
-        empresaHabilitacionMap.put("eha_vto_hab", empresaHabilitacion.getEha_vto_hab());
-        empresaHabilitacionMap.put("revisor", mapRevisor(empresaHabilitacion.getRevisor()));
-        empresaHabilitacionMap.put("eha_activo", empresaHabilitacion.isEha_activo());
-        return empresaHabilitacionMap;
-    }
-
-    private Map<String, Object> mapEmpresa(Empresa empresa) {
-        if (empresa == null) {
-            return null;
-        }
-
-        Map<String, Object> empresaMap = new LinkedHashMap<>();
-        empresaMap.put("emp_id", empresa.getEmp_id());
-        empresaMap.put("emp_razon", empresa.getEmp_razon());
-        return empresaMap;
-    }
-
-    private Map<String, Object> mapRevisor(Revisor revisor) {
-        if (revisor == null) {
-            return null;
-        }
-
-        Map<String, Object> revisorMap = new LinkedHashMap<>();
-        revisorMap.put("rev_id", revisor.getRev_id());
-        revisorMap.put("rev_apellido", revisor.getRev_apellido());
-        return revisorMap;
-    }
-
-    private Map<String, Object> mapRevisorInterno(Revisor revisor) {
-        if (revisor == null) {
-            return null;
-        }
-
-        Map<String, Object> revisorInternoMap = new LinkedHashMap<>();
-        revisorInternoMap.put("rev_id", revisor.getRev_id());
-        revisorInternoMap.put("rev_apellido", revisor.getRev_apellido());
-        return revisorInternoMap;
-    }
-
-    private Map<String, Object> mapTipoAdjunto(TipoAdjunto tipoAdjunto) {
-        if (tipoAdjunto == null) {
-            return null;
-        }
-
-        Map<String, Object> tipoAdjuntoMap = new LinkedHashMap<>();
-        tipoAdjuntoMap.put("tad_id", tipoAdjunto.getTad_id());
-        tipoAdjuntoMap.put("tad_nombre", tipoAdjunto.getTad_nombre());
-        tipoAdjuntoMap.put("tad_cod", tipoAdjunto.getTad_cod());
-        tipoAdjuntoMap.put("tad_activo", tipoAdjunto.isTad_activo());
-        return tipoAdjuntoMap;
-    }
-
-    //METODOS
-
-
     //GET
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
+
+            // Obtener la lista de Habilitacion-Documento
             List<HabilitacionDocumento> habilitacionDocumentos = habilitacionDocumentoService.getAllHabilitacionDocumento();
 
+            // Verificar la lista de Habilitacion-Documento
             if (habilitacionDocumentos.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("La base de datos está vacía, no se encontraron Habilitacion de Documentos.")
+                        .message("La base de datos está vacía, no se encontraron Habilitacion-Documento.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //return ResponseEntity.ok(habilitacionDocumentos);
-            List<Map<String, Object>> habilitacionDocumentoDTO = new ArrayList<>();
+            // Convertir la entidad en un DTO
+            List<HabilitacionDocumentoReadDTO> habilitacionDocumentoDTO = new ArrayList<>();
             for (HabilitacionDocumento habilitacionDocumento : habilitacionDocumentos) {
-                Map<String, Object> habilitacionDocumentoMap = mapHabilitacionDocumento(habilitacionDocumento);
-                habilitacionDocumentoDTO.add(habilitacionDocumentoMap);
+                HabilitacionDocumentoReadDTO dto = HabilitacionDocumentoReadDTO.fromEntity(habilitacionDocumento);
+                habilitacionDocumentoDTO.add(dto);
             }
 
+            // Crear mapa para estructurar la respuesta
             Map<String, Object> response = new HashMap<>();
             response.put("habilitacionDocumento", habilitacionDocumentoDTO);
 
+            // Retornar la respuesta
             return ResponseEntity.ok(response);
-
-
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista de Habilitacion de Documentos: " + e.getMessage())
+                    .message("Error al obtener la lista de de Habilitacion-Documento: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
 
-
     //GET POR ID
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarHabilitacionDocumentoPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar HabilitacionDocumento por ID
             HabilitacionDocumento habilitacionDocumentoExistente = habilitacionDocumentoService.buscarHabilitacionDocumentoPorId(id);
 
+            // Verificar si existe el ID
             if (habilitacionDocumentoExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -173,9 +95,17 @@ public class HabilitacionDocumentoController {
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(habilitacionDocumentoExistente);
             }
+
+            // Convertir la entidad en un DTO
+            HabilitacionDocumentoReadDTO habilitacionDocumentoReadDTO = HabilitacionDocumentoReadDTO.fromEntity(habilitacionDocumentoExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("habilitacionDocumento", habilitacionDocumentoReadDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
@@ -186,112 +116,122 @@ public class HabilitacionDocumentoController {
         }
     }
 
-
     //POST
-    /*
     @PostMapping
-    public RespuestaDTO<HabilitacionDocumento> crearHabilitacionDocumento(@RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<?> crearHabilitacionDocumento(@RequestBody HabilitacionDocumentoCreateDTO createDTO) {
         try {
-            // Variables para relacionar
-            Integer eha_id = (Integer) requestData.get("eha_id"); // ID Habilitación Empresas
-            Integer tad_id = (Integer) requestData.get("tad_id"); // ID Tipo Adjunto
-            Integer rev_id = (Integer) requestData.get("rev_id"); // ID Revisor
 
-            // Validaciones
-            if (eha_id == null) {
-                throw new IllegalArgumentException("El ID de Habilitación de Empresa es obligatorio.");
-            }
-            if (tad_id == null) {
-                throw new IllegalArgumentException("El ID del Tipo de Adjunto es obligatorio.");
-            }
-            if (rev_id == null) {
-                throw new IllegalArgumentException("El ID del Revisor es obligatorio.");
+            // Validar datos
+            if (createDTO.getHdo_adjunto_orden() == 0 || createDTO.getHdo_adjunto_fecha().isEmpty()) {
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
-            // Buscar Habilitación Empresas por su ID
-            EmpresaHabilitacion empresaHabilitacion = empresaHabilitacionService.buscarEmpresaHabilitacionPorId(eha_id);
+            // Buscar Empresa Habilitacion, Tipo Adjunto y Revisor por sus IDs
+            EmpresaHabilitacion empresaHabilitacion = empresaHabilitacionService.buscarEmpresaHabilitacionPorId(createDTO.getHdo_eha_id());
+            TipoAdjunto tipoAdjunto = tipoAdjuntoService.buscarTipoAdjuntoPorId(createDTO.getHdo_tad_id());
+            Revisor revisor = revisorService.buscarRevisorPorId(createDTO.getHdo_rev_id());
+
+            // Verificar si los IDs existen
             if (empresaHabilitacion == null) {
-                throw new IllegalArgumentException("No se encontró una Habilitación Empresa con el ID: " + eha_id);
+                throw new IllegalArgumentException("ID de Empresa-Habilitacion no encontrado.");
+            }
+            if(tipoAdjunto == null){
+                throw new IllegalArgumentException("ID del TipoAdjunto no encontrado.");
+            }
+            if(revisor == null){
+                throw new IllegalArgumentException("ID del Revisor no encontrado.");
             }
 
-            // Buscar Tipo Adjunto por su ID
-            TipoAdjunto tipoAdjunto = tipoAdjuntoService.buscarTipoAdjuntoPorId(tad_id);
-            if (tipoAdjunto == null) {
-                throw new IllegalArgumentException("No se encontró un Tipo de Adjunto con el ID: " + tad_id);
+            // Validar permiso isRev_aprob_emp
+            if (!revisor.isRev_aprob_emp()) {
+                throw new IllegalArgumentException("El revisor debe tener el campo isRev_aprob_emp en true.");
             }
 
-            // Extraer valores adicionales
-            Integer hdo_adjunto_orden = (Integer) requestData.get("hdo_adjunto_orden");
-            String hdo_adjunto_fecha_str = (String) requestData.get("hdo_adjunto_fecha");
+            // Convertir DTO a entidad
+            HabilitacionDocumento habilitacionDocumento = HabilitacionDocumentoCreateDTO.toEntity(createDTO, empresaHabilitacion, tipoAdjunto, revisor);
 
-            if (hdo_adjunto_orden == null) {
-                throw new IllegalArgumentException("El orden del adjunto es obligatorio.");
-            }
-            if (hdo_adjunto_fecha_str == null) {
-                throw new IllegalArgumentException("La fecha del adjunto es obligatoria.");
-            }
+            // Crear Habilitacion-Documento
+            HabilitacionDocumento nuevaHabilitacionDocumento = habilitacionDocumentoService.createHabilitacionDocumento(habilitacionDocumento);
 
-            // Convertir la fecha de String a Date
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            Date hdo_adjunto_fecha;
-            try {
-                hdo_adjunto_fecha = formatter.parse(hdo_adjunto_fecha_str);
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("El formato de la fecha del adjunto no es válido: " + hdo_adjunto_fecha_str);
-            }
+            // Convertir entidad a DTO
+            HabilitacionDocumentoReadDTO nuevaHabilitacionDocumentoReadDTO = HabilitacionDocumentoReadDTO.fromEntity(nuevaHabilitacionDocumento);
 
-            // Filtrar revisores por rev_aprob_emp
-            Revisor revisor = revisorService.buscarRevisorPorId(rev_id);
-            if (revisor == null || !revisor.isRev_aprob_emp()) {
-                throw new IllegalArgumentException("No se encontró un Revisor aprobado con el ID: " + rev_id);
-            }
-
-            // Crear la entidad de HabilitacionDocumento y establecer las relaciones
-            HabilitacionDocumento habilitacionDocumento = new HabilitacionDocumento();
-            habilitacionDocumento.setEmpresaHabilitacion(empresaHabilitacion);
-            habilitacionDocumento.setTipoAdjunto(tipoAdjunto);
-            habilitacionDocumento.setHdo_adjunto_orden(hdo_adjunto_orden);
-            habilitacionDocumento.setHdo_adjunto_fecha(hdo_adjunto_fecha);
-            habilitacionDocumento.setRevisor(revisor);
-
-            // Llamar al servicio para crear el Habilitación Documento
-            HabilitacionDocumento nuevoHabilitacionDocumento = habilitacionDocumentoService.createHabilitacionDocumento(habilitacionDocumento);
-
-            return new RespuestaDTO<>(nuevoHabilitacionDocumento, "Habilitación Documento creado con éxito.");
+            // Mandar respuesta
+            RespuestaDTO<HabilitacionDocumentoReadDTO> respuesta = new RespuestaDTO<>(nuevaHabilitacionDocumentoReadDTO, "Habilitacion-Documento", "Habilitacion-Documento creado con éxito.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear una nueva Habilitación de Documentos: " + e.getMessage());
-
+            ErrorDTO errorDTO = new ErrorDTO("400 BAD REQUEST", "Error al crear un nuevo Habilitacion-Documento: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         } catch (Exception e) {
-            return new RespuestaDTO<>(null, "Error al crear una nueva Habilitación de Documentos: " + e.getMessage());
+            // Capturar cualquier otra excepción
+            ErrorDTO errorDTO = new ErrorDTO("500 INTERNAL SERVER ERROR", "Error al crear un nuevo Habilitacion-Documento: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
-    }*/
-
+    }
 
     //PUT
     @PutMapping("editar/{id}")
-    //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> actualizarHabilitacionDocumento(@PathVariable Integer id, @RequestBody HabilitacionDocumento habilitacionDocumento) {
+    public ResponseEntity<?> actualizarHabilitacionDocumento(@PathVariable Integer id, @RequestBody HabilitacionDocumentoUpdateDTO updateDTO) {
         try {
-            // Lógica para modificar Habilitación Documentos
+
+            // Obtener ID de Habilitacion-Documento
             HabilitacionDocumento habilitacionDocumentoExistente = habilitacionDocumentoService.buscarHabilitacionDocumentoPorId(id);
 
+            // Verificar si existe el ID de Habilitacion-Documento
             if (habilitacionDocumentoExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("El ID que intenta modificar no existe.")
+                        .message("No se encontró el Habilitacion-Documento con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //Modificar valores
-            habilitacionDocumentoExistente.setEmpresaHabilitacion(habilitacionDocumento.getEmpresaHabilitacion());
-            habilitacionDocumentoExistente.setTipoAdjunto(habilitacionDocumento.getTipoAdjunto());
-            habilitacionDocumentoExistente.setHdo_adjunto_orden(habilitacionDocumento.getHdo_adjunto_orden());
-            habilitacionDocumentoExistente.setHdo_adjunto_fecha(habilitacionDocumento.getHdo_adjunto_fecha());
-            habilitacionDocumentoExistente.setRevisor(habilitacionDocumento.getRevisor());
+            // Validar los datos del DTO
+            if (updateDTO.getHdo_adjunto_orden() == 0 || updateDTO.getHdo_adjunto_fecha().isEmpty()){
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("400 BAD REQUEST")
+                        .message("No se permiten datos vacíos.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+            }
 
+            // Obtener ID del nuevo TipoAdjunto y Revisor
+            TipoAdjunto tipoAdjunto = tipoAdjuntoService.buscarTipoAdjuntoPorId(updateDTO.getHdo_tad_id());
+            Revisor revisor = revisorService.buscarRevisorPorId(updateDTO.getHdo_rev_id());
+
+            // Verificar si los IDs existen
+            if(tipoAdjunto == null){
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el TipoAdjunto con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+            if(revisor == null){
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el Revisor con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Validar permiso isRev_aprob_emp
+            if (!revisor.isRev_aprob_emp()) {
+                throw new IllegalArgumentException("El revisor debe tener el campo isRev_aprob_emp en true.");
+            }
+
+            // Convertir Strings a LocalDate para las fechas en el DTO
+            LocalDate fecha = LocalDate.parse(updateDTO.getHdo_adjunto_fecha());
+
+            // Actualizar los campos de Habilitacion-Documento
+            habilitacionDocumentoExistente.setTipoAdjunto(tipoAdjunto);
+            habilitacionDocumentoExistente.setHdo_adjunto_orden(updateDTO.getHdo_adjunto_orden());
+            habilitacionDocumentoExistente.setHdo_adjunto_fecha(fecha);
+            habilitacionDocumentoExistente.setRevisor(revisor);
+
+            //Actualizar Medio-Documento
             habilitacionDocumentoService.updateHabilitacionDocumento(habilitacionDocumentoExistente);
 
             ErrorDTO errorDTO = ErrorDTO.builder()
@@ -304,12 +244,11 @@ public class HabilitacionDocumentoController {
             // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("404 NOT FOUND")
-                    .message("Error al modificar la Habilitacion de Documentos."+ e.getMessage())
+                    .message("Error al modificar la Habilitacion-Documento."+ e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
     }
-
 
     //DELETE
     @DeleteMapping("eliminar/{id}")

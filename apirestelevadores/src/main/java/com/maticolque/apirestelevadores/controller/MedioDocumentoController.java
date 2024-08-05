@@ -1,7 +1,6 @@
 package com.maticolque.apirestelevadores.controller;
 
-import com.maticolque.apirestelevadores.dto.ErrorDTO;
-import com.maticolque.apirestelevadores.dto.RespuestaDTO;
+import com.maticolque.apirestelevadores.dto.*;
 import com.maticolque.apirestelevadores.model.*;
 import com.maticolque.apirestelevadores.service.MedioDocumentoService;
 import com.maticolque.apirestelevadores.service.MedioHabilitacionService;
@@ -14,8 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -35,166 +33,54 @@ public class MedioDocumentoController {
     private RevisorService revisorService;
 
 
-
-    //METODOS
-    private Map<String, Object> mapMedioDocumento(MedioDocumento medioDocumento) {
-        if (medioDocumento == null) {
-            return null;
-        }
-
-        Map<String, Object> medioDocumentoMap = new LinkedHashMap<>();
-        medioDocumentoMap.put("mdo_id", medioDocumento.getMdo_id());
-        medioDocumentoMap.put("mdeHabilitacion", mapMedioHabilitacion(medioDocumento.getMedioHabilitacion()));
-        medioDocumentoMap.put("tipoAdjunto", mapTipoAdjunto(medioDocumento.getTipoAdjunto()));
-        medioDocumentoMap.put("mdo_adjunto_orden", medioDocumento.getMdo_adjunto_orden());
-        medioDocumentoMap.put("mdo_adjunto_fecha", medioDocumento.getMdo_adjunto_fecha());
-        medioDocumentoMap.put("revisorInterno", mapRevisorInterno(medioDocumento.getRevisor()));
-
-        return medioDocumentoMap;
-    }
-
-    private Map<String, Object> mapMedioHabilitacion(MedioHabilitacion medioHabilitacion) {
-        if (medioHabilitacion == null) {
-            return null;
-        }
-
-        Map<String, Object> mdeHabilitacionMap = new LinkedHashMap<>();
-        mdeHabilitacionMap.put("mha_id", medioHabilitacion.getMha_id());
-        mdeHabilitacionMap.put("mha_inm_padron_guardado", medioHabilitacion.getMha_inm_padron_guardado());
-        mdeHabilitacionMap.put("medioElevacion", mapMDE(medioHabilitacion.getMedioElevacion()));
-        mdeHabilitacionMap.put("empresa", mapEmpresa(medioHabilitacion.getEmpresa()));
-        mdeHabilitacionMap.put("persona", mapPersona(medioHabilitacion.getPersona()));
-
-        mdeHabilitacionMap.put("mha_fecha", medioHabilitacion.getMha_fecha());
-        mdeHabilitacionMap.put("mha_expediente", medioHabilitacion.getMha_expediente());
-        mdeHabilitacionMap.put("mha_fecha_vto", medioHabilitacion.getMha_fecha_vto());
-        mdeHabilitacionMap.put("mha_fecha_pago", medioHabilitacion.getMha_fecha_pago());
-        mdeHabilitacionMap.put("mha_fecha_inspec", medioHabilitacion.getMha_fecha_inspec());
-        mdeHabilitacionMap.put("mha_habilitado", medioHabilitacion.isMha_habilitado());
-        mdeHabilitacionMap.put("mha_oblea_entregada", medioHabilitacion.isMha_oblea_entregada());
-        mdeHabilitacionMap.put("revisor", mapRevisor(medioHabilitacion.getRevisor()));
-        mdeHabilitacionMap.put("mha_activo", medioHabilitacion.isMha_activo());
-
-        return mdeHabilitacionMap;
-
-    }
-
-    //MDE
-    private Map<String, Object> mapMDE(MedioElevacion medioElevacion) {
-        if (medioElevacion == null) {
-            return null;
-        }
-
-        Map<String, Object> mdeMap = new LinkedHashMap<>();
-        mdeMap.put("mde_id", medioElevacion.getMde_id());
-        mdeMap.put("mde_ubicacion", medioElevacion.getMde_ubicacion());
-        mdeMap.put("tma_detalle", medioElevacion.getTiposMaquinas().getTma_detalle());
-        return mdeMap;
-    }
-
-    //EMPRESA
-    private Map<String, Object> mapEmpresa(Empresa empresa) {
-        if (empresa == null) {
-            return null;
-        }
-
-        Map<String, Object> empresaMap = new LinkedHashMap<>();
-        empresaMap.put("emp_id", empresa.getEmp_id());
-        empresaMap.put("emp_razon", empresa.getEmp_razon());
-        return empresaMap;
-    }
-
-    //PERSONA
-    private Map<String, Object> mapPersona(Persona persona) {
-        if (persona == null) {
-            return null;
-        }
-
-        Map<String, Object> personaMap = new LinkedHashMap<>();
-        personaMap.put("per_id", persona.getPer_id());
-        personaMap.put("per_apellido", persona.getPer_apellido());
-        return personaMap;
-    }
-
-    private Map<String, Object> mapRevisor(Revisor revisor) {
-        if (revisor == null) {
-            return null;
-        }
-
-        Map<String, Object> revisorMap = new LinkedHashMap<>();
-        revisorMap.put("rev_id", revisor.getRev_id());
-        revisorMap.put("rev_apellido", revisor.getRev_apellido());
-        return revisorMap;
-    }
-
-    private Map<String, Object> mapRevisorInterno(Revisor revisor) {
-        if (revisor == null) {
-            return null;
-        }
-
-        Map<String, Object> revisorInternoMap = new LinkedHashMap<>();
-        revisorInternoMap.put("rev_id", revisor.getRev_id());
-        revisorInternoMap.put("rev_apellido", revisor.getRev_apellido());
-        return revisorInternoMap;
-    }
-    private Map<String, Object> mapTipoAdjunto(TipoAdjunto tipoAdjunto) {
-        if (tipoAdjunto == null) {
-            return null;
-        }
-
-        Map<String, Object> tipoAdjuntoMap = new LinkedHashMap<>();
-        tipoAdjuntoMap.put("tad_id", tipoAdjunto.getTad_id());
-        tipoAdjuntoMap.put("tad_nombre", tipoAdjunto.getTad_nombre());
-        tipoAdjuntoMap.put("tad_cod", tipoAdjunto.getTad_cod());
-        tipoAdjuntoMap.put("tad_activo", tipoAdjunto.isTad_activo());
-        return tipoAdjuntoMap;
-    }
-
-
-
-
     //GET
     @GetMapping
     public ResponseEntity<?> listarTodo() {
         try {
+
+            // Obtener la lista de Medio-Documento
             List<MedioDocumento> mediosDocumentos = medioDocumentoService.getAllMedioDocumento();
 
+            // Verificar la lista de Medio-Documento
             if (mediosDocumentos.isEmpty()) {
                 // Crear instancia de ErrorDTO con el código de error y el mensaje
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("La base de datos está vacía, no se encontraron Medios Documento.")
+                        .message("La base de datos está vacía, no se encontraron Medio-Documento.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //return ResponseEntity.ok(mediosDocumento);
-            List<Map<String, Object>> medioDocumentoDTO = new ArrayList<>();
+            // Convertir la entidad en un DTO
+            List<MedioDocumentoReadDTO> medioDocumentoDTO = new ArrayList<>();
             for (MedioDocumento medioDocumento : mediosDocumentos) {
-                Map<String, Object> medioDocuementoMap = mapMedioDocumento(medioDocumento);
-                medioDocumentoDTO.add(medioDocuementoMap);
+                MedioDocumentoReadDTO dto = MedioDocumentoReadDTO.fromEntity(medioDocumento);
+                medioDocumentoDTO.add(dto);
             }
 
+            // Crear mapa para estructurar la respuesta
             Map<String, Object> response = new HashMap<>();
             response.put("medioDocumento", medioDocumentoDTO);
 
+            // Retornar la respuesta
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Crear instancia de ErrorDTO con el código de error y el mensaje
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
-                    .message("Error al obtener la lista de Medios Documento: " + e.getMessage())
+                    .message("Error al obtener la lista de Medio-Documento: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
     }
 
-
     //GET POR ID
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarMedioDocumentoPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar MedioDocumento por ID
             MedioDocumento medioDocumentoExistente = medioDocumentoService.buscarMedioDocumentoPorId(id);
 
             if (medioDocumentoExistente == null) {
@@ -204,9 +90,17 @@ public class MedioDocumentoController {
                         .message("El ID que intenta buscar no existe.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
-            } else {
-                return ResponseEntity.ok(medioDocumentoExistente);
             }
+
+            // Convertir la entidad en un DTO
+            MedioDocumentoReadDTO medioDocumentoReadDTO = MedioDocumentoReadDTO.fromEntity(medioDocumentoExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("medioDocumento", medioDocumentoReadDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
@@ -217,117 +111,121 @@ public class MedioDocumentoController {
         }
     }
 
-
     //POST
-    /*
     @PostMapping
-    public RespuestaDTO<MedioDocumento> crearMedioDocumento(@RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<?> crearMedioDocumento(@RequestBody MedioDocumentoCreateDTO createDTO) {
         try {
-
-            // Variables para relacionar
-            Integer mha_id = (Integer) requestData.get("mha_id"); // ID Habilitación MDE
-            Integer tad_id = (Integer) requestData.get("tad_id"); // ID Tipo Adjunto
-            Integer rev_id = (Integer) requestData.get("rev_id"); // ID Revisor
-
-            // Validaciones
-            if (mha_id == null) {
-                throw new IllegalArgumentException("El ID de Habilitación de MDE es obligatorio.");
-            }
-            if (tad_id == null) {
-                throw new IllegalArgumentException("El ID del Tipo de Adjunto es obligatorio.");
-            }
-            if (rev_id == null) {
-                throw new IllegalArgumentException("El ID del Revisor es obligatorio.");
+            // Validar datos
+            if (createDTO.getMdo_adjunto_orden() == 0 || createDTO.getMdo_adjunto_fecha().isEmpty()) {
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
-            // Buscar Habilitación Empresas por su ID
-            MedioHabilitacion medioHabilitacion = medioHabilitacionService.buscarmedioHabilitacionPorId(mha_id);
+            // Buscar Medio Habilitacion, Tipo Adjunto y Revisor por sus IDs
+            MedioHabilitacion medioHabilitacion = medioHabilitacionService.buscarmedioHabilitacionPorId(createDTO.getMdo_mha_id());
+            TipoAdjunto tipoAdjunto = tipoAdjuntoService.buscarTipoAdjuntoPorId(createDTO.getMdo_tad_id());
+            Revisor revisor = revisorService.buscarRevisorPorId(createDTO.getMdo_rev_id());
+
+            // Verificar si los IDs existen
             if (medioHabilitacion == null) {
-                throw new IllegalArgumentException("No se encontró una MDE con el ID: " + mha_id);
+                throw new IllegalArgumentException("ID del Medio-Habilitacion no encontrado.");
             }
-
-            // Buscar Tipo Adjunto por su ID
-            TipoAdjunto tipoAdjunto = tipoAdjuntoService.buscarTipoAdjuntoPorId(tad_id);
             if (tipoAdjunto == null) {
-                throw new IllegalArgumentException("No se encontró un Tipo de Adjunto con el ID: " + tad_id);
+                throw new IllegalArgumentException("ID del TipoAdjunto no encontrado.");
+            }
+            if (revisor == null) {
+                throw new IllegalArgumentException("ID del Revisor no encontrado.");
             }
 
-
-            // Extraer valores adicionales
-            Integer mdo_adjunto_orden = (Integer) requestData.get("mdo_adjunto_orden");
-            String mdo_adjunto_fecha_str = (String) requestData.get("mdo_adjunto_fecha");
-
-            if (mdo_adjunto_orden == null) {
-                throw new IllegalArgumentException("El orden del adjunto es obligatorio.");
-            }
-            if (mdo_adjunto_fecha_str == null) {
-                throw new IllegalArgumentException("La fecha del adjunto es obligatoria.");
+            // Validar permisos rev_aprob_mde y rev_renov_mde
+            if (!revisor.isRev_aprob_mde() && !revisor.isRev_renov_mde()) {
+                throw new IllegalArgumentException("El revisor debe tener al menos uno de los campos rev_aprob_mde o rev_renov_mde en true.");
             }
 
-            // Convertir la fecha de String a Date
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            Date mdo_adjunto_fecha;
-            try {
-                mdo_adjunto_fecha = formatter.parse(mdo_adjunto_fecha_str);
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("El formato de la fecha del adjunto no es válido: " + mdo_adjunto_fecha_str);
-            }
+            // Convertir DTO a entidad
+            MedioDocumento medioDocumento = MedioDocumentoCreateDTO.toEntity(createDTO, medioHabilitacion, tipoAdjunto, revisor);
 
-            // Filtrar revisores por rev_aprob_emp
-            Revisor revisor = revisorService.buscarRevisorPorId(rev_id);
-            if (revisor == null || !revisor.isRev_aprob_mde() && !revisor.isRev_renov_mde()) {
-                throw new IllegalArgumentException("No se encontró un Revisor aprobado con el ID: " + rev_id);
-            }
-
-
-            // Crear la entidad de HabilitacionDocumento y establecer las relaciones
-            MedioDocumento medioDocumento = new MedioDocumento();
-            medioDocumento.setMedioHabilitacion(medioHabilitacion);
-            medioDocumento.setTipoAdjunto(tipoAdjunto);
-            medioDocumento.setMdo_adjunto_orden(mdo_adjunto_orden);
-            medioDocumento.setMdo_adjunto_fecha(mdo_adjunto_fecha);
-            medioDocumento.setRevisor(revisor);
-
-            // Llamar al servicio para crear el Habilitación Documento
+            // Crear Empresa-Habilitacion
             MedioDocumento nuevoMedioDocumento = medioDocumentoService.createMedioDocumento(medioDocumento);
 
-            return new RespuestaDTO<>(nuevoMedioDocumento, "MDE creado con éxito.");
+            // Convertir entidad a DTO
+            MedioDocumentoReadDTO nuevoMedioDocumentoReadDTO = MedioDocumentoReadDTO.fromEntity(nuevoMedioDocumento);
+
+            // Mandar respuesta
+            RespuestaDTO<MedioDocumentoReadDTO> respuesta = new RespuestaDTO<>(nuevoMedioDocumentoReadDTO, "Medio-Documento", "Medio-Documento creado con éxito.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
 
         } catch (IllegalArgumentException e) {
             // Capturar excepción de validación
-            return new RespuestaDTO<>(null, "Error al crear un nuevo MDE: " + e.getMessage());
+            ErrorDTO errorDTO = new ErrorDTO("400 BAD REQUEST", "Error al crear un nuevo Medio-Documento: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         } catch (Exception e) {
-            // Capturar otras excepciones
-            e.printStackTrace();
-            return new RespuestaDTO<>(null, "Error al crear un nuevo MDE: " + e.getMessage());
+            // Capturar cualquier otra excepción
+            ErrorDTO errorDTO = new ErrorDTO("500 INTERNAL SERVER ERROR", "Error al crear un nuevo Medio-Documento: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDTO);
         }
-    }*/
-
+    }
 
     //PUT
     @PutMapping("editar/{id}")
-    //@ResponseStatus(HttpStatus.OK) // Puedes usar esta anotación si solo quieres cambiar el código de estado HTTP
-    public ResponseEntity<?> actualizarMedioDocumento(@PathVariable Integer id, @RequestBody MedioDocumento medioDocumento) {
+    public ResponseEntity<?> actualizarMedioDocumento(@PathVariable Integer id, @RequestBody MedioDocumentoUpdateDTO updateDTO) {
         try {
-            // Lógica para modificar el Medio Documento
+
+            // Obtener ID del Medio-Documento
             MedioDocumento medioDocumentoExistente = medioDocumentoService.buscarMedioDocumentoPorId(id);
 
+            // Verificar si existe el ID del Medio-Documento
             if (medioDocumentoExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
-                        .message("El ID que intenta modificar no existe.")
+                        .message("No se encontró el Medio-Documento con el ID proporcionado.")
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
             }
 
-            //Modificar valores
-            medioDocumentoExistente.setMedioHabilitacion(medioDocumento.getMedioHabilitacion());
-            medioDocumentoExistente.setTipoAdjunto(medioDocumento.getTipoAdjunto());
-            medioDocumentoExistente.setMdo_adjunto_orden(medioDocumento.getMdo_adjunto_orden());
-            medioDocumentoExistente.setMdo_adjunto_fecha(medioDocumento.getMdo_adjunto_fecha());
-            medioDocumentoExistente.setRevisor(medioDocumento.getRevisor());
+            // Validar datos
+            if (updateDTO.getMdo_adjunto_orden() == 0 || updateDTO.getMdo_adjunto_fecha().isEmpty()){
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("400 BAD REQUEST")
+                        .message("No se permiten datos vacíos.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+            }
 
-            // Agrega más propiedades según tu modelo
+            // Obtener ID del nuevo TipoAdjunto y Revisor
+            TipoAdjunto tipoAdjunto = tipoAdjuntoService.buscarTipoAdjuntoPorId(updateDTO.getMdo_tad_id());
+            Revisor revisor = revisorService.buscarRevisorPorId(updateDTO.getMdo_rev_id());
+
+            // Verificar si los IDs existen
+            if (tipoAdjunto == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el TipoAdjunto con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+            if (revisor == null) {
+                ErrorDTO errorDTO = ErrorDTO.builder()
+                        .code("404 NOT FOUND")
+                        .message("No se encontró el Revisor con el ID proporcionado.")
+                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
+            }
+
+            // Validar permisos rev_aprob_mde y rev_renov_mde
+            if (!revisor.isRev_aprob_mde() && !revisor.isRev_renov_mde()) {
+                throw new IllegalArgumentException("El revisor debe tener al menos uno de los campos rev_aprob_mde o rev_renov_mde en true.");
+            }
+
+            // Convertir Strings a LocalDate para las fechas en el DTO
+            LocalDate fecha = LocalDate.parse(updateDTO.getMdo_adjunto_fecha());
+
+            // Actualizar los campos del Medio-Documento
+            medioDocumentoExistente.setTipoAdjunto(tipoAdjunto);
+            medioDocumentoExistente.setMdo_adjunto_orden(updateDTO.getMdo_adjunto_orden());
+            medioDocumentoExistente.setMdo_adjunto_fecha(fecha);
+            medioDocumentoExistente.setRevisor(revisor);
+
+            //Actualizar Medio-Documento
             medioDocumentoService.updateMedioDocumento(medioDocumentoExistente);
 
             ErrorDTO errorDTO = ErrorDTO.builder()
@@ -339,13 +237,12 @@ public class MedioDocumentoController {
         } catch (Exception e) {
             // Manejar otras excepciones no específicas y devolver un código y mensaje genéricos
             ErrorDTO errorDTO = ErrorDTO.builder()
-                    .code("404 NOT FOUND")
-                    .message("Error al modificar el Medio Documento. " + e.getMessage())
+                    .code("500 INTERNAL SERVER ERROR")
+                    .message("Error al modificar el Medio-Documento: " + e.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
         }
     }
-
 
     //DELETE
     @DeleteMapping("eliminar/{id}")

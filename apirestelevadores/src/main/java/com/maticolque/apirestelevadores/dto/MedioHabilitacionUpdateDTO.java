@@ -9,10 +9,10 @@ import lombok.*;
 @NoArgsConstructor
 public class MedioHabilitacionUpdateDTO {
 
-    private int mha_inm_padron_guardado;
+    /*private int mha_inm_padron_guardado;
     private int mha_mde_id; // ID MDE
     private int mha_emp_id; // ID EMPRESA
-    private int mha_per_id; // ID PERSONA
+    private int mha_per_id; // ID PERSONA*/
     private String mha_fecha;
     private String mha_expediente;
     private String mha_fecha_vto;

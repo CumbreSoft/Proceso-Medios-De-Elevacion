@@ -13,8 +13,8 @@ public class EmpresaPersonaReadDTO {
     private int epe_id;
     private boolean epe_es_dueno_emp;
     private boolean epe_es_reptec_emp;
-    private EmpresaDTO empresa; // Detalles de la Empresa
-    private PersonaDTO persona; // Detalles de la Persona
+    private EmpresaDTO empresa; // DETALLES DE LA EMPRESA
+    private PersonaDTO persona; // DETALLES DE LA PERSONA
 
     public static EmpresaPersonaReadDTO fromEntity(EmpresaPersona empresaPersona) {
 

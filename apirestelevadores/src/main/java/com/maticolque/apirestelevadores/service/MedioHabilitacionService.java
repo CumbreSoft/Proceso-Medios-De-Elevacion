@@ -14,28 +14,21 @@ public class MedioHabilitacionService {
     @Autowired
     private MedioHabilitacionRepository medioHabilitacionRepository;
 
-    //Mostrar Medio Habilitacion
+    //LISTAR
     public List<MedioHabilitacion> getAllMedioHabilitacion(){
         return medioHabilitacionRepository.findAll();
     }
 
-    //Mostrar por ID
-    public MedioHabilitacion buscarmedioHabilitacionPorId(Integer id)
-    {
-        return medioHabilitacionRepository.findById(id).orElse(null);
-    }
+    //BUSCAR POR ID
+    public MedioHabilitacion buscarmedioHabilitacionPorId(Integer id) {return medioHabilitacionRepository.findById(id).orElse(null);}
 
-    //Crear Medio Habilitacion
-    public MedioHabilitacion createMedioHabilitacion(MedioHabilitacion medioHabilitacion){
-        return medioHabilitacionRepository.save(medioHabilitacion);
-    }
+    //CREAR
+    public MedioHabilitacion createMedioHabilitacion(MedioHabilitacion medioHabilitacion){return medioHabilitacionRepository.save(medioHabilitacion);}
 
-    //Editar Medio Habilitacion
-    public MedioHabilitacion updateMedioHabilitacion(MedioHabilitacion medioHabilitacion){
-        return medioHabilitacionRepository.save(medioHabilitacion);
-    }
+    //EDITAR
+    public MedioHabilitacion updateMedioHabilitacion(MedioHabilitacion medioHabilitacion){return medioHabilitacionRepository.save(medioHabilitacion);}
 
-    //Eliminar Medio Habilitacion
+    //ELIMINAR
     public void deleteMedioHabilitacionById(Integer id){
         medioHabilitacionRepository.deleteById(id);
     }

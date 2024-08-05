@@ -69,8 +69,11 @@ public class DistritoController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarDistritoPorId(@PathVariable Integer id) {
         try {
+
+            // Buscar Distrito por ID
             Distrito distritoExistente = distritoService.buscarDistritoPorId(id);
 
+            // Verificar si existe el ID
             if (distritoExistente == null) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("404 NOT FOUND")
@@ -78,9 +81,18 @@ public class DistritoController {
                         .build();
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDTO);
 
-            } else {
-                return ResponseEntity.ok(distritoExistente);
             }
+
+            // Convertir la entidad en un DTO
+            DistritoDTO distritoDTO = DistritoDTO.fromEntity(distritoExistente);
+
+            // Crear mapa para estructurar la respuesta
+            Map<String, Object> response = new HashMap<>();
+            response.put("distrito", distritoDTO);
+
+            // Retornar la respuesta
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             ErrorDTO errorDTO = ErrorDTO.builder()
                     .code("ERR_INTERNAL_SERVER_ERROR")
@@ -94,9 +106,10 @@ public class DistritoController {
     @PostMapping
     public ResponseEntity<?> crearDistrito(@RequestBody DistritoDTO distritoDTO) {
         try {
+
             // Validar datos
-            if (distritoDTO.getDis_codigo() == null || distritoDTO.getDis_nombre().isEmpty()) {
-                throw new IllegalArgumentException("Todos los datos de Distrito son obligatorios.");
+            if (distritoDTO.getDis_codigo().isEmpty() || distritoDTO.getDis_nombre().isEmpty()) {
+                throw new IllegalArgumentException("No se permiten datos vacíos.");
             }
 
             // Convertir DTO a entidad
@@ -127,6 +140,7 @@ public class DistritoController {
     @PutMapping("editar/{id}")
     public ResponseEntity<?> actualizarDistrito(@PathVariable Integer id, @RequestBody DistritoDTO distritoDTO) {
         try {
+
             // Buscar el Distrito por ID
             Distrito distritoExistente = distritoService.buscarDistritoPorId(id);
 
@@ -143,7 +157,7 @@ public class DistritoController {
             if (distritoDTO.getDis_codigo().isEmpty() || distritoDTO.getDis_nombre().isEmpty()) {
                 ErrorDTO errorDTO = ErrorDTO.builder()
                         .code("400 BAD REQUEST")
-                        .message("Todos los datos del Distrito son obligatorios.")
+                        .message("No se permiten datos vacíos.")
                         .build();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
             }

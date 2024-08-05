@@ -44,5 +44,4 @@ public class TipoMaquina {
     @LastModifiedDate
     @Column(name = "tma_fecha_modificacion")
     private LocalDateTime fecha_modificacion;
-
 }
